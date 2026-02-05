@@ -1,21 +1,23 @@
+
+
 {
   "name": "yousaf-baloch-md",
   "version": "1.0.0",
-  "description": "Multi-Device WhatsApp Bot by Yousaf Baloch",
+  "description": "Advanced WhatsApp Bot by Yousaf Baloch",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": ["whatsapp", "bot", "md", "baileys"],
+  "author": "Yousaf Baloch",
+  "license": "MIT",
   "dependencies": {
     "@whiskeysockets/baileys": "latest",
-    "pino": "^8.14.1",
     "qrcode-terminal": "^0.12.0",
-    "axios": "^1.4.0",
-    "file-type": "^18.5.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "ytdl-core": "latest",
-    "yt-search": "latest",
-    "cheerio": "^1.0.0-rc.12"
+    "pino": "^8.16.0",
+    "chalk": "^4.1.2",
+    "figlet": "^1.7.0",
+    "moment-timezone": "^0.5.43"
   }
 }
-
