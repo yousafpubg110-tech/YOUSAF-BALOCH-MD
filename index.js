@@ -1,117 +1,139 @@
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-    fetchLatestBaileysVersion,
-    generateForwardMessageContent,
-    prepareWAMessageMedia,
-    generateWAMessageFromContent,
-    generateMessageID,
-    downloadContentFromMessage,
-    makeInMemoryStore,
-    jidDecode,
-    proto
-} = require("@whiskeysockets/baileys")
-const pino = require('pino')
-const { Boom } = require('@hapi/boom')
-const fs = require('fs')
-const axios = require('axios')
-const chalk = require('chalk')
-const figlet = require('figlet')
-require('./config')
+import './config.js';
+import { createRequire } from 'module';
+import path, { join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { platform } from 'process';
+import * as ws from 'ws';
+import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch } from 'fs';
+import yargs from 'yargs';
+import { spawn } from 'child_process';
+import lodash from 'lodash';
+import chalk from 'chalk';
+import syntaxerror from 'syntax-error';
+import { tmpdir } from 'os';
+import { format } from 'util';
+import P from 'pino';
+import pino from 'pino';
+import Pino from 'pino';
+import { Boom } from '@hapi/boom';
+import { makeWASocket, protoType, serialize } from './lib/simple.js';
+import { Low, JSONFile } from 'lowdb';
+import { mongoDB, mongoDBV2 } from './lib/mongoDB.js';
 
-async function startYousafMd() {
-    const { state, saveCreds } = await useMultiFileAuthState(`./session`)
-    const conn = makeWASocket({
-        logger: pino({ level: 'silent' }),
-        printQRInTerminal: true,
-        auth: state,
-        browser: ['Yousaf Baloch MD', 'Safari', '1.0.0']
-    })
+const { DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser, PHONENUMBER_MCC } = await import('@whiskeysockets/baileys');
 
-    conn.ev.on('messages.upsert', async chatUpdate => {
-        try {
-            const m = chatUpdate.messages[0]
-            if (!m.message) return
-            const type = Object.keys(m.message)[0]
-            const body = (type === 'conversation') ? m.message.conversation : (type === 'extendedTextMessage') ? m.message.extendedTextMessage.text : (type === 'imageMessage') ? m.message.imageMessage.caption : (type === 'videoMessage') ? m.message.videoMessage.caption : ''
-            const prefix = /^[?#!.]/.test(body) ? body.match(/^[?#!.]/)[0] : '/'
-            const command = body.replace(prefix, '').trim().split(/ +/).shift().toLowerCase()
-            const args = body.trim().split(/ +/).slice(1)
-            const pushname = m.pushName || "User"
-            const botNumber = await conn.decodeJid(conn.user.id)
-            const itsMe = m.key.fromMe ? true : false
-            const text = args.join(" ")
-            const from = m.key.remoteJid
+const { CONNECTING } = ws;
+const { chain } = lodash;
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 
-            // ================= [ YOUSAF BALOCH MD COMMANDS ] =================
+protoType();
+serialize();
 
-            if (command === 'menu' || command === 'help') {
-                let menuText = `🌟 *YOUSAF BALOCH MD* 🌟\n\n`
-                menuText += `👤 *User:* ${pushname}\n`
-                menuText += `👨‍💻 *Owner:* Yousaf Baloch\n`
-                menuText += `📌 *Prefix:* [ ${prefix} ]\n\n`
-                menuText += `*--- GROUP COMMANDS ---*\n`
-                menuText += `• ${prefix}kick\n• ${prefix}add\n• ${prefix}promote\n• ${prefix}demote\n• ${prefix}tagall\n• ${prefix}hidetag\n\n`
-                menuText += `*--- DOWNLOADER ---*\n`
-                menuText += `• ${prefix}ytmp4\n• ${prefix}ytmp3\n• ${prefix}tiktok\n• ${prefix}facebook\n• ${prefix}instagram\n\n`
-                menuText += `*--- GAMES ---*\n`
-                menuText += `• ${prefix}akinator\n• ${prefix}math\n• ${prefix}truth\n• ${prefix}dare\n\n`
-                menuText += `*--- OTHERS ---*\n`
-                menuText += `• ${prefix}sticker\n• ${prefix}tourl\n• ${prefix}translate\n• ${prefix}ai\n\n`
-                menuText += `_Created by Yousaf Baloch_`
-                
-                await conn.sendMessage(from, { 
-                    text: menuText,
-                    contextInfo: {
-                        externalAdReply: {
-                            title: 'YOUSAF BALOCH MD',
-                            body: 'The Most Powerful WhatsApp Bot',
-                            thumbnailUrl: 'https://telegra.ph/file/your-image.jpg',
-                            sourceUrl: 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-                            mediaType: 1,
-                            renderLargerThumbnail: true
-                        }
-                    }
-                }, { quoted: m })
-            }
+global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
+  return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
+};
+global.__dirname = function dirname(pathURL) {
+  return path.dirname(global.__filename(pathURL, true));
+};
+global.__require = function require(dir = import.meta.url) {
+  return createRequire(dir);
+};
 
-            // AI Command
-            if (command === 'ai' || command === 'gpt') {
-                if (!text) return m.reply('Please provide a query!')
-                const response = await axios.get(`https://api.simsimi.net/v2/?text=${encodeURIComponent(text)}&lc=en`)
-                await conn.sendMessage(from, { text: response.data.success }, { quoted: m })
-            }
+global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({...query, ...(apikeyqueryname ? {[apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name]} : {})})) : '');
 
-            // Evaluation (Owner Only)
-            if (command === 'eval') {
-                if (!itsMe) return m.reply('This command is only for Yousaf Baloch!')
-                try {
-                    let evaled = await eval(text)
-                    if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
-                    m.reply(evaled)
-                } catch (err) {
-                    m.reply(String(err))
-                }
-            }
+global.timestamp = {start: new Date};
 
-        } catch (err) {
-            console.log(err)
-        }
-    })
+const __dirname = global.__dirname(import.meta.url);
 
-    conn.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect } = update
-        if (connection === 'close') {
-            let shouldReconnect = (lastDisconnect.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut
-            if (shouldReconnect) startYousafMd()
-        } else if (connection === 'open') {
-            console.log(chalk.green('YOUSAF BALOCH MD IS CONNECTED! ✅'))
-        }
-    })
+global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
+global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-.@').replace(/[|\\{}()[\]^$+*+?.\-\^]/g, '\\$&') + ']');
 
-    conn.ev.on('creds.update', saveCreds)
+global.db = new Low(new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`));
+
+global.DATABASE = global.db;
+global.loadDatabase = async function loadDatabase() {
+  if (global.db.READ) {
+    return new Promise((resolve) => setInterval(async function() {
+      if (!global.db.READ) {
+        clearInterval(this);
+        resolve(global.db.data == null ? global.loadDatabase() : global.db.data);
+      }
+    }, 1 * 1000));
+  }
+  if (global.db.data !== null) return;
+  global.db.READ = true;
+  await global.db.read().catch(console.error);
+  global.db.READ = null;
+  global.db.data = {
+    users: {},
+    chats: {},
+    stats: {},
+    msgs: {},
+    sticker: {},
+    settings: {},
+    ...(global.db.data || {}),
+  };
+  global.db.chain = chain(global.db.data);
+};
+loadDatabase();
+
+console.log(chalk.bold.cyan('🚀 Starting YOUSAF-BALOCH-MD Bot...'));
+
+async function startBot() {
+  const {state, saveCreds} = await useMultiFileAuthState(global.sessionName);
+  const {version, isLatest} = await fetchLatestBaileysVersion();
+  
+  console.log(chalk.green(`✅ Using Baileys version: ${version}`));
+  
+  const connectionOptions = {
+    version,
+    logger: Pino({level: 'silent'}),
+    printQRInTerminal: true,
+    browser: ['YOUSAF-BALOCH-MD', 'Safari', '1.0.0'],
+    auth: {
+      creds: state.creds,
+      keys: makeCacheableSignalKeyStore(state.keys, Pino({level: 'silent'})),
+    },
+    markOnlineOnConnect: true,
+    generateHighQualityLinkPreview: true,
+    getMessage: async (key) => {
+      let jid = jidNormalizedUser(key.remoteJid);
+      let msg = await store.loadMessage(jid, key.id);
+      return msg?.message || '';
+    },
+    msgRetryCounterMap: MessageRetryMap,
+    defaultQueryTimeoutMs: undefined,
+  };
+
+  global.conn = makeWASocket(connectionOptions);
+  conn.isInit = false;
+
+  if (!opts['test']) {
+    if (global.db) {
+      setInterval(async () => {
+        if (global.db.data) await global.db.write();
+      }, 30 * 1000);
+    }
+  }
+
+  conn.ev.on('connection.update', async (update) => {
+    const {connection, lastDisconnect, isNewLogin} = update;
+    if (isNewLogin) conn.isInit = true;
+    const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+    if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
+      await global.reloadHandler(true).catch(console.error);
+    }
+    if (connection === 'open') {
+      console.log(chalk.bold.greenBright('✅ Bot Connected Successfully!'));
+    }
+    if (connection === 'close') {
+      console.log(chalk.bold.red('❌ Connection closed, reconnecting...'));
+    }
+  });
+
+  conn.ev.on('creds.update', saveCreds);
+
+  return true;
 }
 
-startYousafMd()
-                          
+startBot();
