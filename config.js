@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 
 global.owner = [
-  ['923xxxxxxxxx', 'Yousaf Baloch', true],
+  ['923710636110', 'Yousaf Baloch', true],
 ];
 
 global.botname = '𝐘𝐎𝐔𝐒𝐀𝐅-𝐁𝐀𝐋𝐎𝐂𝐇-𝐌𝐃 🛡️';
