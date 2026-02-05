@@ -11,17 +11,17 @@
 ### ⚡ *Premium Multi-Device WhatsApp Bot* ⚡
 
 <p align="center">
-  <a href="https://github.com/yourusername/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/stars/yourusername/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=yellow&logoColor=white" />
+  <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
+    <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=yellow&logoColor=white" />
   </a>
-  <a href="https://github.com/yourusername/YOUSAF-BALOCH-MD/fork">
-    <img src="https://img.shields.io/github/forks/yourusername/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=blue&logoColor=white" />
+  <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
+    <img src="https://img.shields.io/github/forks/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=blue&logoColor=white" />
   </a>
-  <a href="https://github.com/yourusername/YOUSAF-BALOCH-MD/issues">
-    <img src="https://img.shields.io/github/issues/yourusername/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=red&logoColor=white" />
+  <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
+    <img src="https://img.shields.io/github/issues/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=red&logoColor=white" />
   </a>
-  <a href="https://github.com/yourusername/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/repo-size/yourusername/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=green&logoColor=white" />
+  <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
+    <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=green&logoColor=white" />
   </a>
 </p>
 
@@ -39,9 +39,9 @@
 
 [
 
-![Profile Views](https://komarev.com/ghpvc/?username=yourusername&label=Profile%20Views&color=brightgreen&style=for-the-badge)
+![Profile Views](https://komarev.com/ghpvc/?username=musakhanbaloch03-sad&label=Profile%20Views&color=brightgreen&style=for-the-badge)
 
-](https://github.com/yourusername)
+](https://github.com/musakhanbaloch03-sad)
 
 ---
 
@@ -74,7 +74,7 @@
 
 ## 🎨 **DEVELOPER - MUHAMMAD YOUSAF BALOCH** 👨‍💻
 
-<a href="https://github.com/yourusername">
+<a href="https://github.com/musakhanbaloch03-sad">
   <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" />
 </a>
 <a href="https://wa.me/923710636110">
@@ -147,7 +147,7 @@
 **Language:** JavaScript 68.2%  
 **VIEWS:** 
 
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=yourusername.YOUSAF-BALOCH-MD)
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=musakhanbaloch03-sad.YOUSAF-BALOCH-MD)
 
 
 
@@ -272,19 +272,19 @@
 
 
 
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=yourusername&show_icons=true&theme=radical&hide_border=true&bg_color=0D1117&title_color=00FF00&icon_color=00FF00&text_color=FFFFFF)
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=musakhanbaloch03-sad&show_icons=true&theme=radical&hide_border=true&bg_color=0D1117&title_color=00FF00&icon_color=00FF00&text_color=FFFFFF)
 
 
 
 
 
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=yourusername&layout=compact&theme=radical&hide_border=true&bg_color=0D1117&title_color=00FF00&text_color=FFFFFF)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=musakhanbaloch03-sad&layout=compact&theme=radical&hide_border=true&bg_color=0D1117&title_color=00FF00&text_color=FFFFFF)
 
 
 
 
 
-![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=yourusername&theme=radical&hide_border=true&background=0D1117&stroke=00FF00&ring=00FF00&fire=FF0000&currStreakLabel=00FF00)
+![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=musakhanbaloch03-sad&theme=radical&hide_border=true&background=0D1117&stroke=00FF00&ring=00FF00&fire=FF0000&currStreakLabel=00FF00)
 
 
 
@@ -299,7 +299,7 @@
 ### 🚀 **Deploy Your Bot Now!**
 
 <p>
-  <a href="https://heroku.com/deploy?template=https://github.com/yourusername/YOUSAF-BALOCH-MD">
+  <a href="https://heroku.com/deploy?template=https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
     <img src="https://img.shields.io/badge/Deploy%20To-Heroku-purple?style=for-the-badge&logo=heroku&logoColor=white" />
   </a>
   <a href="#">
@@ -340,10 +340,10 @@
 
 ### 🌟 **If you like this project, please give it a STAR!** ⭐
 
-<a href="https://github.com/yourusername/YOUSAF-BALOCH-MD">
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
   <img src="https://img.shields.io/badge/⭐-STAR%20THIS%20REPO-yellow?style=for-the-badge&logo=github" />
 </a>
-<a href="https://github.com/yourusername/YOUSAF-BALOCH-MD/fork">
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
   <img src="https://img.shields.io/badge/🔱-FORK%20THIS%20REPO-blue?style=for-the-badge&logo=github" />
 </a>
 
@@ -363,6 +363,7 @@
 | ✨ **Version** | 1.0.0 |
 | 📜 **License** | MIT |
 | 🌍 **Country** | Pakistan |
+| 💻 **GitHub** | [@musakhanbaloch03-sad](https://github.com/musakhanbaloch03-sad) |
 
 </div>
 
@@ -425,6 +426,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 <a href="https://www.youtube.com/@Yousaf_Baloch_Tech">YouTube</a> • 
 <a href="https://tiktok.com/@loser_boy.110">TikTok</a> • 
-<a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j">WhatsApp Channel</a>
+<a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j">WhatsApp Channel</a> •
+<a href="https://github.com/musakhanbaloch03-sad">GitHub</a>
 
 </div>
