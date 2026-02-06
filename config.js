@@ -1,72 +1,173 @@
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃     YOUSAF-BALOCH-MD Configuration     ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+*/
+
 import { watchFile, unwatchFile } from 'fs';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import cheerio from 'cheerio';
+import fetch from 'node-fetch';
+import axios from 'axios';
+import moment from 'moment-timezone';
 
+/*============= OWNER INFORMATION =============*/
 global.owner = [
-  ['923710636110', 'Yousaf Baloch', true],
+  ['923710636110', 'Muhammad Yousaf Baloch', true],
+  ['923710636110']
 ];
 
-global.botname = '𝐘𝐎𝐔𝐒𝐀𝐅-𝐁𝐀𝐋𝐎𝐂𝐇-𝐌𝐃 🛡️';
-global.ownername = 'Yousaf Baloch';
-global.version = '1.0.0';
+global.mods = ['923710636110'];
+global.prems = ['923710636110'];
+
+/*============= BOT INFORMATION =============*/
+global.botName = 'YOUSAF-BALOCH-MD';
+global.botVersion = '2.0.0';
 global.packname = 'YOUSAF-BALOCH-MD';
-global.author = 'Yousaf Baloch';
+global.author = 'Muhammad Yousaf Baloch';
+global.sessionName = 'sessions';
 
-global.socialLinks = {
-  youtube: 'https://youtube.com/@Yousaf_Baloch_Tech',
-  tiktok: 'https://tiktok.com/@loser_boy.110',
-  whatsappChannel: 'https://whatsapp.com/channel/https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
-  github: 'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD',
-  instagram: 'https://instagram.com/yousaf.baloch110',
-};
+// Bot Owner Name
+global.nameowner = 'Muhammad Yousaf Baloch';
+global.numberowner = '923710636110';
 
-global.sessionName = 'session';
-global.pairingNumber = '';
+/*============= SOCIAL LINKS =============*/
+global.github = 'https://github.com/musakhanbaloch03-sad';
+global.youtube = 'https://www.youtube.com/@Yousaf_Baloch_Tech';
+global.whatsappChannel = 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j';
+global.tiktok = 'https://tiktok.com/@loser_boy.110';
 
-global.autotyping = false;
-global.autoread = false;
-global.autobio = false;
-global.anticall = true;
-global.available = true;
-
-global.antilink = false;
-global.antidelete = true;
-global.welcome = true;
-global.leave = true;
-
-global.prefa = ['', '!', '.', '/', '#'];
-global.sp = '⭔';
-
-global.thumb = 'https://i.ibb.co/mS6pL0P/yousaf-md-thumb-gold.jpg';
-global.logo = 'https://i.ibb.co/mS6pL0P/yousaf-md-thumb-gold.jpg';
-
+/*============= WEBSITE & API =============*/
+global.website = 'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD';
 global.APIs = {
+  nrtm: 'https://nurutomo.herokuapp.com',
+  bg: 'http://bochil.ddns.net',
   xteam: 'https://api.xteam.xyz',
+  zahir: 'https://zahirr-web.herokuapp.com',
+  zeks: 'https://api.zeks.me',
+  pencarikode: 'https://pencarikode.xyz',
+  LeysCoder: 'https://leyscoders-api.herokuapp.com',
+  violetics: 'https://violetics.pw'
 };
 
-global.wait = '⏳ *Processing your request...*';
-global.done = '✅ *Successfully completed!*';
-global.error = '❌ *An error occurred!*';
-global.admin = '👤 *This command is for admins only!*';
-global.botAdmin = '🤖 *I need to be admin to use this!*';
-global.owner_only = '👑 *This command is for owner only!*';
-global.group = '👥 *This command works in groups only!*';
-global.private = '🔒 *This command works in private chat only!*';
+global.APIKeys = {
+  'https://api.xteam.xyz': 'HIRO',
+  'https://zahirr-web.herokuapp.com': 'zahirgans',
+  'https://api.zeks.me': 'apivinz',
+  'https://pencarikode.xyz': 'pais',
+  'https://leyscoders-api.herokuapp.com': 'MIMINGANZ',
+  'https://violetics.pw': 'beta'
+};
 
-global.menuFooter = `
-╭━━━━━━━━━━━━━━━━━╮
-┃ ✨ *Follow Me* ✨
-┃━━━━━━━━━━━━━━━━━
-┃ 📺 YouTube: ${global.socialLinks.youtube}
-┃ 🎵 TikTok: ${global.socialLinks.tiktok}
-┃ 📢 WhatsApp: ${global.socialLinks.whatsappChannel}
-┃ 💻 GitHub: ${global.socialLinks.github}
-╰━━━━━━━━━━━━━━━━━╯
-`;
+/*============= BOT SETTINGS =============*/
+global.autoread = false; // Auto read messages
+global.autorecording = false; // Auto recording status
+global.autoTyping = false; // Auto typing status
+global.autobio = false; // Auto bio status
+global.autolevelup = true; // Auto level up
+global.multiplier = 69; // XP multiplier
 
+/*============= MESSAGES & REPLIES =============*/
+global.wait = '⏳ *Please wait...*';
+global.done = '✅ *Done!*';
+global.error = '❌ *Error!*';
+global.success = '✅ *Success!*';
+
+global.message = {
+  admin: '❌ This command is only for *Admins*!',
+  botAdmin: '❌ Bot must be *Admin* to use this command!',
+  owner: '❌ This command is only for *Owner*!',
+  group: '❌ This command is only for *Groups*!',
+  private: '❌ This command is only for *Private Chat*!',
+  bot: '❌ This command is only for *Bot*!',
+  wait: '⏳ *Please wait...*',
+  error: '❌ *Error! Please try again.*',
+  endLimit: '📵 Your daily limit has expired, the limit will be reset every 12 hours',
+  premium: '❌ This is a *Premium* feature. Contact the owner to become premium!',
+};
+
+/*============= GAME SETTINGS =============*/
+global.gamewaktu = 60; // Game time limit (seconds)
+global.limit = {
+  free: 100,
+  premium: 999,
+  vip: 'VIP'
+};
+
+global.uang = {
+  free: 10000,
+  premium: 1000000,
+  vip: 10000000
+};
+
+/*============= RPG SETTINGS =============*/
+global.rpg = {
+  emoticon(string) {
+    string = string.toLowerCase();
+    let emot = {
+      exp: '✉️',
+      money: '💵',
+      potion: '🥤',
+      diamond: '💎',
+      common: '📦',
+      uncommon: '🎁',
+      mythic: '🗳️',
+      legendary: '🗃️',
+      pet: '🎁',
+      trash: '🗑',
+      armor: '🥼',
+      sword: '⚔️',
+      wood: '🪵',
+      rock: '🪨',
+      string: '🕸️',
+      horse: '🐎',
+      cat: '🐈',
+      dog: '🐕',
+      fox: '🦊',
+      petFood: '🍖',
+      iron: '⛓️',
+      gold: '👑',
+      emerald: '💚'
+    };
+    let results = Object.keys(emot).map(v => [v, new RegExp(v, 'gi')]).filter(v => v[1].test(string));
+    if (!results.length) return '';
+    else return emot[results[0][0]];
+  }
+};
+
+/*============= TIME & DATE SETTINGS =============*/
+global.wib = 'Asia/Karachi'; // Pakistan Time Zone
+global.wibh = moment.tz('Asia/Karachi').format('HH');
+global.wibm = moment.tz('Asia/Karachi').format('mm');
+global.wibs = moment.tz('Asia/Karachi').format('ss');
+global.wktuwib = `${global.wibh}:${global.wibm}:${global.wibs}`;
+
+/*============= IMAGES & MEDIA =============*/
+global.thumb = fs.readFileSync('./media/yousaf.jpg');
+global.imagebot = fs.readFileSync('./media/yousaf.jpg');
+global.giflogo = fs.readFileSync('./media/yousaf.jpg');
+
+/*============= DATABASE =============*/
+global.mongodb = ''; // MongoDB URI (optional)
+
+/*============= OTHER SETTINGS =============*/
+global.fla = 'https://www6.flamingtext.com/net-fu/proxy_form.cgi?&imageoutput=true&script=sketch-name&doScale=true&scaleWidth=800&scaleHeight=500&fontsize=100&fillTextType=1&fillTextPattern=Warning!&text=';
+
+// Max upload size
+global.maxUploadSize = 100; // MB
+
+// Temporary folder
+global.tmpdir = './tmp';
+
+/*============= DEVELOPMENT SETTINGS =============*/
+global.development = false; // Enable development mode
+
+/*============= LOGGER =============*/
 let file = fileURLToPath(import.meta.url);
 watchFile(file, () => {
   unwatchFile(file);
-  console.log(chalk.redBright("Config updated!"));
+  console.log(chalk.redBright("Update 'config.js'"));
   import(`${file}?update=${Date.now()}`);
 });
