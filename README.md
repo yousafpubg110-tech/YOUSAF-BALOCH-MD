@@ -1,10 +1,6 @@
 <div align="center">
 
-
-
 ![Banner](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=200&section=header&text=YOUSAF-BALOCH-MD&fontSize=70&fontAlignY=35&animation=twinkling&fontColor=gradient)
-
-
 
 # 🛡️ YOUSAF-BALOCH-MD 🛡️
 
@@ -24,7 +20,7 @@
     <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=green&logoColor=white" alt="Size"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=purple&logoColor=white" alt="License"/>
+    <img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge&logo=github&logoColor=white" alt="License"/>
   </a>
 </p>
 
@@ -32,11 +28,7 @@
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&pause=1000&color=00FF00&center=true&vCenter=true&width=600&lines=YOUSAF-BALOCH-MD+%F0%9F%9A%80;280%2B+Premium+Commands;Advanced+AI+Integration;Professional+WhatsApp+Bot;Developed+By+Muhammad+Yousaf+Baloch;No+Ban+%E2%9C%85+Safe+%26+Secure;Auto+View+Status+%F0%9F%91%81%EF%B8%8F;Anti+Delete+Messages+%F0%9F%94%92;Download+Everything+%F0%9F%93%A5" alt="Typing SVG" />
 </p>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 ## 🌟 **WELL COME EVERYONE** 🎉
 
@@ -44,22 +36,25 @@
 
 ### 🎯 **Created By Muhammad Yousaf Baloch** 🎯
 
-[
+<!-- Animated Name with Blue Lightning Background and Yellow Text -->
+<img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=700&size=50&duration=3000&pause=1000&color=FFD700&background=001F3F&center=true&vCenter=true&width=800&height=100&lines=YOUSAF+BALOCH+MD;%E2%9A%A1+PREMIUM+BOT+%E2%9A%A1;%F0%9F%94%A5+280%2B+COMMANDS+%F0%9F%94%A5" alt="Developer Name" />
 
-![Profile Views](https://komarev.com/ghpvc/?username=musakhanbaloch03-sad&label=Profile%20Views&color=brightgreen&style=for-the-badge)
+<br><br>
 
-](https://github.com/musakhanbaloch03-sad)
-[
-
-![GitHub Followers](https://img.shields.io/github/followers/musakhanbaloch03-sad?label=Followers&style=for-the-badge&logo=github&color=blue)
-
-](https://github.com/musakhanbaloch03-sad)
-
-
+<!-- Professional GitHub Profile Views -->
+<p align="center">
+  <a href="https://github.com/musakhanbaloch03-sad">
+    <img src="https://img.shields.io/badge/dynamic/json?logo=github&label=GitHub%20Profile%20Views&style=for-the-badge&color=0891b2&labelColor=1c1917&query=%24.value&url=https%3A%2F%2Fapi.github.com%2Fusers%2Fmusakhanbaloch03-sad" alt="Profile Views"/>
+  </a>
+  <a href="https://github.com/musakhanbaloch03-sad?tab=followers">
+    <img src="https://img.shields.io/github/followers/musakhanbaloch03-sad?label=Followers&style=for-the-badge&logo=github&color=blue&logoColor=white" alt="GitHub Followers"/>
+  </a>
+  <a href="https://github.com/musakhanbaloch03-sad">
+    <img src="https://komarev.com/ghpvc/?username=musakhanbaloch03-sad&label=Total%20Visitors&color=blueviolet&style=for-the-badge&logo=eye" alt="Total Visitors"/>
+  </a>
+</p>
 
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 </div>
 
@@ -88,11 +83,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -114,11 +105,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -136,11 +123,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -158,11 +141,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -178,11 +157,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -200,23 +175,14 @@
 </p>
 
 **Language:** 
-
 ![JavaScript](https://img.shields.io/badge/JavaScript-68.2%25-yellow?style=flat-square)
-
   
 **VIEWS:** 
-
 ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=musakhanbaloch03-sad.YOUSAF-BALOCH-MD)
-
-
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 ## 🚀 **DETAILED COMMANDS LIST** 📜
 
@@ -339,11 +305,7 @@
 
 </details>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 <div align="center">
 
@@ -359,11 +321,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 ## 🌐 **DEPLOYMENT OPTIONS** ☁️
 
@@ -393,31 +351,64 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
-
-## 🔐 **GET PAIRING CODE** 🔑
 
 <div align="center">
 
-<img src="https://user-images.githubusercontent.com/74038190/212257481-464e36e7-ad06-451f-8c21-37e5e6ba3576.gif" width="100">
+## 🔐 **GET SESSION ID - PAIRING CODE** 🔑
 
-<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1">
-  <img src="https://img.shields.io/badge/GET-PAIRING%20CODE-00FF00?style=for-the-badge&logo=whatsapp&logoColor=white" />
-</a>
+<img src="https://user-images.githubusercontent.com/74038190/212257481-464e36e7-ad06-451f-8c21-37e5e6ba3576.gif" width="200">
 
-**Secure Session ID Generation**
+### 🌟 **CHOOSE YOUR METHOD TO GET PAIRING CODE** 🌟
+
+<br>
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <img src="https://user-images.githubusercontent.com/74038190/212748842-9fcbad5b-6173-4175-8a61-521f3dbb7514.gif" width="150">
+      <h3>📱 METHOD 1: LIVE PAIRING SITE</h3>
+      <p><b>Get Pairing Code Instantly!</b></p>
+      <a href="https://yousaf-pairing-v-1--musakhanbaloch.replit.app">
+        <img src="https://img.shields.io/badge/🚀-GET%20PAIRING%20CODE%20NOW-00FF00?style=for-the-badge&labelColor=black&color=00FF00" />
+      </a>
+      <p>⚡ <b>Fast & Easy</b> ⚡</p>
+      <p>✅ No Installation Required</p>
+      <p>✅ Works on Any Device</p>
+      <p>✅ Instant Code Generation</p>
+    </td>
+    <td align="center" width="50%">
+      <img src="https://user-images.githubusercontent.com/74038190/212749447-bfb7e725-6987-49d9-ae85-2015e3e7cc41.gif" width="150">
+      <h3>💻 METHOD 2: GITHUB REPOSITORY</h3>
+      <p><b>Deploy Your Own Pairing System!</b></p>
+      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1">
+        <img src="https://img.shields.io/badge/📦-VISIT%20PAIRING%20REPO-yellow?style=for-the-badge&logo=github&logoColor=white&labelColor=black&color=FFD700" />
+      </a>
+      <p>⚡ <b>Advanced & Customizable</b> ⚡</p>
+      <p>✅ Full Control</p>
+      <p>✅ Deploy Anywhere</p>
+      <p>✅ Open Source</p>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+### 📝 **HOW TO USE PAIRING CODE:**
+
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=20&pause=1000&color=00FF00&center=true&vCenter=true&width=800&lines=1.+Open+WhatsApp+%E2%9E%A1%EF%B8%8F+Settings+%E2%9E%A1%EF%B8%8F+Linked+Devices;2.+Click+on+%22Link+a+Device%22;3.+Choose+%22Link+with+Phone+Number%22;4.+Enter+Your+Number+and+Get+Code;5.+Enter+the+8-Digit+Code+in+WhatsApp;6.+Your+Bot+is+Now+Connected!+%F0%9F%8E%89" alt="Instructions" />
+
+<br>
+
+<p>
+  <img src="https://img.shields.io/badge/⚠️-IMPORTANT-red?style=for-the-badge" />
+</p>
+
+<p><b>🔒 Keep Your Session Secure | 🚫 Never Share Your Code | ✅ Use Only Official Links</b></p>
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 ## ⭐ **SUPPORT THE PROJECT** 💝
 
@@ -436,11 +427,7 @@
 
 </div>
 
-
-
 ![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
 
 ## 👨‍💻 **DEVELOPER INFORMATION** 📇
 
@@ -451,85 +438,4 @@
 | **Detail** | **Information** |
 |-----------|----------------|
 | 👤 **Name** | Muhammad Yousaf Baloch |
-| 📞 **Contact** | +923710636110 |
-| 🤖 **Bot Name** | YOUSAF-BALOCH-MD |
-| ✨ **Version** | 1.0.0 |
-| 📜 **License** | MIT |
-| 🌍 **Country** | Pakistan 🇵🇰 |
-| 💻 **GitHub** | [@musakhanbaloch03-sad](https://github.com/musakhanbaloch03-sad) |
-
-</div>
-
-
-
-![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
-
-## 💎 **SPECIAL THANKS** 🙏
-
-<div align="center">
-
-<img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="200">
-
-**Special Thanks to All Contributors and Supporters!** ❤️
-
-<img src="https://img.shields.io/badge/Thank%20You-For%20Your%20Support-pink?style=for-the-badge" />
-
-</div>
-
-
-
-![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
-
-## 📜 **LICENSE** ⚖️
-MIT License
-Copyright (c) 2026 Muhammad Yousaf Baloch
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
-
-## ⚠️ **DISCLAIMER** 🚨
-
-<div align="center">
-
-<img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="100">
-⚠️ This bot is for educational purposes only.
-🚫 The developer is not responsible for any misuse.
-✅ Use at your own risk.
-🔒 Keep your session secure and private.
-</div>
-
-
-
-![Divider](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
-
-
-
-<div align="center">
-
-
-
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer)
-
-
-
-## 🌟 **MADE WITH ❤️ BY MUHAMMAD YOUSAF BALOCH** 🌟
-
-<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="700">
-
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+C
+| 📞 **Contact** | +923710636110 
