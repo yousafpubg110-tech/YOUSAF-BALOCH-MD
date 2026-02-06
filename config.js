@@ -61,6 +61,10 @@ global.APIKeys = {
   'https://violetics.pw': 'beta'
 };
 
+/*============= PAIRING CODE SETTINGS =============*/
+global.pairingUrl = 'https://robust-maisie-yousaf-baloch-md-2f503b12.koyeb.app';
+global.pairingEnabled = true;
+
 /*============= BOT SETTINGS =============*/
 global.autoread = false; // Auto read messages
 global.autorecording = false; // Auto recording status
