@@ -1,3 +1,20 @@
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃     YOUSAF-BALOCH-MD WhatsApp Bot      ┃
+┃   Premium Multi-Device Bot with 280+   ┃
+┃              Commands                  ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+👨‍💻 Developer: Muhammad Yousaf Baloch
+📞 Contact: +923710636110
+🌐 GitHub: https://github.com/musakhanbaloch03-sad
+📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
+📢 WhatsApp: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+🎵 TikTok: https://tiktok.com/@loser_boy.110
+
+© 2026 YOUSAF-BALOCH-MD - All Rights Reserved
+*/
+
 import './config.js';
 import { createRequire } from 'module';
 import path, { join } from 'path';
@@ -19,6 +36,7 @@ import { Boom } from '@hapi/boom';
 import { makeWASocket, protoType, serialize } from './lib/simple.js';
 import { Low, JSONFile } from 'lowdb';
 import { mongoDB, mongoDBV2 } from './lib/mongoDB.js';
+import figlet from 'figlet';
 
 const { DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser, PHONENUMBER_MCC } = await import('@whiskeysockets/baileys');
 
@@ -77,13 +95,34 @@ global.loadDatabase = async function loadDatabase() {
 };
 loadDatabase();
 
-console.log(chalk.bold.cyan('🚀 Starting YOUSAF-BALOCH-MD Bot...'));
+// Display Banner
+console.clear();
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+console.log(chalk.green(figlet.textSync('YOUSAF-BALOCH-MD', {
+  font: 'Standard',
+  horizontalLayout: 'default',
+  verticalLayout: 'default'
+})));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+console.log(chalk.yellow('🛡️  Premium Multi-Device WhatsApp Bot'));
+console.log(chalk.yellow('📊  280+ Premium Commands Available'));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+console.log(chalk.green('👨‍💻 Developer: Muhammad Yousaf Baloch'));
+console.log(chalk.green('📞 Contact: +923710636110'));
+console.log(chalk.green('🌐 GitHub: https://github.com/musakhanbaloch03-sad'));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+console.log(chalk.magenta('📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech'));
+console.log(chalk.magenta('📢 WhatsApp: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j'));
+console.log(chalk.magenta('🎵 TikTok: https://tiktok.com/@loser_boy.110'));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+console.log(chalk.yellow('⏳ Starting bot...\n'));
 
 async function startBot() {
   const {state, saveCreds} = await useMultiFileAuthState(global.sessionName);
   const {version, isLatest} = await fetchLatestBaileysVersion();
   
   console.log(chalk.green(`✅ Using Baileys version: ${version}`));
+  console.log(chalk.green(`✅ Latest version: ${isLatest ? 'Yes' : 'No'}\n`));
   
   const connectionOptions = {
     version,
@@ -118,22 +157,67 @@ async function startBot() {
 
   conn.ev.on('connection.update', async (update) => {
     const {connection, lastDisconnect, isNewLogin} = update;
+    
     if (isNewLogin) conn.isInit = true;
+    
     const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+    
     if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
+      console.log(chalk.yellow('⚠️  Connection closed, reconnecting...'));
       await global.reloadHandler(true).catch(console.error);
     }
+    
     if (connection === 'open') {
-      console.log(chalk.bold.greenBright('✅ Bot Connected Successfully!'));
+      console.log(chalk.bold.greenBright('\n✅ Bot Connected Successfully!'));
+      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+      console.log(chalk.green('🎉 YOUSAF-BALOCH-MD is now online!'));
+      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
     }
+    
     if (connection === 'close') {
-      console.log(chalk.bold.red('❌ Connection closed, reconnecting...'));
+      console.log(chalk.bold.red('❌ Connection closed!'));
+      console.log(chalk.yellow('⏳ Attempting to reconnect...\n'));
     }
   });
 
   conn.ev.on('creds.update', saveCreds);
 
+  // Load plugins
+  global.plugins = {};
+  async function loadPlugins() {
+    const pluginFolder = path.join(__dirname, './plugins');
+    const pluginFiles = readdirSync(pluginFolder).filter(file => file.endsWith('.js'));
+    
+    console.log(chalk.cyan(`📦 Loading ${pluginFiles.length} plugins...\n`));
+    
+    for (const file of pluginFiles) {
+      try {
+        const plugin = await import(pathToFileURL(path.join(pluginFolder, file)).href);
+        global.plugins[file] = plugin.default || plugin;
+        console.log(chalk.green(`✅ Loaded: ${file}`));
+      } catch (e) {
+        console.log(chalk.red(`❌ Error loading ${file}:`), e);
+        delete global.plugins[file];
+      }
+    }
+    
+    console.log(chalk.cyan('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    console.log(chalk.green(`✅ Successfully loaded ${Object.keys(global.plugins).length} plugins`));
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+  }
+  
+  await loadPlugins();
+
   return true;
 }
 
 startBot();
+
+// Handle errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.error(chalk.red('Unhandled Rejection at:'), promise, chalk.red('reason:'), reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error(chalk.red('Uncaught Exception:'), error);
+});
