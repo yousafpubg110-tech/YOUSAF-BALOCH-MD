@@ -37,6 +37,7 @@ import { makeWASocket, protoType, serialize } from './lib/simple.js';
 import { Low, JSONFile } from 'lowdb';
 import { mongoDB, mongoDBV2 } from './lib/mongoDB.js';
 import figlet from 'figlet';
+import readline from 'readline';
 
 const { DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser, PHONENUMBER_MCC } = await import('@whiskeysockets/baileys');
 
@@ -117,17 +118,53 @@ console.log(chalk.magenta('🎵 TikTok: https://tiktok.com/@loser_boy.110'));
 console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
 console.log(chalk.yellow('⏳ Starting bot...\n'));
 
+// Function to ask for connection method
+const question = (text) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise((resolve) => {
+    rl.question(text, (answer) => {
+      rl.close();
+      resolve(answer);
+    });
+  });
+};
+
 async function startBot() {
   const {state, saveCreds} = await useMultiFileAuthState(global.sessionName);
   const {version, isLatest} = await fetchLatestBaileysVersion();
   
   console.log(chalk.green(`✅ Using Baileys version: ${version}`));
   console.log(chalk.green(`✅ Latest version: ${isLatest ? 'Yes' : 'No'}\n`));
+
+  // Check if already logged in
+  let useQR = false;
+  let usePairingCode = false;
+
+  if (!state.creds.registered) {
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    console.log(chalk.yellow('📱 Choose your connection method:'));
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+    console.log(chalk.green('1️⃣  Pairing Code (Recommended)'));
+    console.log(chalk.green('2️⃣  QR Code\n'));
+    
+    const choice = await question(chalk.bold.cyan('Enter your choice (1 or 2): '));
+    
+    if (choice === '1') {
+      usePairingCode = true;
+      console.log(chalk.green('\n✅ Pairing Code method selected\n'));
+    } else {
+      useQR = true;
+      console.log(chalk.green('\n✅ QR Code method selected\n'));
+    }
+  }
   
   const connectionOptions = {
     version,
     logger: Pino({level: 'silent'}),
-    printQRInTerminal: true,
+    printQRInTerminal: useQR,
     browser: ['YOUSAF-BALOCH-MD', 'Safari', '1.0.0'],
     auth: {
       creds: state.creds,
@@ -146,6 +183,39 @@ async function startBot() {
 
   global.conn = makeWASocket(connectionOptions);
   conn.isInit = false;
+
+  // Handle Pairing Code
+  if (usePairingCode && !conn.authState.creds.registered) {
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    console.log(chalk.yellow('📱 Enter your WhatsApp number'));
+    console.log(chalk.gray('Format: Country code + number (e.g., 923710636110)'));
+    console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+    
+    let phoneNumber = await question(chalk.bold.cyan('Phone Number: '));
+    phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
+
+    if (!phoneNumber) {
+      console.log(chalk.red('❌ Invalid phone number!\n'));
+      process.exit(0);
+    }
+
+    console.log(chalk.yellow('\n⏳ Generating pairing code...\n'));
+
+    setTimeout(async () => {
+      try {
+        let code = await conn.requestPairingCode(phoneNumber);
+        code = code?.match(/.{1,4}/g)?.join('-') || code;
+        
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+        console.log(chalk.bold.green(`\n🔐 YOUR PAIRING CODE: ${code}\n`));
+        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+        console.log(chalk.yellow('⏰ Enter this code in WhatsApp within 60 seconds!'));
+        console.log(chalk.gray('   WhatsApp > Linked Devices > Link a Device > Link with Phone Number\n'));
+      } catch (error) {
+        console.log(chalk.red('❌ Error generating pairing code:'), error);
+      }
+    }, 3000);
+  }
 
   if (!opts['test']) {
     if (global.db) {
@@ -171,6 +241,7 @@ async function startBot() {
       console.log(chalk.bold.greenBright('\n✅ Bot Connected Successfully!'));
       console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
       console.log(chalk.green('🎉 YOUSAF-BALOCH-MD is now online!'));
+      console.log(chalk.green('📱 Connected Number: ' + conn.user.id.split(':')[0]));
       console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
     }
     
