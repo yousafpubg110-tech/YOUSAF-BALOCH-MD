@@ -1,26 +1,24 @@
 {
   "name": "yousaf-baloch-md",
   "version": "1.0.0",
-  "description": "Premium WhatsApp Multi-Device Bot by Muhammad Yousaf Baloch - 280+ Commands, AI Integration, Professional Features",
+  "description": "Premium Multi-Device WhatsApp Bot with 280+ Commands - Developed by Muhammad Yousaf Baloch",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "node index.js"
+    "test": "node --trace-warnings index.js"
   },
   "keywords": [
     "whatsapp",
     "bot",
-    "whatsapp-bot",
+    "md",
     "baileys",
-    "multi-device",
     "yousaf-baloch",
-    "yousaf-baloch-md",
-    "whatsapp-md",
-    "ai-bot",
+    "multi-device",
+    "whatsapp-bot",
+    "ai",
     "chatgpt",
-    "gemini"
+    "downloader"
   ],
   "author": {
     "name": "Muhammad Yousaf Baloch",
@@ -30,36 +28,38 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD.git"
+    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD"
   },
   "bugs": {
     "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues"
   },
   "homepage": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD#readme",
   "dependencies": {
-    "@whiskeysockets/baileys": "latest",
-    "qrcode-terminal": "^0.12.0",
+    "@whiskeysockets/baileys": "^6.7.8",
     "pino": "^8.16.0",
     "chalk": "^4.1.2",
     "figlet": "^1.7.0",
     "moment-timezone": "^0.5.43",
-    "node-fetch": "^2.6.7",
-    "axios": "^1.6.0",
-    "express": "^4.18.2",
-    "fs": "^0.0.1-security",
-    "path": "^0.12.7",
+    "node-fetch": "^3.3.2",
+    "qrcode-terminal": "^0.12.0",
+    "qrcode": "^1.5.3",
     "lowdb": "^3.0.0",
-    "mongoose": "^8.0.0",
-    "file-type": "^16.5.4",
-    "form-data": "^4.0.0",
-    "jimp": "^0.22.10",
-    "awesome-phonenumber": "^5.4.0",
-    "syntax-error": "^1.4.0",
     "yargs": "^17.7.2",
-    "dotenv": "^16.3.1"
+    "lodash": "^4.17.21",
+    "express": "^4.18.2",
+    "file-type": "^18.5.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "form-data": "^4.0.0",
+    "awesome-phonenumber": "^5.4.0",
+    "jimp": "^0.22.10",
+    "mongoose": "^8.0.3",
+    "syntax-error": "^1.4.0",
+    "terminal-image": "^2.0.0",
+    "url-regex-safe": "^3.0.0",
+    "wa-sticker-formatter": "^4.4.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.2"
   },
   "engines": {
     "node": ">=18.0.0",
