@@ -201,20 +201,20 @@ async function startBot() {
 
     console.log(chalk.yellow('\n⏳ Generating pairing code...\n'));
 
-    setTimeout(async () => {
-      try {
-        let code = await conn.requestPairingCode(phoneNumber);
-        code = code?.match(/.{1,4}/g)?.join('-') || code;
-        
-        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-        console.log(chalk.bold.green(`\n🔐 YOUR PAIRING CODE: ${code}\n`));
-        console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
-        console.log(chalk.yellow('⏰ Enter this code in WhatsApp within 60 seconds!'));
-        console.log(chalk.gray('   WhatsApp > Linked Devices > Link a Device > Link with Phone Number\n'));
-      } catch (error) {
-        console.log(chalk.red('❌ Error generating pairing code:'), error);
-      }
-    }, 3000);
+    try {
+      // Await properly without setTimeout
+      let code = await conn.requestPairingCode(phoneNumber);
+      // Format code safely
+      if (code) code = code.toString().match(/.{1,4}/g)?.join('-') || code;
+
+      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+      console.log(chalk.bold.green(`\n🔐 YOUR PAIRING CODE: ${code}\n`));
+      console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
+      console.log(chalk.yellow('⏰ Enter this code in WhatsApp within 60 seconds!'));
+      console.log(chalk.gray('   WhatsApp > Linked Devices > Link a Device > Link with Phone Number\n'));
+    } catch (error) {
+      console.log(chalk.red('❌ Error generating pairing code:'), error);
+    }
   }
 
   if (!opts['test']) {
@@ -230,24 +230,23 @@ async function startBot() {
     
     if (isNewLogin) conn.isInit = true;
     
-    const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
-    
-    if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
-      console.log(chalk.yellow('⚠️  Connection closed, reconnecting...'));
-      await global.reloadHandler(true).catch(console.error);
-    }
+    const reason = lastDisconnect?.error?.output?.statusCode;
     
     if (connection === 'open') {
       console.log(chalk.bold.greenBright('\n✅ Bot Connected Successfully!'));
       console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
       console.log(chalk.green('🎉 YOUSAF-BALOCH-MD is now online!'));
-      console.log(chalk.green('📱 Connected Number: ' + conn.user.id.split(':')[0]));
+      console.log(chalk.green('📱 Connected Number: ' + (conn.user?.id?.split(':')[0] || 'Unknown')));
       console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
     }
     
     if (connection === 'close') {
       console.log(chalk.bold.red('❌ Connection closed!'));
       console.log(chalk.yellow('⏳ Attempting to reconnect...\n'));
+      // Only reconnect if not logged out
+      if(reason && reason !== DisconnectReason.loggedOut){
+        startBot().catch(console.error);
+      }
     }
   });
 
@@ -257,6 +256,8 @@ async function startBot() {
   global.plugins = {};
   async function loadPlugins() {
     const pluginFolder = path.join(__dirname, './plugins');
+    if(!existsSync(pluginFolder)) return console.log(chalk.yellow('⚠️ Plugin folder missing!'));
+    
     const pluginFiles = readdirSync(pluginFolder).filter(file => file.endsWith('.js'));
     
     console.log(chalk.cyan(`📦 Loading ${pluginFiles.length} plugins...\n`));
@@ -268,10 +269,10 @@ async function startBot() {
         console.log(chalk.green(`✅ Loaded: ${file}`));
       } catch (e) {
         console.log(chalk.red(`❌ Error loading ${file}:`), e);
-        delete global.plugins[file];
+        global.plugins[file] = {};
       }
     }
-    
+
     console.log(chalk.cyan('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log(chalk.green(`✅ Successfully loaded ${Object.keys(global.plugins).length} plugins`));
     console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
@@ -286,9 +287,9 @@ startBot();
 
 // Handle errors
 process.on('unhandledRejection', (reason, promise) => {
-  console.error(chalk.red('Unhandled Rejection at:'), promise, chalk.red('reason:'), reason);
+  console.error(chalk.red('❌ Unhandled Rejection at:'), promise, chalk.red('reason:'), reason);
 });
 
 process.on('uncaughtException', (error) => {
-  console.error(chalk.red('Uncaught Exception:'), error);
+  console.error(chalk.red('❌ Uncaught Exception:'), error);
 });
