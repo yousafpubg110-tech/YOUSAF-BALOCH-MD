@@ -1,62 +1,55 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=000000,1a0b2e,4a0e4e,811c6b,b92b5c&height=300&section=header&text=YOUSAF-BALOCH-MD&fontSize=70&fontColor=00f2ff&animation=fadeIn&fontAlignY=35&desc=THE%20ULTIMATE%20WHATSAPP%20BOT&descSize=25&descAlignY=60&descAlign=50" width="100%"/>
-
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
-<div align="center" style="background: linear-gradient(90deg, #000000 0%, #2c003e 50%, #000000 100%); padding: 20px; border-radius: 15px; border: 3px solid #00f2ff; box-shadow: 0 0 20px #b92b5c;">
+<div style="background: linear-gradient(to right, #000046, #1CB5E0); padding: 30px; border-radius: 20px; border: 4px solid #00f2ff; box-shadow: 0 0 30px #00f2ff, inset 0 0 30px #00f2ff; animation: pulse 2s infinite;">
 <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&size=30&duration=2500&pause=1000&color=00F2FF&background=00000000&center=true&vCenter=true&width=900&lines=WELCOME+TO+YOUSAF+BALOCH+MD+🌌;ADVANCED+WHATSAPP+AUTOMATION+🚀;POWERED+BY+YOUSAF+BALOCH+💎;BEST+ANTI-BAN+technology+🛡️" alt="Typing Animation" />
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&size=50&duration=3000&pause=1000&color=00F2FF&background=00000000&center=true&vCenter=true&width=900&lines=YOUSAF+BALOCH+MD+💎;THE+ULTIMATE+WHATSAPP+BOT+🚀;POWERED+BY+YOUSAF+BALOCH+👑;ADVANCED+ANTI-BAN+SYSTEM+🛡️" alt="YOUSAF BALOCH MD Header" />
 </a>
 </div>
 
+<br>
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
 <br>
 
 <div style="background: rgba(0, 0, 0, 0.8); padding: 30px; border-radius: 20px; border: 4px solid #b92b5c; box-shadow: 0 0 50px #4a0e4e;">
   
-  <img src="https://readme-typing-svg.demolab.com?font=Monoton&size=50&duration=3000&pause=1000&color=FF0055&background=00000000&center=true&vCenter=true&width=800&lines=MEET+THE+KING" />
+  <h1 style="font-family: 'Monoton', sans-serif; font-size: 60px; color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 30px #ff0055; margin-bottom: 10px;">
+    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Crown.png" alt="Crown Logo" width="50" height="50" style="vertical-align: middle;"/>
+    MR YOUSAF BALOCH
+    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Crown.png" alt="Crown Logo" width="50" height="50" style="vertical-align: middle;"/>
+  </h1>
+  <p style="font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00f2ff;">BOT DEVELOPER & WHATSAPP EXPERT</p>
   
-  <br><br>
-
-  <a href="https://github.com/musakhanbaloch03-sad">
-    <img src="./profile.png" width="260" height="260" style="border-radius: 50%; border: 6px solid #00f2ff; box-shadow: 0 0 40px #00f2ff, 0 0 80px #b92b5c; transition: transform 0.3s ease-in-out;"/>
-  </a>
+  <br>
   
-  <br><br>
-  
-  <h1 style="color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 20px #ff0055;">MR YOUSAF BALOCH</h1>
-  
-  <table align="center">
+  <table align="center" width="100%">
     <tr>
-      <td align="center">
+      <td align="center" width="50%">
         <a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j">
-          <img src="https://img.shields.io/badge/WHATSAPP-CHANNEL-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=000" height="45"/>
+          <img src="https://img.shields.io/badge/WHATSAPP%20CHANNEL-JOIN%20NOW-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=000" height="60" width="100%"/>
         </a>
       </td>
-      <td align="center">
+      <td align="center" width="50%">
         <a href="https://tiktok.com/@loser_boy.110">
-           <img src="https://img.shields.io/badge/TIKTOK-FOLLOW-000000?style=for-the-badge&logo=tiktok&logoColor=white&labelColor=ff0050" height="45"/>
+           <img src="https://img.shields.io/badge/TIKTOK%20PROFILE-FOLLOW-000000?style=for-the-badge&logo=tiktok&logoColor=white&labelColor=ff0050" height="60" width="100%"/>
         </a>
       </td>
     </tr>
     <tr>
-      <td align="center">
+      <td align="center" width="50%">
         <a href="https://www.youtube.com/@Yousaf_Baloch_Tech">
-           <img src="https://img.shields.io/badge/YOUTUBE-SUBSCRIBE-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=000" height="45"/>
+           <img src="https://img.shields.io/badge/YOUTUBE%20CHANNEL-SUBSCRIBE-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=000" height="60" width="100%"/>
         </a>
       </td>
-      <td align="center">
+      <td align="center" width="50%">
         <a href="https://wa.me/923710636110">
-           <img src="https://img.shields.io/badge/CHAT-OWNER-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=128C7E" height="45"/>
+           <img src="https://img.shields.io/badge/WHATSAPP%20CHAT-CONTACT%20ME-128C7E?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=25D366" height="60" width="100%"/>
         </a>
       </td>
     </tr>
      <tr>
       <td align="center" colspan="2">
         <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-           <img src="https://img.shields.io/badge/GITHUB-REPO-181717?style=for-the-badge&logo=github&logoColor=white&labelColor=blueviolet" height="45" width="100%"/>
+           <img src="https://img.shields.io/badge/GITHUB%20REPOSITORY-VISIT-181717?style=for-the-badge&logo=github&logoColor=white&labelColor=blueviolet" height="60" width="100%"/>
         </a>
       </td>
     </tr>
@@ -150,13 +143,13 @@
 
 <br><br>
 
-<div align="center" style="border: 2px dashed #ff0055; padding: 20px; border-radius: 15px;">
+<div align="center" style="border: 2px dashed #25D366; padding: 20px; border-radius: 15px; background: rgba(0, 0, 0, 0.5);">
   
-  <img src="https://readme-typing-svg.demolab.com?font=Rubik+Glitch&size=60&duration=1000&pause=1000&color=FF0000&background=00000000&center=true&vCenter=true&width=600&lines=NO+LOVE;JUST+CODE" alt="No Love" />
+  <img src="https://readme-typing-svg.demolab.com?font=Amiri&size=50&duration=4000&pause=1000&color=25D366&background=00000000&center=true&vCenter=true&width=800&lines=ALLAH+IS+GREAT;I+LOVE+MUHAMMAD+(PBUH);ALHAMDULILLAH+FOR+EVERYTHING" alt="Religious Text" />
   
   <br>
   
-  <p style="font-family: monospace; font-size: 18px; color: #FFD700;">
+  <p style="font-family: 'Orbitron', sans-serif; font-size: 18px; color: #FFD700;">
     <img src="https://media.giphy.com/media/WOT9Ti71HfwlDMk5hV/giphy.gif" width="30">
     <b>POWERED BY YOUSAF-BALOCH-MD</b>
     <img src="https://media.giphy.com/media/WOT9Ti71HfwlDMk5hV/giphy.gif" width="30">
@@ -165,6 +158,20 @@
 </div>
 
 <br>
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=000000,1a0b2e,b92b5c&height=120&section=footer" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=000046,1CB5E0,25D366&height=120&section=footer" width="100%"/>
 
 </div>
+
+<style>
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 20px #00f2ff, inset 0 0 20px #00f2ff;
+  }
+  50% {
+    box-shadow: 0 0 40px #00f2ff, inset 0 0 40px #00f2ff;
+  }
+  100% {
+    box-shadow: 0 0 20px #00f2ff, inset 0 0 20px #00f2ff;
+  }
+}
+</style>
