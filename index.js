@@ -17,7 +17,7 @@
 
 import './config.js';
 import { createRequire } from 'module';
-import path from 'path';
+import path, { join } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
 import * as ws from 'ws';
@@ -25,9 +25,9 @@ import { readdirSync, existsSync } from 'fs';
 import yargs from 'yargs';
 import lodash from 'lodash';
 import chalk from 'chalk';
-import { Low, JSONFile } from 'lowdb';
 import figlet from 'figlet';
 import readline from 'readline';
+import { Low, JSONFile } from 'lowdb';
 import Pino from 'pino';
 
 const {
@@ -44,34 +44,48 @@ import { makeWASocket, protoType, serialize } from './lib/simple.js';
 protoType();
 serialize();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
+  return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
+};
+global.__dirname = function dirname(pathURL) {
+  return path.dirname(global.__filename(pathURL, true));
+};
+global.__require = function require(dir = import.meta.url) {
+  return createRequire(dir);
+};
+
+const __dirname = global.__dirname(import.meta.url);
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
 global.db = new Low(new JSONFile('database.json'));
-
 await global.db.read();
 global.db.data ||= { users: {}, chats: {}, settings: {} };
 
 console.clear();
-console.log(chalk.cyan(figlet.textSync('YOUSAF-BALOCH-MD')));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+console.log(chalk.green(figlet.textSync('YOUSAF-BALOCH-MD')));
+console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
 
 const question = (text) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise(res => rl.question(text, ans => { rl.close(); res(ans); }));
+  return new Promise(resolve => rl.question(text, ans => {
+    rl.close();
+    resolve(ans);
+  }));
 };
 
 async function startBot() {
 
-  const { state, saveCreds } = await useMultiFileAuthState('session');
+  const { state, saveCreds } = await useMultiFileAuthState(global.sessionName);
   const { version } = await fetchLatestBaileysVersion();
 
   let useQR = false;
   let usePairingCode = false;
 
   if (!state.creds.registered) {
-    console.log('1) Pairing Code\n2) QR Code');
-    const choice = await question('Choose: ');
+    console.log('1️⃣ Pairing Code');
+    console.log('2️⃣ QR Code');
+    const choice = await question('Choose (1/2): ');
     if (choice === '1') usePairingCode = true;
     else useQR = true;
   }
@@ -88,9 +102,7 @@ async function startBot() {
     msgRetryCounterMap: MessageRetryMap
   });
 
-  // ===========================
-  // 🔥 FIXED 8‑DIGIT PAIRING
-  // ===========================
+  // ✅ PAIRING CODE – SAFE & ORIGINAL
   if (usePairingCode && !conn.authState.creds.registered) {
 
     let phoneNumber = await question('Enter WhatsApp number: ');
@@ -99,14 +111,18 @@ async function startBot() {
     try {
       let code = await conn.requestPairingCode(phoneNumber);
 
-      // 🔴 ONLY FIX — FORCE REAL 8 DIGITS
-      code = String(code).replace(/\D/g, '');
-      if (code.length < 8) code = code.padStart(8, '0');
+      // 🔥 ONLY FIX:
+      // ❌ no split
+      // ❌ no pad
+      // ✅ show WhatsApp original code
+      code = String(code);
 
-      console.log('\n🔐 YOUR 8‑DIGIT PAIRING CODE:\n', code, '\n');
+      console.log('\n🔐 YOUR WHATSAPP PAIRING CODE:\n');
+      console.log(code);
+      console.log('\nWhatsApp > Linked Devices > Link with phone number\n');
 
-    } catch (e) {
-      console.log('Pairing error:', e);
+    } catch (err) {
+      console.log('Pairing error:', err);
     }
   }
 
@@ -123,11 +139,10 @@ async function startBot() {
 
   conn.ev.on('creds.update', saveCreds);
 
-  // Plugin loader (unchanged)
-  const pluginsPath = path.join(__dirname, 'plugins');
-  if (existsSync(pluginsPath)) {
-    for (const file of readdirSync(pluginsPath).filter(f => f.endsWith('.js'))) {
-      await import(pathToFileURL(path.join(pluginsPath, file)));
+  const pluginFolder = join(__dirname, './plugins');
+  if (existsSync(pluginFolder)) {
+    for (const file of readdirSync(pluginFolder).filter(f => f.endsWith('.js'))) {
+      await import(pathToFileURL(join(pluginFolder, file)));
     }
   }
 }
