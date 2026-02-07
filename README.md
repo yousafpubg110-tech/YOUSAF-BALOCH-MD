@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Main Header: Dark Blue Background with Yellow 3D Glowing Text -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:001F3F,50:003D7A,100:001F3F&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=95&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=30&descAlignY=55&descAlign=50" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:001F3F,50:003D7A,100:001F3F&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=70&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=25&descAlignY=55&descAlign=50" width="100%"/>
 
 <br>
 
@@ -40,7 +40,7 @@
 
 <!-- Typing SVG Animation - Powered By Section -->
 <div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=32&pause=1000&color=FFD700&center=true&vCenter=true&width=1100&height=80&lines=⚡+280%2B+PREMIUM+COMMANDS+⚡;🤖+ADVANCED+AI+INTEGRATION+🤖;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=32&pause=1000&color=FFD700&center=true&vCenter=true&width=1100&height=80&lines=⚡+280%2B+PREMIUM+COMMANDS+⚡;🤖+ADVANCED+AI+INTEGRATION+🤖;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎" alt="Typing Animation" />
 </div>
 
 <br>
@@ -204,6 +204,12 @@
       <img src="https://user-images.githubusercontent.com/74038190/235294010-ec412ef5-e3da-4efa-b1d4-0ab4d4638755.gif" width="100">
       <br>
       <sub><b>🎬 Subscribe to YouTube Channel</b></sub>
+      <br>
+      <p style="color: #FFFFFF; font-size: 14px;">Click here to learn how to setup and use this bot with detailed video tutorials!</p>
+      <br>
+      <a href="https://www.youtube.com/@Yousaf_Baloch_Tech?sub_confirmation=1">
+        <img src="https://img.shields.io/badge/SUBSCRIBE_NOW-FF0000?style=for-the-badge&logo=youtube&logoColor=white" height="45"/>
+      </a>
     </td>
   </tr>
   <tr>
@@ -215,6 +221,8 @@
       <img src="https://user-images.githubusercontent.com/74038190/235294019-40007353-6219-4ec5-b661-b3c35136dd0b.gif" width="100">
       <br>
       <sub><b>📢 Join WhatsApp Channel</b></sub>
+      <br>
+      <p style="color: #FFFFFF; font-size: 14px;">Join our official WhatsApp channel for latest updates, new features, and bot announcements!</p>
     </td>
   </tr>
   <tr>
@@ -401,35 +409,80 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/> <span style="color: #00FF00;">INSTALLATION GUIDE</span> <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
 
 <br>
 
-### <span style="color: #FFD700;">📱 METHOD 1: TERMUX (Android)</span>
-
-```bash
-# Update and Install Dependencies
-pkg update && pkg upgrade -y
-pkg install git nodejs -y
-
-# Clone Repository
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-cd YOUSAF-BALOCH-MD
-
-# Install Modules
-npm install
-
-# Start Bot
-npm start
-```
+<img src="https://img.shields.io/badge/LICENSE-MIT-brightgreen?style=for-the-badge" height="40"/>
 
 <br>
 
-### <span style="color: #00FFFF;">💻 METHOD 2: VPS/RDP (Linux/Windows)</span>
+<p>
+This project is licensed under the <b>MIT License</b><br>
+Feel free to use, modify, and distribute this bot!
+</p>
 
-```bash
-# Install Node.js and Git
-apt update && apt install nodejs git -y
+<br>
 
-# Clone and Setup
-git clone ht
+<h3 style="color: #00FF00;">👨‍💻 Special Credits:</h3>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="60">
+      <br>
+      <b>Muhammad Yousaf Baloch</b>
+      <br>
+      <sub>Lead Developer</sub>
+    </td>
+    <td align="center">
+      <img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="60">
+      <br>
+      <b>All Contributors</b>
+      <br>
+      <sub>Community Support</sub>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+
+</div>
+
+---
+
+<div align="center" style="background: linear-gradient(90deg, #000428, #004e92); padding: 30px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700;">
+  
+<br>
+
+<img src="https://readme-typing-svg.demolab.com?font=Cinzel&weight=700&size=55&duration=3000&pause=1000&color=FFD700&center=true&vCenter=true&width=1000&height=100&lines=بِسْمِ+اللَّهِ+الرَّحْمَٰنِ+الرَّحِيمِ;ALLAH+IS+THE+GREATEST;I+LOVE+PROPHET+MUHAMMAD+(ﷺ);ALHAMDULILLAH+FOR+EVERYTHING;MAY+ALLAH+BLESS+US+ALL" alt="Islamic Footer" />
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+
+<br>
+
+<h2>
+  <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="40"/>
+  <span style="color: #FFD700;">MADE WITH ❤️ BY MUHAMMAD YOUSAF BALOCH</span>
+  <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="40"/>
+</h2>
+
+<p style="color: #00FFFF; font-size: 18px;">
+  <b>🌟 Follow for more amazing projects! 🌟</b>
+</p>
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="400">
+
+</div>
+
+<br>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,2,2,5,30&height=150&section=footer" width="100%"/>
+
+</div>
