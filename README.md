@@ -1,26 +1,46 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,2,2,5,30&height=350&section=header&text=YOUSAF-BALOCH-MD&fontSize=90&animation=twinkling&fontColor=FFFFFF&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=28&descAlignY=75" width="100%"/>
+<!-- Main Header: Dark Blue Background with Yellow 3D Glowing Text -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:001F3F,50:003D7A,100:001F3F&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=95&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=30&descAlignY=55&descAlign=50" width="100%"/>
 
 <br>
 
+<!-- 3D Glowing Container with Borders and Lighting Effect -->
+<div style="background: linear-gradient(45deg, #001F3F, #003D7A); padding: 20px; border-radius: 25px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #FF00FF, inset 0 0 30px rgba(255,215,0,0.3); margin: 20px;">
+  
+  <h1 style="color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FF00FF, 0 0 70px #FF00FF, 0 0 80px #FF00FF, 0 0 100px #FF00FF, 0 0 150px #FF00FF; font-size: 60px; font-weight: bold; letter-spacing: 5px;">
+    ⚡ YOUSAF-BALOCH-MD ⚡
+  </h1>
+  
+  <p style="color: #00FFFF; font-size: 24px; text-shadow: 0 0 10px #00FFFF;">
+    <b>💎 Premium Multi-Device WhatsApp Bot 💎</b>
+  </p>
+  
+</div>
+
+<br>
+
+<!-- Stats Badges -->
 <p align="center">
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FFD700&labelColor=1a1a1a&logoColor=FFD700" alt="Stars"/>
+    <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FFD700&labelColor=001F3F&logoColor=FFD700" alt="Stars"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
-    <img src="https://img.shields.io/github/forks/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=00FFFF&labelColor=1a1a1a&logoColor=00FFFF" alt="Forks"/>
+    <img src="https://img.shields.io/github/forks/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=00FFFF&labelColor=001F3F&logoColor=00FFFF" alt="Forks"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
-    <img src="https://img.shields.io/github/issues/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF0000&labelColor=1a1a1a&logoColor=FF0000" alt="Issues"/>
+    <img src="https://img.shields.io/github/issues/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF0000&labelColor=001F3F&logoColor=FF0000" alt="Issues"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF00FF&labelColor=1a1a1a" alt="Repo Size"/>
+    <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF00FF&labelColor=001F3F" alt="Repo Size"/>
   </a>
 </p>
 
+<br>
+
+<!-- Typing SVG Animation - Powered By Section -->
 <div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=35&pause=1000&color=00FF41&center=true&vCenter=true&width=1100&height=100&lines=⚡+YOUSAF-BALOCH-MD+⚡;🤖+280%2B+PREMIUM+COMMANDS+🤖;🚀+ADVANCED+AI+INTEGRATION+🚀;💎+DEVELOPED+BY+MUHAMMAD+YOUSAF+BALOCH+💎;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;🌟+NEXT+GENERATION+WHATSAPP+BOT+🌟" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=32&pause=1000&color=FFD700&center=true&vCenter=true&width=1100&height=80&lines=⚡+280%2B+PREMIUM+COMMANDS+⚡;🤖+ADVANCED+AI+INTEGRATION+🤖;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎" alt="Typing SVG" />
 </div>
 
 <br>
@@ -412,35 +432,4 @@ npm start
 apt update && apt install nodejs git -y
 
 # Clone and Setup
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-cd YOUSAF-BALOCH-MD
-npm install
-
-# Run Bot
-npm start
-```
-
-<br>
-
-### <span style="color: #FF00FF;">☁️ METHOD 3: CLOUD HOSTING (Recommended)</span>
-
-<p>Click on any deploy button above ⬆️ for instant deployment!</p>
-
-<br>
-
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
-</div>
-
----
-
-<div align="center">
-
-## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> <span style="color: #FF0000;">SUPPORT & CONTRIBUTION</span> <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
-
-<br>
-
-<table align="center">
-  <tr>
-    <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/Y
+git clone ht
