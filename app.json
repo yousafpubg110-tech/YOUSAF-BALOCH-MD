@@ -1,0 +1,107 @@
+{
+  "name": "YOUSAF-BALOCH-MD",
+  "description": "🤖 Advanced WhatsApp Bot by Muhammad Yousaf Baloch | 40+ Premium Plugins | AI Integration | Multi-Device Support | YouTube: Yousaf Baloch Tech",
+  "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
+  "logo": "https://raw.githubusercontent.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/main/logo.png",
+  "success_url": "/",
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "multi-device",
+    "yousaf-baloch",
+    "whatsapp-bot",
+    "md-bot",
+    "baileys-md",
+    "whatsapp-automation",
+    "ai-bot",
+    "chatgpt",
+    "gemini",
+    "downloader-bot"
+  ],
+  "website": "https://www.youtube.com/@Yousaf_Baloch_Tech",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "stack": "heroku-22",
+  "env": {
+    "SESSION_ID": {
+      "description": "Your WhatsApp session string (get from pairing service)",
+      "required": false,
+      "value": ""
+    },
+    "OWNER_NUMBER": {
+      "description": "Owner WhatsApp number with country code (e.g., 923710636110)",
+      "required": true,
+      "value": "923710636110"
+    },
+    "OWNER_NAME": {
+      "description": "Your name",
+      "required": false,
+      "value": "Muhammad Yousaf Baloch"
+    },
+    "PREFIX": {
+      "description": "Bot command prefix",
+      "required": false,
+      "value": "."
+    },
+    "BOT_NAME": {
+      "description": "Your bot's name",
+      "required": false,
+      "value": "YOUSAF-BALOCH-MD"
+    },
+    "AUTO_READ": {
+      "description": "Auto read all messages (true/false)",
+      "required": false,
+      "value": "false"
+    },
+    "AUTO_STATUS_READ": {
+      "description": "Auto read status updates (true/false)",
+      "required": false,
+      "value": "false"
+    },
+    "AUTO_TYPING": {
+      "description": "Show typing indicator (true/false)",
+      "required": false,
+      "value": "false"
+    },
+    "ALWAYS_ONLINE": {
+      "description": "Always show online (true/false)",
+      "required": false,
+      "value": "false"
+    },
+    "MONGODB_URI": {
+      "description": "MongoDB connection string (optional - for persistent data)",
+      "required": false,
+      "value": ""
+    },
+    "YOUTUBE_CHANNEL": {
+      "description": "YouTube channel link",
+      "required": false,
+      "value": "https://www.youtube.com/@Yousaf_Baloch_Tech"
+    },
+    "WHATSAPP_CHANNEL": {
+      "description": "WhatsApp channel link",
+      "required": false,
+      "value": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j"
+    },
+    "TIKTOK_PROFILE": {
+      "description": "TikTok profile link",
+      "required": false,
+      "value": "https://tiktok.com/@loser_boy.110"
+    },
+    "GITHUB_PROFILE": {
+      "description": "GitHub profile link",
+      "required": false,
+      "value": "https://github.com/musakhanbaloch03-sad"
+    }
+  }
+}
