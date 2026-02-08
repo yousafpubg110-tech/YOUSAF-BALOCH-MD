@@ -5,10 +5,10 @@
 
 <br>
 
-<!-- Colorful Bold YOUSAF-BALOCH-MD Name with 3D Effect -->
+<!-- Colorful Bold YOUSAF-BALOCH-MD Name -->
 <div style="background: linear-gradient(135deg, #0000FF, #0033FF); padding: 25px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #00FFFF;">
   
-  <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 30px rgba(255,215,0,0.8); margin: 0;">
+  <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; margin: 0;">
     ⚡ YOUSAF-BALOCH-MD ⚡
   </h1>
   
@@ -16,13 +16,8 @@
 
 <br>
 
-<!-- Moving Banner for YOUSAF-BALOCH-MD (Patti Style) -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=35&duration=2000&pause=100&color=FFD700&center=true&vCenter=true&repeat=true&width=1000&height=70&lines=⚡+YOUSAF-BALOCH-MD+⚡+YOUSAF-BALOCH-MD+⚡;💎+YOUSAF-BALOCH-MD+💎+YOUSAF-BALOCH-MD+💎;🚀+YOUSAF-BALOCH-MD+🚀+YOUSAF-BALOCH-MD+🚀" alt="Scrolling Name Banner" />
-
-<br>
-
-<!-- Moving Banner: Premium Multi-Device WhatsApp Bot -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=28&pause=500&color=00FFFF&center=true&vCenter=true&repeat=true&width=800&height=60&lines=💎+PREMIUM+MULTI-DEVICE+WHATSAPP+BOT+💎;🚀+280%2B+PREMIUM+COMMANDS+AVAILABLE+🚀;🤖+ADVANCED+AI+POWERED+BOT+🤖;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️" alt="Moving Banner" />
+<!-- Scrolling Name Banner - This will actually animate -->
+<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=6,11,20&height=150&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=50&fontColor=FFD700&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
 
 <br>
 
@@ -44,13 +39,13 @@
 
 <br>
 
-<!-- Animated GIF Section instead of Typing SVG -->
+<!-- Animated Pac-Man Line -->
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
 <br>
 
-<!-- Powered By Banner - Moving Style -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=30&pause=1000&color=FFD700&center=true&vCenter=true&repeat=true&width=900&height=70&lines=⚡+POWERED+BY+MR+YOUSAF+BALOCH+⚡;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎;🚀+POWERED+BY+MR+YOUSAF+BALOCH+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;🌟+NEXT+GENERATION+WHATSAPP+BOT+🌟" alt="Powered By Banner" />
+<!-- Powered By Moving Banner -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=24&height=100&text=💎%20POWERED%20BY%20MR%20YOUSAF%20BALOCH%20💎&fontSize=30&fontColor=FFFFFF&animation=fadeIn&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
@@ -517,7 +512,7 @@ npm start
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
+  ## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
 
 <br>
 
@@ -561,45 +556,40 @@ Feel free to use, modify, and distribute this bot!
 
 ---
 
-<!-- Islamic Footer with Animated GIF Banner -->
-<div align="center" style="background: linear-gradient(90deg, #0000FF, #003D7A, #0000FF); padding: 40px; border-radius: 25px; border: 6px solid #FFD700; box-shadow: 0 0 60px #FFD700, 0 0 120px #00FFFF;">
-  
-<br>
-
-<!-- Beautiful Moving Islamic Banner -->
-<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+<!-- Islamic Footer Section -->
+<div align="center">
 
 <br>
 
-<h1 style="color: #FFD700; font-size: 45px; font-weight: 900; text-shadow: 0 0 20px #FFD700, 0 0 40px #00FFFF;">
-  🕌 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ 🕌
-</h1>
+<!-- Islamic Header Banner -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=150&text=🕌%20بِسْمِ%20اللَّهِ%20الرَّحْمَٰنِ%20الرَّحِيمِ%20🕌&fontSize=35&fontColor=FFD700&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
-<!-- Colorful Animated Names -->
+<!-- Pac-Man Animation -->
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="600">
 
 <br><br>
 
-<!-- ALLAH IS GREAT - Moving Banner (Patti Style) -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=38&duration=2500&pause=200&color=F70000,FF8800,FFD700,00FF00,00FFFF,0088FF,8800FF&center=true&vCenter=true&multiline=false&repeat=true&random=false&width=1000&height=80&lines=✨+ALLAH+IS+GREAT+✨+ALLAH+IS+GREAT+✨;🌟+ALLAH+IS+GREAT+🌟+ALLAH+IS+GREAT+🌟;💫+ALLAH+IS+GREAT+💫+ALLAH+IS+GREAT+💫" alt="Allah Is Great Banner" />
+<!-- ALLAH IS GREAT Moving Banner -->
+<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=1,2,3,4,5,6,7&height=120&text=✨%20ALLAH%20IS%20GREAT%20✨&fontSize=45&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
 
 <br>
 
-<!-- I LOVE MUHAMMAD - Moving Banner (Patti Style) -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=38&duration=2500&pause=200&color=00FF00,00FFFF,0088FF,8800FF,FF00FF,FF0088&center=true&vCenter=true&multiline=false&repeat=true&random=false&width=1000&height=80&lines=💚+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💚;💖+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💖;💗+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💗" alt="I Love Muhammad Banner" />
+<!-- I LOVE MUHAMMAD Moving Banner -->
+<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=10,11,12,13,14,15&height=120&text=💚%20I%20LOVE%20PROPHET%20MUHAMMAD%20(ﷺ)%20💚&fontSize=38&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
 
 <br>
 
+<!-- Divider -->
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
 <br>
 
 <!-- Final Powered By Section -->
-<div style="background: linear-gradient(135deg, #FFD700, #FF00FF, #00FFFF, #00FF00); padding: 25px; border-radius: 20px; border: 5px solid #FFFFFF; box-shadow: 0 0 50px rgba(255,215,0,0.9);">
+<div style="background: linear-gradient(135deg, #FFD700, #FF00FF, #00FFFF, #00FF00); padding: 30px; border-radius: 20px; border: 5px solid #FFFFFF; box-shadow: 0 0 60px rgba(255,215,0,0.9); margin: 20px;">
   
-<h2 style="color: #000000; font-size: 38px; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 10px #FFFFFF;">
+<h2 style="color: #000000; font-size: 40px; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 15px #FFFFFF;">
   ⚡ POWERED BY MR YOUSAF BALOCH © 2026 ⚡
 </h2>
 
@@ -611,11 +601,11 @@ Feel free to use, modify, and distribute this bot!
 
 <br>
 
-<p style="color: #00FFFF; font-size: 22px; text-shadow: 0 0 15px #00FFFF; font-weight: bold;">
+<p style="color: #00FFFF; font-size: 24px; text-shadow: 0 0 20px #00FFFF; font-weight: bold;">
   🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
 </p>
 
-<p style="color: #FFD700; font-size: 20px; font-weight: bold;">
+<p style="color: #FFD700; font-size: 22px; font-weight: bold;">
   Follow for more amazing projects!
 </p>
 
