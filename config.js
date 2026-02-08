@@ -149,9 +149,15 @@ global.wibs = moment.tz('Asia/Karachi').format('ss');
 global.wktuwib = `${global.wibh}:${global.wibm}:${global.wibs}`;
 
 /*============= IMAGES & MEDIA =============*/
-global.thumb = fs.readFileSync('./media/yousaf.jpg');
-global.imagebot = fs.readFileSync('./media/yousaf.jpg');
-global.giflogo = fs.readFileSync('./media/yousaf.jpg');
+try {
+  global.thumb = fs.readFileSync('./media/yousaf.jpg');
+  global.imagebot = fs.readFileSync('./media/yousaf.jpg');
+  global.giflogo = fs.readFileSync('./media/yousaf.jpg');
+} catch (e) {
+  global.thumb = Buffer.from('');
+  global.imagebot = Buffer.from('');
+  global.giflogo = Buffer.from('');
+}
 
 /*============= DATABASE =============*/
 global.mongodb = ''; // MongoDB URI (optional)
