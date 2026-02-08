@@ -10,7 +10,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
-import { readdirSync } from 'fs';
+import { readdirSync, existsSync } from 'fs';
 import yargs from 'yargs';
 import lodash from 'lodash';
 import chalk from 'chalk';
@@ -98,6 +98,7 @@ app.get('/', (req, res) => {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary: #00f2ff;
@@ -129,7 +130,6 @@ app.get('/', (req, res) => {
             100% { background-position: 0% 50%; }
         }
         
-        /* Animated Particles */
         .particles {
             position: fixed;
             top: 0;
@@ -165,7 +165,6 @@ app.get('/', (req, res) => {
             }
         }
         
-        /* Main Container */
         .container {
             position: relative;
             z-index: 1;
@@ -178,7 +177,6 @@ app.get('/', (req, res) => {
             justify-content: center;
         }
         
-        /* Header with Time */
         .header-time {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
@@ -213,7 +211,6 @@ app.get('/', (req, res) => {
             background-clip: text;
             animation: gradientFlow 3s ease infinite;
             margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(0, 242, 255, 0.5);
         }
         
         @keyframes gradientFlow {
@@ -228,7 +225,6 @@ app.get('/', (req, res) => {
             color: rgba(255, 255, 255, 0.8);
         }
         
-        /* Main Card */
         .main-card {
             background: rgba(10, 10, 10, 0.8);
             backdrop-filter: blur(30px);
@@ -248,12 +244,7 @@ app.get('/', (req, res) => {
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(
-                45deg,
-                transparent,
-                rgba(139, 92, 246, 0.1),
-                transparent
-            );
+            background: linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.1), transparent);
             transform: rotate(45deg);
             animation: shimmer 3s linear infinite;
         }
@@ -274,7 +265,6 @@ app.get('/', (req, res) => {
             }
         }
         
-        /* Logo/Title */
         .bot-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 2.2em;
@@ -306,7 +296,6 @@ app.get('/', (req, res) => {
             z-index: 1;
         }
         
-        /* Developer Info */
         .dev-info {
             text-align: center;
             margin-bottom: 30px;
@@ -327,7 +316,6 @@ app.get('/', (req, res) => {
             color: rgba(255, 255, 255, 0.7);
         }
         
-        /* Status */
         .status-badge {
             background: rgba(255, 215, 0, 0.1);
             border: 2px solid var(--accent);
@@ -347,7 +335,7 @@ app.get('/', (req, res) => {
             50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
         }
         
-        .status-text {
+        .status {
             color: var(--accent);
         }
         
@@ -355,7 +343,6 @@ app.get('/', (req, res) => {
             color: #00ff00;
         }
         
-        /* Buttons Container */
         .buttons-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -418,19 +405,18 @@ app.get('/', (req, res) => {
             color: rgba(255, 255, 255, 0.6);
         }
         
-        /* Modal Sections */
-        .modal-section {
+        .section {
             display: none;
-            animation: modalFadeIn 0.5s ease;
+            animation: fadeIn 0.5s ease;
             position: relative;
             z-index: 1;
         }
         
-        .modal-section.active {
+        .section.active {
             display: block;
         }
         
-        @keyframes modalFadeIn {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -441,15 +427,6 @@ app.get('/', (req, res) => {
             }
         }
         
-        .modal-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5em;
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-        
-        /* QR Code Section */
         .qr-container {
             background: white;
             border-radius: 20px;
@@ -470,11 +447,6 @@ app.get('/', (req, res) => {
             color: var(--accent);
             text-align: center;
             margin-top: 15px;
-        }
-        
-        /* Input Section */
-        .input-wrapper {
-            margin: 20px 0;
         }
         
         input {
@@ -521,11 +493,6 @@ app.get('/', (req, res) => {
             box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
         }
         
-        .generate-btn:active {
-            transform: translateY(-1px);
-        }
-        
-        /* Code Display */
         .code-display {
             font-family: 'Orbitron', monospace;
             font-size: 2.5em;
@@ -554,7 +521,6 @@ app.get('/', (req, res) => {
             font-size: 0.95em;
         }
         
-        /* Social Links */
         .social-links {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -591,7 +557,6 @@ app.get('/', (req, res) => {
             font-size: 1.3em;
         }
         
-        /* Footer */
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -602,7 +567,6 @@ app.get('/', (req, res) => {
             z-index: 1;
         }
         
-        /* Loading Spinner */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -617,7 +581,6 @@ app.get('/', (req, res) => {
             to { transform: rotate(360deg); }
         }
         
-        /* Mobile Responsive */
         @media (max-width: 600px) {
             .time-display { font-size: 2em; }
             .bot-title { font-size: 1.8em; }
@@ -630,17 +593,14 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <!-- Animated Particles -->
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <!-- Header with Time -->
         <div class="header-time">
             <div class="time-display" id="time">00:00:00</div>
             <div class="date-display" id="date">Loading...</div>
         </div>
 
-        <!-- Main Card -->
         <div class="main-card">
             <h1 class="bot-title">⚡ YOUSAF-BALOCH-MD ⚡</h1>
             <div class="bot-subtitle">ULTRA PREMIUM EDITION</div>
@@ -651,19 +611,15 @@ app.get('/', (req, res) => {
             </div>
             
             <div class="status-badge">
-                <div class="status-text">
-                    Status: <span id="status">⏳ Waiting...</span>
-                </div>
+                <div id="status" class="status">⏳ Waiting...</div>
             </div>
             
-            <!-- Method Selection Buttons -->
             <div class="buttons-grid">
                 <div class="method-btn" onclick="showQR()">
                     <div class="method-icon">📱</div>
                     <div class="method-title">QR CODE</div>
                     <div class="method-desc">Scan & Connect</div>
                 </div>
-                
                 <div class="method-btn" onclick="showPairing()">
                     <div class="method-icon">🔐</div>
                     <div class="method-title">PAIRING</div>
@@ -671,79 +627,60 @@ app.get('/', (req, res) => {
                 </div>
             </div>
             
-            <!-- QR Code Section -->
-            <div id="qr-section" class="modal-section">
-                <div class="modal-title">📱 SCAN QR CODE</div>
-                <div class="info-text">WhatsApp → Linked Devices → Link a Device</div>
-                <div class="qr-container" id="qrcode"></div>
-                <div class="qr-timer" id="qr-timer"></div>
+            <div id="qr-section" class="section">
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                </div>
+                <div id="qr-timer" class="qr-timer">⏳ Loading QR...</div>
+                <div class="info-text">Open WhatsApp → Linked Devices → Scan QR</div>
             </div>
             
-            <!-- Pairing Code Section -->
-            <div id="pairing-section" class="modal-section">
-                <div class="modal-title">🔐 PAIRING CODE</div>
-                <div class="input-wrapper">
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        placeholder="923710636110" 
-                        maxlength="15"
-                        autocomplete="tel"
-                    >
-                    <button class="generate-btn" onclick="generateCode()">
-                        🚀 GENERATE CODE
-                    </button>
-                </div>
+            <div id="pairing-section" class="section">
+                <input type="tel" id="phone" placeholder="923710636110" maxlength="15">
+                <button class="generate-btn" onclick="generateCode()">🚀 GENERATE CODE</button>
                 <div id="code-result"></div>
             </div>
             
-            <!-- Social Links -->
             <div class="social-links">
-                <a href="https://github.com/musakhanbaloch03-sad" target="_blank" class="social-btn">
+                <a href="https://github.com/musakhanbaloch03-sad" class="social-btn" target="_blank">
                     <span class="social-icon">💻</span>
                     <span>GitHub</span>
                 </a>
-                <a href="https://www.youtube.com/@Yousaf_Baloch_Tech" target="_blank" class="social-btn">
+                <a href="https://www.youtube.com/@Yousaf_Baloch_Tech" class="social-btn" target="_blank">
                     <span class="social-icon">📺</span>
                     <span>YouTube</span>
                 </a>
-                <a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j" target="_blank" class="social-btn">
-                    <span class="social-icon">📢</span>
-                    <span>Channel</span>
-                </a>
-                <a href="https://tiktok.com/@loser_boy.110" target="_blank" class="social-btn">
+                <a href="https://tiktok.com/@loser_boy.110" class="social-btn" target="_blank">
                     <span class="social-icon">🎵</span>
                     <span>TikTok</span>
                 </a>
+                <a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j" class="social-btn" target="_blank">
+                    <span class="social-icon">📢</span>
+                    <span>Channel</span>
+                </a>
             </div>
         </div>
-
-        <!-- Footer -->
+        
         <div class="footer">
-            © 2026 YOUSAF-BALOCH-MD | All Rights Reserved
+            © 2025 YOUSAF-BALOCH-MD | Developed by Muhammad Yousaf Baloch<br>
+            All Rights Reserved
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
-        // Create floating particles
-        function createParticles() {
-            const particles = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                const size = Math.random() * 5 + 2;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-                particles.appendChild(particle);
-            }
+        // Create particles
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 5 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            document.getElementById('particles').appendChild(particle);
         }
-        createParticles();
-
-        // Update Time & Date
+        
+        // Update time
         function updateDateTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -867,7 +804,7 @@ app.get('/', (req, res) => {
             }
         }
 
-        // Allow Enter key for phone input
+        // Allow Enter key
         document.getElementById('phone').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 generateCode();
@@ -930,8 +867,7 @@ async function startBot() {
     generateHighQualityLinkPreview: true,
     getMessage: async (key) => {
       let jid = jidNormalizedUser(key.remoteJid);
-      let msg = await store?.loadMessage(jid, key.id);
-      return msg?.message || '';
+      return {message: ''};
     },
     msgRetryCounterMap: MessageRetryMap,
   };
@@ -944,14 +880,14 @@ async function startBot() {
     }, 30 * 1000);
   }
 
-  conn.ev.on('connection.update', async (update) => {
+  global.conn.ev.on('connection.update', async (update) => {
     const {connection, lastDisconnect, qr} = update;
     
     if (qr) currentQR = qr;
     
     const code = lastDisconnect?.error?.output?.statusCode;
     
-    if (code && code !== DisconnectReason.loggedOut && !conn?.ws.socket) {
+    if (code && code !== DisconnectReason.loggedOut && !global.conn?.ws.socket) {
       console.log(chalk.yellow('⚠️ Reconnecting...'));
       connectionStatus = 'reconnecting';
       setTimeout(() => startBot(), 3000);
@@ -963,7 +899,7 @@ async function startBot() {
     }
   });
 
-  conn.ev.on('creds.update', saveCreds);
+  global.conn.ev.on('creds.update', saveCreds);
 
   global.plugins = {};
   const pluginFolder = path.join(__dirname, './plugins');
@@ -982,4 +918,3 @@ startBot();
 
 process.on('unhandledRejection', console.error);
 process.on('uncaughtException', console.error);
-            
