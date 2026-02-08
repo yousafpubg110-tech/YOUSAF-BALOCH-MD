@@ -31,7 +31,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install Node.js dependencies
-RUN npm install --production --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Copy application files
 COPY . .
@@ -41,7 +41,6 @@ RUN mkdir -p session && \
     chmod -R 777 session
 
 # Set environment variables
-ENV NODE_ENV=production
 ENV PORT=8000
 
 # Expose port
