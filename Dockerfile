@@ -4,7 +4,7 @@
 # YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
 # WhatsApp: +923710636110
 
-FROM node:18-bullseye-slim
+FROM node:20-bullseye-slim
 
 # Maintainer Information
 LABEL maintainer="Muhammad Yousaf Baloch <musakhanbaloch03@gmail.com>"
