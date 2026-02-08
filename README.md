@@ -16,8 +16,13 @@
 
 <br>
 
+<!-- Moving Banner for YOUSAF-BALOCH-MD (Patti Style) -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=35&duration=2000&pause=100&color=FFD700&center=true&vCenter=true&repeat=true&width=1000&height=70&lines=⚡+YOUSAF-BALOCH-MD+⚡+YOUSAF-BALOCH-MD+⚡;💎+YOUSAF-BALOCH-MD+💎+YOUSAF-BALOCH-MD+💎;🚀+YOUSAF-BALOCH-MD+🚀+YOUSAF-BALOCH-MD+🚀" alt="Scrolling Name Banner" />
+
+<br>
+
 <!-- Moving Banner: Premium Multi-Device WhatsApp Bot -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=28&pause=500&color=00FFFF&center=true&vCenter=true&repeat=true&width=800&height=60&lines=💎+PREMIUM+MULTI-DEVICE+WHATSAPP+BOT+💎;🚀+280%2B+COMMANDS+AVAILABLE+🚀;🤖+ADVANCED+AI+POWERED+🤖" alt="Moving Banner" />
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=28&pause=500&color=00FFFF&center=true&vCenter=true&repeat=true&width=800&height=60&lines=💎+PREMIUM+MULTI-DEVICE+WHATSAPP+BOT+💎;🚀+280%2B+PREMIUM+COMMANDS+AVAILABLE+🚀;🤖+ADVANCED+AI+POWERED+BOT+🤖;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️" alt="Moving Banner" />
 
 <br>
 
@@ -44,8 +49,8 @@
 
 <br>
 
-<!-- Powered By Banner -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=30&pause=1000&color=FFD700&center=true&vCenter=true&width=900&height=70&lines=⚡+POWERED+BY+MR+YOUSAF+BALOCH+⚡;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀" alt="Powered By" />
+<!-- Powered By Banner - Moving Style -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=30&pause=1000&color=FFD700&center=true&vCenter=true&repeat=true&width=900&height=70&lines=⚡+POWERED+BY+MR+YOUSAF+BALOCH+⚡;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎;🚀+POWERED+BY+MR+YOUSAF+BALOCH+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;🌟+NEXT+GENERATION+WHATSAPP+BOT+🌟" alt="Powered By Banner" />
 
 <br>
 
@@ -413,6 +418,105 @@
 
 <div align="center">
 
+## <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/> <span style="color: #00FF00;">INSTALLATION GUIDE</span> <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/>
+
+<br>
+
+### <span style="color: #FFD700;">📱 METHOD 1: TERMUX (Android)</span>
+
+```bash
+# Update and Install Dependencies
+pkg update && pkg upgrade -y
+pkg install git nodejs -y
+
+# Clone Repository
+git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+cd YOUSAF-BALOCH-MD
+
+# Install Modules
+npm install
+
+# Start Bot
+npm start
+```
+
+<br>
+
+### <span style="color: #00FFFF;">💻 METHOD 2: VPS/RDP (Linux/Windows)</span>
+
+```bash
+# Install Node.js and Git
+apt update && apt install nodejs git -y
+
+# Clone and Setup
+git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+cd YOUSAF-BALOCH-MD
+npm install
+
+# Run Bot
+npm start
+```
+
+<br>
+
+### <span style="color: #FF00FF;">☁️ METHOD 3: CLOUD HOSTING (Recommended)</span>
+
+<p>Click on any deploy button above ⬆️ for instant deployment!</p>
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+
+</div>
+
+---
+
+<div align="center">
+
+## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> <span style="color: #FF0000;">SUPPORT & CONTRIBUTION</span> <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
+
+<br>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
+        <img src="https://img.shields.io/badge/REPORT_BUG-FF0000?style=for-the-badge&logo=github&logoColor=white" height="50"/>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
+        <img src="https://img.shields.io/badge/FORK_REPO-00FF00?style=for-the-badge&logo=github&logoColor=white" height="50"/>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/stargazers">
+        <img src="https://img.shields.io/badge/GIVE_STAR-FFD700?style=for-the-badge&logo=github&logoColor=black" height="50"/>
+      </a>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<h3 style="color: #00FFFF;">💝 Support This Project:</h3>
+
+<p>If you like this project, please give it a ⭐ star on GitHub!</p>
+
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
+  <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=social" alt="GitHub stars"/>
+</a>
+
+<br><br>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+
+</div>
+
+---
+
+<div align="center">
+
 ## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
 
 <br>
@@ -478,13 +582,13 @@ Feel free to use, modify, and distribute this bot!
 
 <br><br>
 
-<h2 style="background: linear-gradient(90deg, #FF0000, #FF8800, #FFD700, #00FF00, #00FFFF, #0088FF, #8800FF, #FF0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 40px; font-weight: 900; letter-spacing: 3px;">
-  ✨ ALLAH IS GREAT ✨
-</h2>
+<!-- ALLAH IS GREAT - Moving Banner (Patti Style) -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=38&duration=2500&pause=200&color=F70000,FF8800,FFD700,00FF00,00FFFF,0088FF,8800FF&center=true&vCenter=true&multiline=false&repeat=true&random=false&width=1000&height=80&lines=✨+ALLAH+IS+GREAT+✨+ALLAH+IS+GREAT+✨;🌟+ALLAH+IS+GREAT+🌟+ALLAH+IS+GREAT+🌟;💫+ALLAH+IS+GREAT+💫+ALLAH+IS+GREAT+💫" alt="Allah Is Great Banner" />
 
-<h2 style="background: linear-gradient(90deg, #00FF00, #00FFFF, #0088FF, #8800FF, #FF00FF, #FF0088, #00FF00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 40px; font-weight: 900; letter-spacing: 3px;">
-  💚 I LOVE PROPHET MUHAMMAD (ﷺ) 💚
-</h2>
+<br>
+
+<!-- I LOVE MUHAMMAD - Moving Banner (Patti Style) -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=38&duration=2500&pause=200&color=00FF00,00FFFF,0088FF,8800FF,FF00FF,FF0088&center=true&vCenter=true&multiline=false&repeat=true&random=false&width=1000&height=80&lines=💚+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💚;💖+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💖;💗+I+LOVE+PROPHET+MUHAMMAD+(ﷺ)+💗" alt="I Love Muhammad Banner" />
 
 <br>
 
