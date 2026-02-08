@@ -1,47 +1,51 @@
 <div align="center">
 
-<!-- Main Header: Dark Blue Background with Yellow 3D Glowing Text -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:001F3F,50:003D7A,100:001F3F&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=70&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=25&descAlignY=55&descAlign=50" width="100%"/>
+<!-- Main Header: PURE BLUE Background with Yellow Text -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=65&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=22&descAlignY=55&descAlign=50" width="100%"/>
 
 <br>
 
-<!-- 3D Glowing Container with Borders and Lighting Effect -->
-<div style="background: linear-gradient(45deg, #001F3F, #003D7A); padding: 20px; border-radius: 25px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #FF00FF, inset 0 0 30px rgba(255,215,0,0.3); margin: 20px;">
+<!-- Colorful Bold YOUSAF-BALOCH-MD Name with 3D Effect -->
+<div style="background: linear-gradient(135deg, #0000FF, #0033FF); padding: 25px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #00FFFF;">
   
-  <h1 style="color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FF00FF, 0 0 70px #FF00FF, 0 0 80px #FF00FF, 0 0 100px #FF00FF, 0 0 150px #FF00FF; font-size: 60px; font-weight: bold; letter-spacing: 5px;">
+  <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 30px rgba(255,215,0,0.8); margin: 0;">
     ⚡ YOUSAF-BALOCH-MD ⚡
   </h1>
   
-  <p style="color: #00FFFF; font-size: 24px; text-shadow: 0 0 10px #00FFFF;">
-    <b>💎 Premium Multi-Device WhatsApp Bot 💎</b>
-  </p>
-  
 </div>
+
+<br>
+
+<!-- Moving Banner: Premium Multi-Device WhatsApp Bot -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=28&pause=500&color=00FFFF&center=true&vCenter=true&repeat=true&width=800&height=60&lines=💎+PREMIUM+MULTI-DEVICE+WHATSAPP+BOT+💎;🚀+280%2B+COMMANDS+AVAILABLE+🚀;🤖+ADVANCED+AI+POWERED+🤖" alt="Moving Banner" />
 
 <br>
 
 <!-- Stats Badges -->
 <p align="center">
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FFD700&labelColor=001F3F&logoColor=FFD700" alt="Stars"/>
+    <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FFD700&labelColor=0000FF&logoColor=FFD700" alt="Stars"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
-    <img src="https://img.shields.io/github/forks/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=00FFFF&labelColor=001F3F&logoColor=00FFFF" alt="Forks"/>
+    <img src="https://img.shields.io/github/forks/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=00FFFF&labelColor=0000FF&logoColor=00FFFF" alt="Forks"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
-    <img src="https://img.shields.io/github/issues/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF0000&labelColor=001F3F&logoColor=FF0000" alt="Issues"/>
+    <img src="https://img.shields.io/github/issues/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF0000&labelColor=0000FF&logoColor=FF0000" alt="Issues"/>
   </a>
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-    <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF00FF&labelColor=001F3F" alt="Repo Size"/>
+    <img src="https://img.shields.io/github/repo-size/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FF00FF&labelColor=0000FF" alt="Repo Size"/>
   </a>
 </p>
 
 <br>
 
-<!-- Typing SVG Animation - Powered By Section -->
-<div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=32&pause=1000&color=FFD700&center=true&vCenter=true&width=1100&height=80&lines=⚡+280%2B+PREMIUM+COMMANDS+⚡;🤖+ADVANCED+AI+INTEGRATION+🤖;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;💎+POWERED+BY+MR+YOUSAF+BALOCH+💎" alt="Typing Animation" />
-</div>
+<!-- Animated GIF Section instead of Typing SVG -->
+<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
+
+<br>
+
+<!-- Powered By Banner -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=30&pause=1000&color=FFD700&center=true&vCenter=true&width=900&height=70&lines=⚡+POWERED+BY+MR+YOUSAF+BALOCH+⚡;🛡️+100%25+SAFE+%26+SECURE+-+NO+BAN+🛡️;🚀+NEXT+GENERATION+WHATSAPP+BOT+🚀" alt="Powered By" />
 
 <br>
 
@@ -453,36 +457,69 @@ Feel free to use, modify, and distribute this bot!
 
 ---
 
-<div align="center" style="background: linear-gradient(90deg, #000428, #004e92); padding: 30px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700;">
+<!-- Islamic Footer with Animated GIF Banner -->
+<div align="center" style="background: linear-gradient(90deg, #0000FF, #003D7A, #0000FF); padding: 40px; border-radius: 25px; border: 6px solid #FFD700; box-shadow: 0 0 60px #FFD700, 0 0 120px #00FFFF;">
   
 <br>
 
-<img src="https://readme-typing-svg.demolab.com?font=Cinzel&weight=700&size=55&duration=3000&pause=1000&color=FFD700&center=true&vCenter=true&width=1000&height=100&lines=بِسْمِ+اللَّهِ+الرَّحْمَٰنِ+الرَّحِيمِ;ALLAH+IS+THE+GREATEST;I+LOVE+PROPHET+MUHAMMAD+(ﷺ);ALHAMDULILLAH+FOR+EVERYTHING;MAY+ALLAH+BLESS+US+ALL" alt="Islamic Footer" />
-
-<br>
-
+<!-- Beautiful Moving Islamic Banner -->
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
 <br>
 
-<h2>
-  <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="40"/>
-  <span style="color: #FFD700;">MADE WITH ❤️ BY MUHAMMAD YOUSAF BALOCH</span>
-  <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="40"/>
-</h2>
-
-<p style="color: #00FFFF; font-size: 18px;">
-  <b>🌟 Follow for more amazing projects! 🌟</b>
-</p>
+<h1 style="color: #FFD700; font-size: 45px; font-weight: 900; text-shadow: 0 0 20px #FFD700, 0 0 40px #00FFFF;">
+  🕌 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ 🕌
+</h1>
 
 <br>
 
-<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="400">
+<!-- Colorful Animated Names -->
+<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="600">
+
+<br><br>
+
+<h2 style="background: linear-gradient(90deg, #FF0000, #FF8800, #FFD700, #00FF00, #00FFFF, #0088FF, #8800FF, #FF0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 40px; font-weight: 900; letter-spacing: 3px;">
+  ✨ ALLAH IS GREAT ✨
+</h2>
+
+<h2 style="background: linear-gradient(90deg, #00FF00, #00FFFF, #0088FF, #8800FF, #FF00FF, #FF0088, #00FF00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 40px; font-weight: 900; letter-spacing: 3px;">
+  💚 I LOVE PROPHET MUHAMMAD (ﷺ) 💚
+</h2>
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
+
+<br>
+
+<!-- Final Powered By Section -->
+<div style="background: linear-gradient(135deg, #FFD700, #FF00FF, #00FFFF, #00FF00); padding: 25px; border-radius: 20px; border: 5px solid #FFFFFF; box-shadow: 0 0 50px rgba(255,215,0,0.9);">
+  
+<h2 style="color: #000000; font-size: 38px; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 10px #FFFFFF;">
+  ⚡ POWERED BY MR YOUSAF BALOCH © 2026 ⚡
+</h2>
 
 </div>
 
 <br>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,2,2,5,30&height=150&section=footer" width="100%"/>
+<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
+
+<br>
+
+<p style="color: #00FFFF; font-size: 22px; text-shadow: 0 0 15px #00FFFF; font-weight: bold;">
+  🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
+</p>
+
+<p style="color: #FFD700; font-size: 20px; font-weight: bold;">
+  Follow for more amazing projects!
+</p>
+
+</div>
+
+<br>
+
+<!-- Footer Wave with Pure Blue -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=150&section=footer" width="100%"/>
 
 </div>
