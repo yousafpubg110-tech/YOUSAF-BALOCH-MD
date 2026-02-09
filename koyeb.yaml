@@ -1,0 +1,24 @@
+services:
+  - name: yousaf-baloch-md
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - port: 8000
+        protocol: http
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8000"
+      - key: SESSION_ID
+        value: YOUR_SESSION_ID_HERE
+      - key: BOT_NAME
+        value: YOUSAF-BALOCH-MD
+      - key: PREFIX
+        value: .
+      - key: MODE
+        value: public
+    regions:
+      - fra
+    instance_types:
+      - free
