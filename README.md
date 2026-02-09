@@ -1,11 +1,9 @@
 <div align="center">
 
-<!-- Main Header: PURE BLUE Background with Yellow Text -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=65&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=22&descAlignY=55&descAlign=50" width="100%"/>
 
 <br>
 
-<!-- Colorful Bold YOUSAF-BALOCH-MD Name -->
 <div style="background: linear-gradient(135deg, #0000FF, #0033FF); padding: 25px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #00FFFF;">
   
   <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; margin: 0;">
@@ -16,12 +14,10 @@
 
 <br>
 
-<!-- Scrolling Name Banner - This will actually animate -->
 <img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=6,11,20&height=150&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=50&fontColor=FFD700&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
 
 <br>
 
-<!-- Stats Badges -->
 <p align="center">
   <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
     <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=for-the-badge&logo=github&color=FFD700&labelColor=0000FF&logoColor=FFD700" alt="Stars"/>
@@ -39,12 +35,10 @@
 
 <br>
 
-<!-- Animated Pac-Man Line -->
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
 <br>
 
-<!-- Powered By Moving Banner -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=24&height=100&text=💎%20POWERED%20BY%20MR%20YOUSAF%20BALOCH%20💎&fontSize=30&fontColor=FFFFFF&animation=fadeIn&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
@@ -165,7 +159,7 @@
 
 ## <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/> <span style="color: #00F2FF;">DEVELOPER - MUHAMMAD YOUSAF BALOCH</span> <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/>
 
-<img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="400">
+<img src="https://i.ibb.co/YDxBtFb/yousaf-baloch-md-logo.png" width="100%" style="border-radius: 15px; border: 3px solid #00F2FF; box-shadow: 0 0 20px #00F2FF;"/>
 
 <br><br>
 
@@ -176,14 +170,14 @@
         <img src="https://img.shields.io/badge/WHATSAPP-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" height="50" style="box-shadow: 0 0 20px #25D366;"/>
       </a>
       <br>
-      <sub><b>Contact on WhatsApp</b></sub>
+      <sub><b>Contact: +923710636110</b></sub>
     </td>
     <td align="center" width="200">
       <a href="https://github.com/musakhanbaloch03-sad">
         <img src="https://img.shields.io/badge/GITHUB-181717?style=for-the-badge&logo=github&logoColor=white" height="50" style="box-shadow: 0 0 20px #ffffff;"/>
       </a>
       <br>
-      <sub><b>Visit GitHub Profile</b></sub>
+      <sub><b>@musakhanbaloch03-sad</b></sub>
     </td>
   </tr>
 </table>
@@ -209,7 +203,7 @@
       <br>
       <sub><b>🎬 Subscribe to YouTube Channel</b></sub>
       <br>
-      <p style="color: #FFFFFF; font-size: 14px;">Click here to learn how to setup and use this bot with detailed video tutorials!</p>
+      <p style="color: #FFFFFF; font-size: 14px;">Detailed video tutorials available on my official channel!</p>
       <br>
       <a href="https://www.youtube.com/@Yousaf_Baloch_Tech?sub_confirmation=1">
         <img src="https://img.shields.io/badge/SUBSCRIBE_NOW-FF0000?style=for-the-badge&logo=youtube&logoColor=white" height="45"/>
@@ -226,7 +220,7 @@
       <br>
       <sub><b>📢 Join WhatsApp Channel</b></sub>
       <br>
-      <p style="color: #FFFFFF; font-size: 14px;">Join our official WhatsApp channel for latest updates, new features, and bot announcements!</p>
+      <p style="color: #FFFFFF; font-size: 14px;">Official updates and bot announcements!</p>
     </td>
   </tr>
   <tr>
@@ -237,7 +231,7 @@
       <br><br>
       <img src="https://user-images.githubusercontent.com/74038190/235294013-a33e5c43-a01c-43f6-b44d-a406d8b4ab75.gif" width="100">
       <br>
-      <sub><b>🎵 Follow on TikTok</b></sub>
+      <sub><b>🎵 Follow on TikTok: @loser_boy.110</b></sub>
     </td>
   </tr>
 </table>
@@ -315,14 +309,12 @@
 
 ### <span style="color: #FFD700;">⚡ QUICK STEPS TO GET YOUR SESSION ID:</span>
 
-```
 1️⃣ Click the button above
 2️⃣ Enter your WhatsApp number
 3️⃣ Get the pairing code
 4️⃣ Link your device
 5️⃣ Copy your SESSION ID
 6️⃣ Paste it in your bot config
-```
 
 <br>
 
@@ -425,7 +417,7 @@ pkg update && pkg upgrade -y
 pkg install git nodejs -y
 
 # Clone Repository
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+git clone [https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD](https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD)
 cd YOUSAF-BALOCH-MD
 
 # Install Modules
@@ -433,187 +425,100 @@ npm install
 
 # Start Bot
 npm start
-```
-
-<br>
-
-### <span style="color: #00FFFF;">💻 METHOD 2: VPS/RDP (Linux/Windows)</span>
-
-```bash
+<span style="color: #00FFFF;">💻 METHOD 2: VPS/RDP (Linux/Windows)</span>
 # Install Node.js and Git
 apt update && apt install nodejs git -y
 
 # Clone and Setup
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+git clone [https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD](https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD)
 cd YOUSAF-BALOCH-MD
 npm install
 
 # Run Bot
 npm start
-```
-
-<br>
-
-### <span style="color: #FF00FF;">☁️ METHOD 3: CLOUD HOSTING (Recommended)</span>
-
+<span style="color: #FF00FF;">☁️ METHOD 3: CLOUD HOSTING (Recommended)</span>
 <p>Click on any deploy button above ⬆️ for instant deployment!</p>
-
-<br>
-
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
 </div>
-
----
-
 <div align="center">
-
-## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> <span style="color: #FF0000;">SUPPORT & CONTRIBUTION</span> <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
-
-<br>
-
+<img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> <span style="color: #FF0000;">SUPPORT & CONTRIBUTION</span> <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
 <table align="center">
-  <tr>
-    <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
-        <img src="https://img.shields.io/badge/REPORT_BUG-FF0000?style=for-the-badge&logo=github&logoColor=white" height="50"/>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
-        <img src="https://img.shields.io/badge/FORK_REPO-00FF00?style=for-the-badge&logo=github&logoColor=white" height="50"/>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/stargazers">
-        <img src="https://img.shields.io/badge/GIVE_STAR-FFD700?style=for-the-badge&logo=github&logoColor=black" height="50"/>
-      </a>
-    </td>
-  </tr>
-</table>
-
-<br>
-
-<h3 style="color: #00FFFF;">💝 Support This Project:</h3>
-
-<p>If you like this project, please give it a ⭐ star on GitHub!</p>
-
-<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
-  <img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=social" alt="GitHub stars"/>
+<tr>
+<td align="center">
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
+<img src="https://img.shields.io/badge/REPORT_BUG-FF0000?style=for-the-badge&logo=github&logoColor=white" height="50"/>
 </a>
-
-<br><br>
-
+</td>
+<td align="center">
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
+<img src="https://img.shields.io/badge/FORK_REPO-00FF00?style=for-the-badge&logo=github&logoColor=white" height="50"/>
+</a>
+</td>
+<td align="center">
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/stargazers">
+<img src="https://img.shields.io/badge/GIVE_STAR-FFD700?style=for-the-badge&logo=github&logoColor=black" height="50"/>
+</a>
+</td>
+</tr>
+</table>
+<h3 style="color: #00FFFF;">💝 Support This Project:</h3>
+<p>If you like this project, please give it a ⭐ star on GitHub!</p>
+<a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
+<img src="https://img.shields.io/github/stars/musakhanbaloch03-sad/YOUSAF-BALOCH-MD?style=social" alt="GitHub stars"/>
+</a>
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
 </div>
-
----
-
 <div align="center">
-
-  ## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
-
-<br>
-
+<img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
 <img src="https://img.shields.io/badge/LICENSE-MIT-brightgreen?style=for-the-badge" height="40"/>
-
-<br>
-
 <p>
-This project is licensed under the <b>MIT License</b><br>
+This project is licensed under the <b>MIT License</b>
+
 Feel free to use, modify, and distribute this bot!
 </p>
-
-<br>
-
 <h3 style="color: #00FF00;">👨‍💻 Special Credits:</h3>
-
 <table align="center">
-  <tr>
-    <td align="center">
-      <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="60">
-      <br>
-      <b>Muhammad Yousaf Baloch</b>
-      <br>
-      <sub>Lead Developer</sub>
-    </td>
-    <td align="center">
-      <img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="60">
-      <br>
-      <b>All Contributors</b>
-      <br>
-      <sub>Community Support</sub>
-    </td>
-  </tr>
+<tr>
+<td align="center">
+<img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="60">
+
+
+<b>Muhammad Yousaf Baloch</b>
+
+
+<sub>Lead Developer</sub>
+</td>
+<td align="center">
+<img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="60">
+
+
+<b>All Contributors</b>
+
+
+<sub>Community Support</sub>
+</td>
+</tr>
 </table>
-
-<br>
-
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
 </div>
-
----
-
-<!-- Islamic Footer Section -->
 <div align="center">
-
-<br>
-
-<!-- Islamic Header Banner -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=150&text=🕌%20بِسْمِ%20اللَّهِ%20الرَّحْمَٰنِ%20الرَّحِيمِ%20🕌&fontSize=35&fontColor=FFD700&fontAlign=50&fontAlignY=50" width="100%"/>
-
-<br>
-
-<!-- Pac-Man Animation -->
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="600">
-
-<br><br>
-
-<!-- ALLAH IS GREAT Moving Banner -->
 <img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=1,2,3,4,5,6,7&height=120&text=✨%20ALLAH%20IS%20GREAT%20✨&fontSize=45&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
-
-<br>
-
-<!-- I LOVE MUHAMMAD Moving Banner -->
 <img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=10,11,12,13,14,15&height=120&text=💚%20I%20LOVE%20PROPHET%20MUHAMMAD%20(ﷺ)%20💚&fontSize=38&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
-
-<br>
-
-<!-- Divider -->
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
-
-<br>
-
-<!-- Final Powered By Section -->
 <div style="background: linear-gradient(135deg, #FFD700, #FF00FF, #00FFFF, #00FF00); padding: 30px; border-radius: 20px; border: 5px solid #FFFFFF; box-shadow: 0 0 60px rgba(255,215,0,0.9); margin: 20px;">
-  
 <h2 style="color: #000000; font-size: 40px; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 15px #FFFFFF;">
-  ⚡ POWERED BY MR YOUSAF BALOCH © 2026 ⚡
+⚡ POWERED BY MR YOUSAF BALOCH © 2026 ⚡
 </h2>
-
 </div>
-
-<br>
-
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
-
-<br>
-
 <p style="color: #00FFFF; font-size: 24px; text-shadow: 0 0 20px #00FFFF; font-weight: bold;">
-  🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
+🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
 </p>
-
 <p style="color: #FFD700; font-size: 22px; font-weight: bold;">
-  Follow for more amazing projects!
+Follow for more amazing projects!
 </p>
-
 </div>
-
-<br>
-
-<!-- Footer Wave with Pure Blue -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=150&section=footer" width="100%"/>
-
 </div>
