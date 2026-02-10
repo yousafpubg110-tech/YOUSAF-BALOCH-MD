@@ -1,107 +1,106 @@
 {
   "name": "YOUSAF-BALOCH-MD",
-  "description": "🤖 Advanced WhatsApp Bot by Muhammad Yousaf Baloch | 40+ Premium Plugins | AI Integration | Multi-Device Support | YouTube: Yousaf Baloch Tech",
-  "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
-  "logo": "https://raw.githubusercontent.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/main/logo.png",
-  "success_url": "/",
+  "description": "Ultra Pro Premium WhatsApp Multi-Device Bot by Muhammad Yousaf Baloch | YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech | TikTok: https://tiktok.com/@loser_boy.110 | Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j | GitHub: https://github.com/musakhanbaloch03-sad",
   "keywords": [
     "whatsapp",
     "bot",
-    "baileys",
     "multi-device",
     "yousaf-baloch",
-    "whatsapp-bot",
-    "md-bot",
-    "baileys-md",
-    "whatsapp-automation",
-    "ai-bot",
-    "chatgpt",
-    "gemini",
-    "downloader-bot"
+    "baileys",
+    "ultra-pro",
+    "premium",
+    "md-bot"
   ],
-  "website": "https://www.youtube.com/@Yousaf_Baloch_Tech",
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "basic"
-    }
-  },
-  "stack": "heroku-22",
+  "website": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
+  "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
+  "logo": "https://i.ibb.co/YDx8tFb/yousaf-baloch-md-logo.png",
+  "success_url": "/",
+  "stack": "container",
+  
   "env": {
     "SESSION_ID": {
-      "description": "Your WhatsApp session string (get from pairing service)",
-      "required": false,
+      "description": "📱 Your WhatsApp Session ID from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1",
+      "required": true,
       "value": ""
     },
-    "OWNER_NUMBER": {
-      "description": "Owner WhatsApp number with country code (e.g., 923710636110)",
-      "required": true,
-      "value": "923710636110"
-    },
-    "OWNER_NAME": {
-      "description": "Your name",
-      "required": false,
-      "value": "Muhammad Yousaf Baloch"
-    },
     "PREFIX": {
-      "description": "Bot command prefix",
+      "description": "🔤 Bot command prefix (., !, #, $, etc.)",
       "required": false,
       "value": "."
     },
-    "BOT_NAME": {
-      "description": "Your bot's name",
+    "MODE": {
+      "description": "🔐 Bot mode: 'public' (anyone can use) or 'private' (owner only)",
       "required": false,
-      "value": "YOUSAF-BALOCH-MD"
+      "value": "public"
+    },
+    "APP_NAME": {
+      "description": "📦 Your app name for keep-alive",
+      "required": false,
+      "value": "yousaf-baloch-md"
     },
     "AUTO_READ": {
-      "description": "Auto read all messages (true/false)",
+      "description": "👁️ Auto-read messages: 'true' or 'false'",
+      "required": false,
+      "value": "true"
+    },
+    "AUTO_BIO": {
+      "description": "✍️ Auto-update bio: 'true' or 'false'",
       "required": false,
       "value": "false"
     },
-    "AUTO_STATUS_READ": {
-      "description": "Auto read status updates (true/false)",
+    "AUTO_STATUS_VIEW": {
+      "description": "👀 Auto-view statuses: 'true' or 'false'",
       "required": false,
-      "value": "false"
-    },
-    "AUTO_TYPING": {
-      "description": "Show typing indicator (true/false)",
-      "required": false,
-      "value": "false"
+      "value": "true"
     },
     "ALWAYS_ONLINE": {
-      "description": "Always show online (true/false)",
+      "description": "🟢 Always show online: 'true' or 'false'",
       "required": false,
       "value": "false"
     },
-    "MONGODB_URI": {
-      "description": "MongoDB connection string (optional - for persistent data)",
-      "required": false,
-      "value": ""
+    "_OWNER_INFO": {
+      "description": "━━━━━━━━━ OWNER INFORMATION (LOCKED) ━━━━━━━━━",
+      "value": "The following details are HARDCODED and cannot be changed"
     },
-    "YOUTUBE_CHANNEL": {
-      "description": "YouTube channel link",
-      "required": false,
+    "_OWNER_NAME": {
+      "description": "🔒 Owner: Yousuf Baloch (LOCKED)",
+      "value": "Yousuf Baloch"
+    },
+    "_OWNER_WHATSAPP": {
+      "description": "🔒 WhatsApp: +923710636110 (LOCKED)",
+      "value": "923710636110"
+    },
+    "_YOUTUBE": {
+      "description": "🔒 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech (LOCKED)",
       "value": "https://www.youtube.com/@Yousaf_Baloch_Tech"
     },
-    "WHATSAPP_CHANNEL": {
-      "description": "WhatsApp channel link",
-      "required": false,
-      "value": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j"
-    },
-    "TIKTOK_PROFILE": {
-      "description": "TikTok profile link",
-      "required": false,
+    "_TIKTOK": {
+      "description": "🔒 TikTok: https://tiktok.com/@loser_boy.110 (LOCKED)",
       "value": "https://tiktok.com/@loser_boy.110"
     },
-    "GITHUB_PROFILE": {
-      "description": "GitHub profile link",
-      "required": false,
+    "_CHANNEL": {
+      "description": "🔒 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j (LOCKED)",
+      "value": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j"
+    },
+    "_GITHUB": {
+      "description": "🔒 GitHub: https://github.com/musakhanbaloch03-sad (LOCKED)",
       "value": "https://github.com/musakhanbaloch03-sad"
+    }
+  },
+  
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ],
+  
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
     }
   }
 }
