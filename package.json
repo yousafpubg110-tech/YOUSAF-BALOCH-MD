@@ -1,70 +1,37 @@
 {
   "name": "yousaf-baloch-md",
-  "version": "1.0.0",
-  "description": "Premium Multi-Device WhatsApp Bot with 280+ Commands - Developed by Muhammad Yousaf Baloch",
+  "version": "2.0.0",
+  "description": "Ultra Premium WhatsApp Multi-Device Bot by MUHAMMAD YOUSAF",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js",
-    "test": "node --trace-warnings index.js"
+    "dev": "nodemon index.js"
   },
   "keywords": [
     "whatsapp",
     "bot",
-    "md",
     "baileys",
-    "yousaf-baloch",
     "multi-device",
-    "whatsapp-bot",
-    "ai",
-    "chatgpt",
-    "downloader"
+    "yousaf-baloch"
   ],
   "author": {
-    "name": "Muhammad Yousaf Baloch",
-    "email": "yousafbaloch@gmail.com",
+    "name": "MUHAMMAD YOUSAF",
     "url": "https://github.com/musakhanbaloch03-sad"
   },
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD"
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
   },
-  "bugs": {
-    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues"
-  },
-  "homepage": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD#readme",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.8",
-    "pino": "^8.16.0",
-    "chalk": "^4.1.2",
-    "cheerio": "^1.0.0-rc.12",
-    "figlet": "^1.7.0",
-    "moment-timezone": "^0.5.43",
-    "node-fetch": "^3.3.2",
-    "qrcode-terminal": "^0.12.0",
-    "qrcode": "^1.5.3",
-    "lowdb": "^3.0.0",
-    "yargs": "^17.7.2",
-    "lodash": "^4.17.21",
-    "express": "^4.18.2",
-    "file-type": "^18.5.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "form-data": "^4.0.0",
-    "awesome-phonenumber": "^5.4.0",
-    "jimp": "^0.22.10",
-    "mongoose": "^8.0.3",
-    "syntax-error": "^1.4.0",
-    "terminal-image": "^2.0.0",
-    "url-regex-safe": "^3.0.0",
-    "wa-sticker-formatter": "^4.4.4",
-    "axios": "^1.6.2"
+    "@whiskeysockets/baileys": "6.7.8",
+    "express": "4.18.2",
+    "pino": "8.19.0",
+    "pino-pretty": "10.3.1",
+    "@hapi/boom": "10.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "nodemon": "3.0.2"
   }
 }
