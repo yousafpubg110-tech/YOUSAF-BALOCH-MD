@@ -1,24 +1,35 @@
+app:
+  name: yousaf-baloch-md
+  
 services:
-  - name: yousaf-baloch-md
+  - name: whatsapp-bot
+    type: web
+    
     build:
-      dockerfile: Dockerfile
-    ports:
-      - port: 8000
-        protocol: http
-    env:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: "8000"
-      - key: SESSION_ID
-        value: YOUR_SESSION_ID_HERE
-      - key: BOT_NAME
-        value: YOUSAF-BALOCH-MD
-      - key: PREFIX
-        value: .
-      - key: MODE
-        value: public
+      type: buildpack
+      builder: heroku/nodejs
+    
+    instance_type: free
     regions:
-      - fra
-    instance_types:
-      - free
+      - was
+    
+    scaling:
+      min: 1
+      max: 1
+    
+    ports:
+      - port: 3000
+        protocol: http
+    
+    env:
+      - name: SESSION_ID
+        value: ""
+      - name: PREFIX
+        value: "."
+      - name: MODE
+        value: "public"
+    
+    health_checks:
+      - http:
+          port: 3000
+          path: /
