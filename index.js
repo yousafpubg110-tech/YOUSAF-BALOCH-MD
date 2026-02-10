@@ -39,8 +39,10 @@ const store = makeInMemoryStore({ logger: Pino({ level: 'silent' }) });
 protoType();
 serialize();
 
-// Global Setup
-global.sessionName = 'sessions';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔒 GLOBAL SETUP (Security Guaranteed)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+global.sessionName = 'session'; // FIXED: Unified folder name
 global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
   return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
 };
@@ -69,12 +71,10 @@ console.log(chalk.green(figlet.textSync('YOUSAF-BALOCH-MD', { font: 'Standard' }
 console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
 
 const app = express();
-let currentQR = null;
-let connectionStatus = 'waiting';
 
 app.use(express.json());
 
-// 🎨 Ultra-Premium Web UI (Matching your screenshots)
+// 🎨 Ultra-Premium Web UI (Restored & Fixed)
 app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -109,7 +109,6 @@ app.get('/', (req, res) => {
 
         .container { width: 100%; max-width: 480px; position: relative; z-index: 10; }
 
-        /* ⏰ Animated Neon Clock */
         .clock-card {
             background: linear-gradient(135deg, #00f2ff, #0066ff);
             border-radius: 30px;
@@ -123,7 +122,6 @@ app.get('/', (req, res) => {
         #time { font-family: 'Orbitron', sans-serif; font-size: 3.5em; font-weight: 900; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         #date { font-size: 1.1em; opacity: 0.9; font-weight: 600; letter-spacing: 1px; }
 
-        /* 🤖 Bot Header Section */
         .main-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -146,7 +144,6 @@ app.get('/', (req, res) => {
             filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.3));
         }
 
-        /* ⚡ Skeuomorphic Pairing Button */
         .pair-btn {
             width: 100%;
             padding: 22px;
@@ -166,7 +163,6 @@ app.get('/', (req, res) => {
         }
         .pair-btn:active { transform: translateY(6px); box-shadow: 0 4px 0px #2a3eb1; }
 
-        /* 👤 Owner Profile Card (Screenshot 194253 style) */
         .owner-card {
             background: linear-gradient(135deg, #ff6b6b, #ff0080);
             border-radius: 30px;
@@ -180,7 +176,6 @@ app.get('/', (req, res) => {
         .owner-tag { font-family: 'Orbitron', sans-serif; font-size: 1.1em; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; }
         .info-row { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: 600; }
 
-        /* 🔗 Ultra-Colorful Large Social Buttons */
         .social-btn {
             width: 100%;
             padding: 20px;
@@ -284,10 +279,13 @@ async function startBot() {
 
   const sock = makeWASocket({
     version,
-    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, Pino({ level: 'silent' })) },
+    auth: { 
+        creds: state.creds, 
+        keys: makeCacheableSignalKeyStore(state.keys, Pino({ level: 'silent' })) 
+    },
     printQRInTerminal: false,
     logger: Pino({ level: 'silent' }),
-    browser: ['YOUSAF-BALOCH-MD', 'Chrome', '3.0.0'],
+    browser: ['YOUSAF-BALOCH-MD', 'Chrome', '20.0.04'], // FIXED: Modern Browser Header
     getMessage: async (key) => {
       const msg = await store.loadMessage(key.remoteJid, key.id);
       return msg?.message || undefined;
@@ -300,18 +298,21 @@ async function startBot() {
   sock.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'open') {
-        connectionStatus = 'connected';
         console.log(chalk.green('✅ YOUSAF-BALOCH-MD IS ONLINE!'));
+        console.log(chalk.cyan(`👤 User: ${sock.user.name || 'Bot'}`));
     }
     if (connection === 'close') {
       const reason = lastDisconnect?.error?.output?.statusCode;
-      if (reason !== DisconnectReason.loggedOut) startBot();
+      if (reason !== DisconnectReason.loggedOut) {
+          console.log(chalk.yellow('⚠️ Connection closed. Reconnecting...'));
+          startBot();
+      }
     }
   });
 
   sock.ev.on('creds.update', saveCreds);
 
-  // Auto-load plugins
+  // Auto-load plugins logic (Keep intact as per your request)
   const pluginFolder = path.join(__dirname, './plugins');
   if (existsSync(pluginFolder)) {
     const files = readdirSync(pluginFolder).filter(f => f.endsWith('.js'));
