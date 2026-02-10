@@ -1,106 +1,37 @@
 {
-  "name": "YOUSAF-BALOCH-MD",
-  "description": "Ultra Pro Premium WhatsApp Multi-Device Bot by Muhammad Yousaf Baloch | YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech | TikTok: https://tiktok.com/@loser_boy.110 | Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j | GitHub: https://github.com/musakhanbaloch03-sad",
+  "name": "yousaf-baloch-md",
+  "version": "2.0.0",
+  "description": "Ultra Pro Premium WhatsApp Multi-Device Bot by Muhammad Yousaf Baloch",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "keywords": [
     "whatsapp",
     "bot",
     "multi-device",
     "yousaf-baloch",
     "baileys",
-    "ultra-pro",
-    "premium",
-    "md-bot"
+    "ultra-pro"
   ],
-  "website": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
-  "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
-  "logo": "https://i.ibb.co/YDx8tFb/yousaf-baloch-md-logo.png",
-  "success_url": "/",
-  "stack": "container",
-  
-  "env": {
-    "SESSION_ID": {
-      "description": "📱 Your WhatsApp Session ID from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1",
-      "required": true,
-      "value": ""
-    },
-    "PREFIX": {
-      "description": "🔤 Bot command prefix (., !, #, $, etc.)",
-      "required": false,
-      "value": "."
-    },
-    "MODE": {
-      "description": "🔐 Bot mode: 'public' (anyone can use) or 'private' (owner only)",
-      "required": false,
-      "value": "public"
-    },
-    "APP_NAME": {
-      "description": "📦 Your app name for keep-alive",
-      "required": false,
-      "value": "yousaf-baloch-md"
-    },
-    "AUTO_READ": {
-      "description": "👁️ Auto-read messages: 'true' or 'false'",
-      "required": false,
-      "value": "true"
-    },
-    "AUTO_BIO": {
-      "description": "✍️ Auto-update bio: 'true' or 'false'",
-      "required": false,
-      "value": "false"
-    },
-    "AUTO_STATUS_VIEW": {
-      "description": "👀 Auto-view statuses: 'true' or 'false'",
-      "required": false,
-      "value": "true"
-    },
-    "ALWAYS_ONLINE": {
-      "description": "🟢 Always show online: 'true' or 'false'",
-      "required": false,
-      "value": "false"
-    },
-    "_OWNER_INFO": {
-      "description": "━━━━━━━━━ OWNER INFORMATION (LOCKED) ━━━━━━━━━",
-      "value": "The following details are HARDCODED and cannot be changed"
-    },
-    "_OWNER_NAME": {
-      "description": "🔒 Owner: Yousuf Baloch (LOCKED)",
-      "value": "Yousuf Baloch"
-    },
-    "_OWNER_WHATSAPP": {
-      "description": "🔒 WhatsApp: +923710636110 (LOCKED)",
-      "value": "923710636110"
-    },
-    "_YOUTUBE": {
-      "description": "🔒 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech (LOCKED)",
-      "value": "https://www.youtube.com/@Yousaf_Baloch_Tech"
-    },
-    "_TIKTOK": {
-      "description": "🔒 TikTok: https://tiktok.com/@loser_boy.110 (LOCKED)",
-      "value": "https://tiktok.com/@loser_boy.110"
-    },
-    "_CHANNEL": {
-      "description": "🔒 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j (LOCKED)",
-      "value": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j"
-    },
-    "_GITHUB": {
-      "description": "🔒 GitHub: https://github.com/musakhanbaloch03-sad (LOCKED)",
-      "value": "https://github.com/musakhanbaloch03-sad"
-    }
+  "author": {
+    "name": "Muhammad Yousaf Baloch",
+    "whatsapp": "+923710636110",
+    "youtube": "https://www.youtube.com/@Yousaf_Baloch_Tech",
+    "tiktok": "https://tiktok.com/@loser_boy.110",
+    "channel": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j",
+    "github": "https://github.com/musakhanbaloch03-sad"
   },
-  
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    },
-    {
-      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
-    }
-  ],
-  
-  "formation": {
-    "worker": {
-      "quantity": 1,
-      "size": "basic"
-    }
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.8",
+    "pino": "^8.16.0",
+    "@hapi/boom": "^10.0.1",
+    "express": "^4.18.2"
   }
 }
