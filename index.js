@@ -12,7 +12,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
-import { readdirSync, existsSync } from 'fs';
+import { readdirSync, existsSync, writeFileSync, mkdirSync } from 'fs'; 
 import yargs from 'yargs';
 import lodash from 'lodash';
 import chalk from 'chalk';
@@ -25,7 +25,6 @@ import express from 'express';
 const { 
     DisconnectReason, 
     useMultiFileAuthState, 
-    MessageRetryMap, 
     fetchLatestBaileysVersion, 
     makeCacheableSignalKeyStore, 
     jidNormalizedUser,
@@ -40,9 +39,30 @@ protoType();
 serialize();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🔒 GLOBAL SETUP (Security Guaranteed)
+// 🔑 SESSION ID DECODER (The Missing Piece)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-global.sessionName = 'session'; // FIXED: Unified folder name
+const sessionPath = './session';
+if (!existsSync(sessionPath)) {
+    mkdirSync(sessionPath);
+}
+
+// یہ فنکشن آپ کی SESSION_ID کو خود بخود فائل میں بدل دے گا
+if (process.env.SESSION_ID) {
+    const sessionData = process.env.SESSION_ID.split('YOUSAF;')[1] || process.env.SESSION_ID;
+    if (sessionData) {
+        console.log(chalk.yellow('🔐 Decoding Session ID and securing your credentials...'));
+        try {
+            writeFileSync(path.join(sessionPath, 'creds.json'), Buffer.from(sessionData, 'base64').toString());
+        } catch (e) {
+            console.log(chalk.red('❌ Error decoding SESSION_ID!'));
+        }
+    }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔒 GLOBAL SETUP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+global.sessionName = 'session'; 
 global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
   return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
 };
@@ -71,10 +91,9 @@ console.log(chalk.green(figlet.textSync('YOUSAF-BALOCH-MD', { font: 'Standard' }
 console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
 
 const app = express();
-
 app.use(express.json());
 
-// 🎨 Ultra-Premium Web UI (Restored & Fixed)
+// 🎨 Ultra-Premium Web UI (Exactly as you sent)
 app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -92,9 +111,7 @@ app.get('/', (req, res) => {
             --purple: #8b5cf6;
             --dark-bg: #050505;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--dark-bg);
@@ -106,9 +123,7 @@ app.get('/', (req, res) => {
             overflow-x: hidden;
             padding: 20px;
         }
-
         .container { width: 100%; max-width: 480px; position: relative; z-index: 10; }
-
         .clock-card {
             background: linear-gradient(135deg, #00f2ff, #0066ff);
             border-radius: 30px;
@@ -118,10 +133,8 @@ app.get('/', (req, res) => {
             box-shadow: 0 0 30px rgba(0, 242, 255, 0.4), inset 0 0 15px rgba(255,255,255,0.3);
             border: 2px solid rgba(255,255,255,0.2);
         }
-
         #time { font-family: 'Orbitron', sans-serif; font-size: 3.5em; font-weight: 900; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         #date { font-size: 1.1em; opacity: 0.9; font-weight: 600; letter-spacing: 1px; }
-
         .main-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -132,7 +145,6 @@ app.get('/', (req, res) => {
             margin-bottom: 25px;
             text-align: center;
         }
-
         .bot-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 2.2em;
@@ -143,7 +155,6 @@ app.get('/', (req, res) => {
             margin-bottom: 10px;
             filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.3));
         }
-
         .pair-btn {
             width: 100%;
             padding: 22px;
@@ -162,7 +173,6 @@ app.get('/', (req, res) => {
             text-decoration: none;
         }
         .pair-btn:active { transform: translateY(6px); box-shadow: 0 4px 0px #2a3eb1; }
-
         .owner-card {
             background: linear-gradient(135deg, #ff6b6b, #ff0080);
             border-radius: 30px;
@@ -172,10 +182,8 @@ app.get('/', (req, res) => {
             position: relative;
             box-shadow: 0 15px 35px rgba(255, 0, 128, 0.3);
         }
-
         .owner-tag { font-family: 'Orbitron', sans-serif; font-size: 1.1em; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; }
         .info-row { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; font-weight: 600; }
-
         .social-btn {
             width: 100%;
             padding: 20px;
@@ -193,14 +201,11 @@ app.get('/', (req, res) => {
             transition: 0.3s;
             border: 2px solid rgba(255,255,255,0.1);
         }
-
         .wa-btn { background: linear-gradient(45deg, #25D366, #128C7E); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
         .yt-btn { background: linear-gradient(45deg, #FF0000, #990000); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
         .tk-btn { background: linear-gradient(45deg, #000, #333); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .ch-btn { background: linear-gradient(45deg, #00f2ff, #0066ff); box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3); }
-
         .social-btn:hover { transform: scale(1.03); filter: brightness(1.2); }
-
         #code-display { font-size: 2.5em; font-family: 'Orbitron', sans-serif; color: var(--accent); margin-top: 15px; font-weight: 900; letter-spacing: 5px; }
     </style>
 </head>
@@ -210,29 +215,23 @@ app.get('/', (req, res) => {
             <div id="time">00:00:00</div>
             <div id="date">Loading...</div>
         </div>
-
         <div class="main-card">
             <h1 class="bot-title">YOUSAF-BALOCH-MD</h1>
             <p style="color: #aaa; margin-bottom: 20px;">V2.0 Ultra Premium Edition</p>
-            
             <input type="tel" id="phone" placeholder="923170636110" style="width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #444; background: #000; color: #fff; text-align: center; font-family: 'Orbitron'; font-size: 1.2em;">
-            
             <button class="pair-btn" onclick="getPairing()">⚡ GET PAIRING CODE</button>
             <div id="code-display"></div>
         </div>
-
         <div class="owner-card">
             <div class="owner-tag">👨‍💻 CREATED BY MUHAMMAD YOUSAF</div>
             <div class="info-row"><span>📞 Phone:</span> <span>923170636110</span></div>
             <div class="info-row"><span>🌐 Country:</span> <span>Pakistan 🇵🇰</span></div>
         </div>
-
         <a href="https://wa.me/923170636110" class="social-btn wa-btn">📱 My WhatsApp</a>
         <a href="https://youtube.com/@Yousaf_Baloch_Tech" class="social-btn yt-btn">🎬 YouTube Channel</a>
         <a href="https://tiktok.com/@loser_boy.110" class="social-btn tk-btn">🎵 TikTok Profile</a>
         <a href="https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j" class="social-btn ch-btn">📢 Join Channel</a>
     </div>
-
     <script>
         function updateClock() {
             const now = new Date();
@@ -240,7 +239,6 @@ app.get('/', (req, res) => {
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
         }
         setInterval(updateClock, 1000); updateClock();
-
         async function getPairing() {
             const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
             if(!phone) return alert('Enter phone number!');
@@ -263,7 +261,6 @@ app.get('/', (req, res) => {
 });
 
 // --- Backend Logic ---
-
 app.post('/pairing', async (req, res) => {
   try {
     const { phone } = req.body;
@@ -285,7 +282,7 @@ async function startBot() {
     },
     printQRInTerminal: false,
     logger: Pino({ level: 'silent' }),
-    browser: ['YOUSAF-BALOCH-MD', 'Chrome', '20.0.04'], // FIXED: Modern Browser Header
+    browser: ['YOUSAF-BALOCH-MD', 'Chrome', '20.0.04'],
     getMessage: async (key) => {
       const msg = await store.loadMessage(key.remoteJid, key.id);
       return msg?.message || undefined;
@@ -299,20 +296,15 @@ async function startBot() {
     const { connection, lastDisconnect } = update;
     if (connection === 'open') {
         console.log(chalk.green('✅ YOUSAF-BALOCH-MD IS ONLINE!'));
-        console.log(chalk.cyan(`👤 User: ${sock.user.name || 'Bot'}`));
     }
     if (connection === 'close') {
       const reason = lastDisconnect?.error?.output?.statusCode;
-      if (reason !== DisconnectReason.loggedOut) {
-          console.log(chalk.yellow('⚠️ Connection closed. Reconnecting...'));
-          startBot();
-      }
+      if (reason !== DisconnectReason.loggedOut) startBot();
     }
   });
 
   sock.ev.on('creds.update', saveCreds);
 
-  // Auto-load plugins logic (Keep intact as per your request)
   const pluginFolder = path.join(__dirname, './plugins');
   if (existsSync(pluginFolder)) {
     const files = readdirSync(pluginFolder).filter(f => f.endsWith('.js'));
@@ -328,5 +320,3 @@ async function startBot() {
 
 app.listen(PORT, () => console.log(chalk.blue(`🚀 Dashboard: http://localhost:${PORT}`)));
 startBot();
-
-process.on('unhandledRejection', console.error);
