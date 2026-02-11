@@ -1,147 +1,113 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║           YOUSAF-BALOCH-MD  •  BOT CONFIG                   ║
-// ║                 Created by Yousuf Baloch                    ║
-// ║    🔒 LOCKED — Owner info cannot be changed by any user     ║
-// ╚══════════════════════════════════════════════════════════════╝
+/**
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║            YOUSAF-BALOCH-MD — CORE CONFIGURATION                ║
+ * ║            Created by: Muhammad Yousaf Baloch                   ║
+ * ║            Version: 2.0.0                                       ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ *
+ * FILE STRUCTURE:
+ *  [SECTION 1] — OWNER IDENTITY (HARDCODED — READ ONLY)
+ *  [SECTION 2] — USER CONFIGURABLE SETTINGS (editable via .env)
+ *  [SECTION 3] — SYSTEM CONSTANTS (DO NOT TOUCH)
+ *
+ * ⚠️  WARNING: Section 1 is protected. Editing owner branding
+ *     violates the MIT License attribution clause of this project.
+ */
 
-// ℹ️  Cloud platforms (Heroku, Koyeb, Render, Railway) inject env vars directly.
-//    For local dev, create a .env file. dotenv is loaded by index.js if present.
+import { config } from 'dotenv';
+config();
 
-// ═══════════════════════════════════════════════════════════════
-// 🔒  HARDCODED — CANNOT BE OVERRIDDEN BY ENV VARS OR CONFIG
-//     Even if a user sets OWNER_NAME in Heroku config vars,
-//     it will NOT take effect. These values are locked in code.
-// ═══════════════════════════════════════════════════════════════
-const LOCKED = Object.freeze({
-    OWNER_NAME      : 'Yousuf Baloch',
-    OWNER_NUMBER    : '923710636110',
-    TIKTOK          : 'https://tiktok.com/@loser_boy.110',
-    YOUTUBE         : 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-    WA_CHANNEL      : 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
-    GITHUB          : 'https://github.com/musakhanbaloch03-sad',
-    MAIN_REPO       : 'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD',
-    PAIRING_REPO    : 'https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1',
-    BOT_NAME        : 'YOUSAF BALOCH MD',
-    VERSION         : '2.0.0',
-    LOGO_URL        : 'https://i.ibb.co/FbyCnmMX/shaban-md.jpg',
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 1]  🔒 HARDCODED OWNER IDENTITY — PROTECTED — READ ONLY
+//  These values are the intellectual identity of the project creator.
+//  They cannot and should not be overridden by environment variables.
+// ═══════════════════════════════════════════════════════════════════
+export const OWNER = Object.freeze({
+  NAME:      'Yousuf Baloch',
+  FULL_NAME: 'Muhammad Yousaf Baloch',
+  NUMBER:    '923710636110',
+  JID:       '923710636110@s.whatsapp.net',
+  TIKTOK:    'https://www.tiktok.com/@yousaf_baloch_tech',
+  YOUTUBE:   'https://www.youtube.com/@Yousaf_Baloch_Tech',
+  CHANNEL:   'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
+  GITHUB:    'https://github.com/musakhanbaloch03-sad',
+  BOT_NAME:  'YOUSAF-BALOCH-MD',
+  VERSION:   '2.0.0',
+  YEAR:      '2026',
 });
+// ═══════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════════
-// 🔓  EDITABLE — Users may customize ONLY these via env vars
-// ═══════════════════════════════════════════════════════════════
-const USER = {
-    SESSION_ID      : process.env.SESSION_ID       || '',
-    PREFIX          : process.env.PREFIX           || '.',
-    MODE            : (process.env.MODE            || 'public').toLowerCase(),
-    APP_NAME        : process.env.APP_NAME         || 'yousaf-baloch-md',
-    TIMEZONE        : process.env.TIMEZONE         || 'Asia/Karachi',
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 2]  ✅ USER CONFIGURABLE SETTINGS
+//  Users may freely change these via Environment Variables or .env
+// ═══════════════════════════════════════════════════════════════════
+export const CONFIG = {
+  // Session ID from YOUSAF-PAIRING-V1
+  SESSION_ID: process.env.SESSION_ID || '',
 
-    // Feature toggles
-    AUTO_READ       : process.env.AUTO_READ        === 'true',
-    AUTO_STATUS     : process.env.AUTO_STATUS      === 'true',
-    ANTI_DELETE     : process.env.ANTI_DELETE      === 'true',
-    WELCOME_MSG     : process.env.WELCOME_MSG      !== 'false',
-    AUTO_TYPING     : process.env.AUTO_TYPING      === 'true',
-    ALWAYS_ONLINE   : process.env.ALWAYS_ONLINE    === 'true',
-    READ_CMD        : process.env.READ_CMD         !== 'false',
-    AUTO_RECORDING  : process.env.AUTO_RECORDING   !== 'false',
-    AUTO_REPLY      : process.env.AUTO_REPLY       !== 'false',
+  // Bot prefix for commands
+  PREFIX: process.env.PREFIX || '.',
+
+  // Bot operation mode: 'public' = everyone | 'private' = owner only
+  MODE: (process.env.MODE || 'public').toLowerCase(),
+
+  // Custom bot name (user can rename the bot's display name)
+  APP_NAME: process.env.APP_NAME || OWNER.BOT_NAME,
+
+  // Auto-reply when user is not owner
+  AUTO_READ: process.env.AUTO_READ === 'true',
+
+  // Auto-read status updates
+  AUTO_READ_STATUS: process.env.AUTO_READ_STATUS === 'true',
+
+  // Timezone for schedules and logs
+  TIMEZONE: process.env.TIMEZONE || 'Asia/Karachi',
+
+  // Language for bot responses
+  LANGUAGE: process.env.LANGUAGE || 'en',
+
+  // Heroku app name (for keep-alive pings)
+  HEROKU_APP_NAME: process.env.HEROKU_APP_NAME || '',
+
+  // MongoDB URI (optional, for premium plugins)
+  MONGO_URI: process.env.MONGO_URI || '',
 };
+// ═══════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════════
-// 🔗  DERIVED HELPERS
-// ═══════════════════════════════════════════════════════════════
-const DERIVED = Object.freeze({
-    IS_PUBLIC       : USER.MODE === 'public',
-    OWNER_JID       : `${LOCKED.OWNER_NUMBER}@s.whatsapp.net`,
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 3]  ⚙️  SYSTEM CONSTANTS — DO NOT MODIFY
+// ═══════════════════════════════════════════════════════════════════
+export const SYSTEM = Object.freeze({
+  BAILEYS_VERSION: '6.7.9',
+  NODE_MIN:        '18.0.0',
+  SESSION_DIR:     './sessions',
+  TEMP_DIR:        './temp',
+  PLUGINS_DIR:     './plugins',
 
-    // ── Ultra-Pro Success Message ──────────────────────────────
-    getSuccessMessage(sessionId) {
-        return `╔═══════════════════════════════════╗
-║   ✅  BOT CONNECTED SUCCESSFULLY  ║
-╚═══════════════════════════════════╝
+  // Ultra-Pro Premium brand watermark used in bot messages
+  WATERMARK: `\n\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n⚡ *${OWNER.BOT_NAME}* by *${OWNER.FULL_NAME}*\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄`,
 
-🎉 *${LOCKED.BOT_NAME}* is now live!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Short watermark for quick replies
+  SHORT_WATERMARK: `\n_⚡ ${OWNER.BOT_NAME}_`,
 
-🔑 *SESSION ID* _(for deployment)_:
-\`\`\`${sessionId}\`\`\`
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚀 *DEPLOY ON ANY PLATFORM*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-▸ *Heroku* — ${LOCKED.MAIN_REPO}
-▸ *Render* — ${LOCKED.MAIN_REPO}
-▸ *Railway* — ${LOCKED.MAIN_REPO}
-▸ *Koyeb* — ${LOCKED.MAIN_REPO}
-▸ *Replit* — ${LOCKED.MAIN_REPO}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👨‍💻 *DEVELOPER*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-👤 *Name:* ${LOCKED.OWNER_NAME}
-📞 *WhatsApp:* wa.me/${LOCKED.OWNER_NUMBER}
-🐙 *GitHub:* ${LOCKED.GITHUB}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌐 *FOLLOW & SUPPORT*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📺 *YouTube:*
-${LOCKED.YOUTUBE}
-
-🎵 *TikTok:*
-${LOCKED.TIKTOK}
-
-📢 *WhatsApp Channel:*
-${LOCKED.WA_CHANNEL}
-
-🐙 *GitHub:*
-${LOCKED.GITHUB}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⭐ _Star the repo & subscribe!_
-_Made with ❤️ by ${LOCKED.OWNER_NAME}_`;
-    },
+  // Bot footer for menus
+  FOOTER: `👑 Owner: ${OWNER.FULL_NAME}\n🎵 ${OWNER.TIKTOK}\n🎬 ${OWNER.YOUTUBE}`,
 });
+// ═══════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════════
-// 📤  FINAL EXPORT  (LOCKED properties always win)
-// ═══════════════════════════════════════════════════════════════
-const FINAL_CONFIG = Object.freeze({
-    ...USER,
-    ...LOCKED,   // ← LOCKED always overwrites USER for same keys
-    ...DERIVED,
-});
+// ── Validation on startup ────────────────────────────────────────────
+export function validateConfig() {
+  const errors = [];
 
-export default FINAL_CONFIG;
+  if (!CONFIG.SESSION_ID) {
+    errors.push('SESSION_ID is not set. Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1');
+  }
 
-// ═══════════════════════════════════════════════════════════════
-// 🔍  STARTUP VALIDATION
-// ═══════════════════════════════════════════════════════════════
-const C = {
-    reset : '\x1b[0m', bold : '\x1b[1m',
-    cyan  : '\x1b[96m', gold : '\x1b[93m',
-    green : '\x1b[92m', red  : '\x1b[91m',
-};
+  if (!['public', 'private'].includes(CONFIG.MODE)) {
+    errors.push(`Invalid MODE "${CONFIG.MODE}". Use "public" or "private".`);
+  }
 
-if (!USER.SESSION_ID && process.env.NODE_ENV !== 'development') {
-    console.warn(`${C.gold}⚠️  SESSION_ID is empty — bot may not connect!${C.reset}`);
-    console.warn(`${C.gold}   Get your session at: ${LOCKED.PAIRING_REPO}${C.reset}`);
+  return errors;
 }
 
-if (!['public', 'private'].includes(USER.MODE)) {
-    console.warn(`${C.gold}⚠️  Invalid MODE "${USER.MODE}" — defaulting to "public"${C.reset}`);
-}
-
-console.log(`
-${C.cyan}${C.bold}╔═══════════════════════════════════════════╗
-║  🤖  ${LOCKED.BOT_NAME} v${LOCKED.VERSION}  ║
-╚═══════════════════════════════════════════╝${C.reset}
-${C.green}  👤 Owner  :${C.reset} ${LOCKED.OWNER_NAME}
-${C.green}  🔑 Prefix :${C.reset} ${USER.PREFIX}
-${C.green}  🔧 Mode   :${C.reset} ${USER.MODE.toUpperCase()}
-${C.green}  🌐 Public :${C.reset} ${DERIVED.IS_PUBLIC ? 'Yes' : 'No'}
-`);
+export default { OWNER, CONFIG, SYSTEM, validateConfig };
