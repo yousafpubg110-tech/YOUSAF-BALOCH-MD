@@ -1,37 +1,55 @@
 {
-  "name": "yousaf-baloch-md",
-  "version": "2.0.0",
-  "description": "Ultra Pro Premium WhatsApp Multi-Device Bot by Muhammad Yousaf Baloch",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+  "name": "YOUSAF-BALOCH-MD",
+  "description": "YOUSAF-BALOCH-MD | Premium WhatsApp Multi-Device Bot | Created by Muhammad Yousaf Baloch",
+  "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
+  "logo": "https://i.imgur.com/placeholder.png",
+  "keywords": ["whatsapp", "bot", "baileys", "node"],
+  "env": {
+    "SESSION_ID": {
+      "description": "Your Session ID from YOUSAF-PAIRING-V1. Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1",
+      "required": true
+    },
+    "PREFIX": {
+      "description": "Command prefix for bot (default: .)",
+      "value": ".",
+      "required": false
+    },
+    "MODE": {
+      "description": "Bot mode: 'public' (everyone can use) or 'private' (owner only)",
+      "value": "public",
+      "required": false
+    },
+    "APP_NAME": {
+      "description": "Custom display name for the bot",
+      "value": "YOUSAF-BALOCH-MD",
+      "required": false
+    },
+    "TIMEZONE": {
+      "description": "Timezone for bot schedules (e.g. Asia/Karachi)",
+      "value": "Asia/Karachi",
+      "required": false
+    },
+    "AUTO_READ": {
+      "description": "Auto-read incoming messages (true/false)",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_READ_STATUS": {
+      "description": "Auto-read WhatsApp status updates (true/false)",
+      "value": "false",
+      "required": false
+    }
   },
-  "keywords": [
-    "whatsapp",
-    "bot",
-    "multi-device",
-    "yousaf-baloch",
-    "baileys",
-    "ultra-pro"
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
   ],
-  "author": {
-    "name": "Muhammad Yousaf Baloch",
-    "whatsapp": "+923710636110",
-    "youtube": "https://www.youtube.com/@Yousaf_Baloch_Tech",
-    "tiktok": "https://tiktok.com/@loser_boy.110",
-    "channel": "https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j",
-    "github": "https://github.com/musakhanbaloch03-sad"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.8",
-    "pino": "^8.16.0",
-    "@hapi/boom": "^10.0.1",
-    "express": "^4.18.2"
-  }
+  "stack": "heroku-22"
 }
