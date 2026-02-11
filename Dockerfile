@@ -4,7 +4,7 @@
 # YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
 # WhatsApp: +923710636110
 
-FROM node:20-bullseye-slim
+FROM node:20-alpine
 
 # Maintainer Information
 LABEL maintainer="Muhammad Yousaf Baloch <musakhanbaloch03@gmail.com>"
@@ -15,14 +15,16 @@ LABEL youtube="https://www.youtube.com/@Yousaf_Baloch_Tech"
 LABEL whatsapp="+923710636110"
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     git \
     ffmpeg \
     imagemagick \
-    webp \
     curl \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +33,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install Node.js dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Copy application files
 COPY . .
@@ -41,6 +43,7 @@ RUN mkdir -p session && \
     chmod -R 777 session
 
 # Set environment variables
+ENV NODE_ENV=production
 ENV PORT=8000
 
 # Expose port
@@ -48,7 +51,7 @@ EXPOSE ${PORT}
 
 # Health check for platform monitoring
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:${PORT}/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+  CMD node -e "require('http').get('http://localhost:${PORT}/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
 # Start command
 CMD ["npm", "start"]
