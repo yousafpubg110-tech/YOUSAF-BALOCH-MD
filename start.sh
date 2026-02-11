@@ -1,41 +1,52 @@
 #!/bin/bash
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║   YOUSAF-BALOCH-MD — Universal Start Script                     ║
+# ║   Created by: Muhammad Yousaf Baloch                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
 
-# ╔══════════════════════════════════════════════════╗
-# ║         YOUSAF-BALOCH-MD PAIRING SERVICE         ║
-# ║            Created by Yousuf Baloch              ║
-# ╚══════════════════════════════════════════════════╝
+set -e
 
 echo ""
-echo "╔══════════════════════════════════════════════════╗"
-echo "║       🚀 YOUSAF PAIRING V1 - STARTING...        ║"
-echo "║          👤 Created by Yousuf Baloch             ║"
-echo "╚══════════════════════════════════════════════════╝"
+echo "  ⚡ YOUSAF-BALOCH-MD — Starting Bot..."
+echo "  👑 Created by: Muhammad Yousaf Baloch"
 echo ""
 
-# Check Node.js
-if ! command -v node &> /dev/null; then
-    echo "❌ Node.js not found! Please install Node.js >= 18"
-    exit 1
+# Check Node.js version
+NODE_VER=$(node -v | cut -c2- | cut -d. -f1)
+if [ "$NODE_VER" -lt 18 ]; then
+  echo "  ❌ ERROR: Node.js 18+ required. You have $(node -v)"
+  echo "  📖 Install: https://nodejs.org"
+  exit 1
 fi
 
-NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-    echo "❌ Node.js version must be >= 18! Current: $(node -v)"
-    exit 1
+echo "  ✅ Node.js version: $(node -v)"
+
+# Install dependencies if node_modules missing
+if [ ! -d "node_modules" ]; then
+  echo "  📦 Installing dependencies..."
+  npm install --no-audit --no-fund --legacy-peer-deps
 fi
 
-echo "✅ Node.js version: $(node -v)"
-echo "📦 Installing dependencies..."
-npm install --silent
-
-if [ $? -ne 0 ]; then
-    echo "❌ npm install failed!"
-    exit 1
+# Check SESSION_ID
+if [ -z "$SESSION_ID" ] && [ ! -f ".env" ]; then
+  echo ""
+  echo "  ⚠️  WARNING: SESSION_ID not found!"
+  echo "  📖 Get your Session ID from:"
+  echo "     https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1"
+  echo ""
 fi
 
-echo "✅ Dependencies installed!"
-echo ""
-echo "🌐 Starting Pairing Server..."
+# Create required directories
+mkdir -p sessions/auth temp plugins
+
+echo "  🚀 Launching YOUSAF-BALOCH-MD..."
 echo ""
 
-node index.js
+# Start bot with auto-restart
+while true; do
+  node index.js || {
+    echo ""
+    echo "  ⚠️  Bot crashed. Restarting in 5 seconds..."
+    sleep 5
+  }
+done
