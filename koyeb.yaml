@@ -1,16 +1,28 @@
 name: yousaf-baloch-md
 services:
-  - name: bot-service
-    type: worker
+  - name: yousaf-baloch-md
+    type: web
     git:
-      repository: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
       branch: main
-    build:
-      buildpackName: nodejs
-    run:
-      command: node index.js
+    docker:
+      dockerfile: Dockerfile
+    ports:
+      - port: 3000
+        protocol: http
     env:
       - key: NODE_ENV
         value: production
-    instance_type: free
-    auto_deploy: true
+      - key: SESSION_ID
+        secret: SESSION_ID
+      - key: PREFIX
+        value: "."
+      - key: MODE
+        value: "public"
+    healthChecks:
+      - path: /
+        port: 3000
+    scaling:
+      min: 1
+      max: 1
+    regions:
+      - was
