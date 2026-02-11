@@ -1,188 +1,372 @@
-/*
-╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-┃     YOUSAF-BALOCH-MD WhatsApp Bot      ┃
-┃        Ultra Premium Edition           ┃
-┃      DESIGN: NEON CYBERPUNK UI         ┃
-┃      DEVELOPER: MUHAMMAD YOUSAF        ┃
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-*/
+/**
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║         YOUSAF-BALOCH-MD — MAIN BOT ENGINE                      ║
+ * ║         Created by: Muhammad Yousaf Baloch                      ║
+ * ║         WhatsApp: +923710636110                                  ║
+ * ║         GitHub: https://github.com/musakhanbaloch03-sad         ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ */
 
-import './config.js';
-import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
-import { platform } from 'process';
-import { readdirSync, existsSync, writeFileSync, mkdirSync } from 'fs'; 
-import yargs from 'yargs';
-import lodash from 'lodash';
+import {
+  makeWASocket,
+  DisconnectReason,
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
+  Browsers,
+  makeCacheableSignalKeyStore,
+  makeInMemoryStore,
+  proto,
+} from '@whiskeysockets/baileys';
+import { Boom } from '@hapi/boom';
+import pino from 'pino';
 import chalk from 'chalk';
-import Pino from 'pino';
-import { makeWASocket, protoType, serialize } from './lib/simple.js';
-import { Low, JSONFile } from 'lowdb';
 import figlet from 'figlet';
-import express from 'express';
-import pkg from '@whiskeysockets/baileys';
+import gradient from 'gradient-string';
+import { existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { OWNER, CONFIG, SYSTEM, validateConfig } from './config.js';
 
-// Baileys imports handled professionally
-const { 
-    DisconnectReason, 
-    useMultiFileAuthState, 
-    fetchLatestBaileysVersion, 
-    makeCacheableSignalKeyStore, 
-    jidNormalizedUser,
-    makeInMemoryStore 
-} = pkg;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const { chain } = lodash;
-const PORT = process.env.PORT || 8000;
-const store = makeInMemoryStore({ logger: Pino({ level: 'silent' }) });
+// ── Silent Baileys Logger ────────────────────────────────────────────
+const logger = pino({ level: 'silent' });
 
-// Initialize Prototypes
-protoType();
-serialize();
+// ── In-memory store ──────────────────────────────────────────────────
+const store = makeInMemoryStore({ logger });
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🔑 SESSION ID DECODER (Fixed & Secured)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const sessionPath = './session';
-if (!existsSync(sessionPath)) {
-    mkdirSync(sessionPath, { recursive: true });
-}
-
-if (process.env.SESSION_ID) {
-    // Decoding Logic for Universal Support
-    let sessionData = process.env.SESSION_ID;
-    if (sessionData.includes('YOUSAF;')) {
-        sessionData = sessionData.split('YOUSAF;')[1];
-    } else if (sessionData.includes('YOUSAF;;;')) {
-        sessionData = sessionData.split('YOUSAF;;;')[1];
-    }
-
-    if (sessionData) {
-        console.log(chalk.yellow('🔐 Decoding Session ID...'));
-        try {
-            const credsJson = Buffer.from(sessionData, 'base64').toString('utf-8');
-            writeFileSync(path.join(sessionPath, 'creds.json'), credsJson);
-            console.log(chalk.green('✅ Credentials Secured!'));
-        } catch (e) {
-            console.log(chalk.red('❌ Error decoding SESSION_ID: ' + e.message));
-        }
-    }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🔒 GLOBAL SETUP
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
-  return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
-};
-global.__dirname = function dirname(pathURL) {
-  return path.dirname(global.__filename(pathURL, true));
-};
-
-const __dirname = global.__dirname(import.meta.url);
-global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
-
-// Database Initialization
-global.db = new Low(new JSONFile(`database.json`));
-global.loadDatabase = async function loadDatabase() {
-  if (global.db.READ) return;
-  await global.db.read().catch(console.error);
-  global.db.data = {
-    users: {}, chats: {}, stats: {}, msgs: {}, sticker: {}, settings: {},
-    ...(global.db.data || {}),
-  };
-};
-loadDatabase();
-
-console.clear();
-console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-console.log(chalk.green(figlet.textSync('YOUSAF-BALOCH', { font: 'Standard' })));
-console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
-
-const app = express();
-app.use(express.json());
-
-// 🎨 Ultra-Premium Web UI (Kept exactly as requested)
-app.get('/', (req, res) => {
-    // ... (UI HTML Code remains exactly same as your input)
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>YOUSAF-BALOCH-MD - Dashboard</title>
-        <style>
-            /* Your Cyberpunk UI Styles Here */
-            body { background: #050505; color: white; font-family: 'Poppins'; }
-            .container { text-align: center; padding: 50px; }
-            .bot-title { font-size: 3em; background: linear-gradient(to right, #00f2ff, #ff0080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1 class="bot-title">YOUSAF-BALOCH-MD</h1>
-            <p>V2.0 Ultra Premium Edition</p>
-            <p>Status: <span style="color: #00f2ff;">ONLINE ✅</span></p>
-            <hr style="border: 0.5px solid #333; margin: 20px 0;">
-            <h3>CREATED BY MUHAMMAD YOUSAF</h3>
-            <a href="https://wa.me/923170636110" style="color: #25D366; text-decoration: none;">Contact Developer</a>
-        </div>
-    </body>
-    </html>
-    `);
+// ── Ensure directories exist ─────────────────────────────────────────
+[SYSTEM.SESSION_DIR, SYSTEM.TEMP_DIR, SYSTEM.PLUGINS_DIR].forEach(dir => {
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 });
 
-// --- Backend Logic ---
-app.post('/pairing', async (req, res) => {
-  try {
-    const phone = req.body.phone.replace(/[^0-9]/g, '');
-    if (!global.conn) return res.json({ error: 'Bot is initializing...' });
-    const code = await global.conn.requestPairingCode(phone);
-    res.json({ code: code?.match(/.{1,4}/g)?.join('-') || code });
-  } catch (error) { res.json({ error: 'Pairing Failed' }); }
-});
+// ═══════════════════════════════════════════════════════════════════
+//  🎨 ULTRA-PREMIUM TERMINAL UI
+// ═══════════════════════════════════════════════════════════════════
+function printBanner() {
+  console.clear();
 
+  const fire    = gradient(['#FF0000', '#FF4500', '#FF8C00', '#FFD700']);
+  const cyber   = gradient(['#00FFFF', '#00BFFF', '#0080FF', '#8000FF']);
+  const gold    = gradient(['#FFD700', '#FFA500', '#FF8C00']);
+  const neon    = gradient(['#39FF14', '#00FF7F', '#00FFFF']);
+  const crimson = gradient(['#FF1744', '#FF6F00', '#FFD740']);
+
+  console.log('\n');
+  console.log(fire.multiline(
+    figlet.textSync('YOUSAF-MD', { font: 'ANSI Shadow', horizontalLayout: 'full' })
+  ));
+
+  const line = '═'.repeat(70);
+  console.log('\n' + cyber(line));
+  console.log(gold.multiline(
+    '  ⚡  YOUSAF-BALOCH-MD  |  Ultra-Premium WhatsApp Bot  |  v2.0.0  ⚡'
+  ));
+  console.log(cyber(line) + '\n');
+
+  const label  = (text) => chalk.hex('#00FFFF').bold(text);
+  const value  = (text) => chalk.hex('#FFFFFF')(text);
+  const accent = (text) => chalk.hex('#FFD700').bold(text);
+  const green  = (text) => chalk.hex('#39FF14').bold(text);
+
+  console.log(label('  👑  OWNER     : ') + accent(OWNER.FULL_NAME));
+  console.log(label('  📱  WHATSAPP  : ') + green('+' + OWNER.NUMBER));
+  console.log(label('  🎵  TIKTOK    : ') + chalk.hex('#FF0050')(OWNER.TIKTOK));
+  console.log(label('  🎬  YOUTUBE   : ') + chalk.hex('#FF0000')(OWNER.YOUTUBE));
+  console.log(label('  📢  CHANNEL   : ') + chalk.hex('#25D366')(OWNER.CHANNEL));
+  console.log(label('  💻  GITHUB    : ') + value(OWNER.GITHUB));
+
+  console.log('\n' + cyber(line));
+  console.log(neon('  ⚙️  CONFIGURATION:'));
+  console.log(label('  🔑  SESSION   : ') + (CONFIG.SESSION_ID ? green('✅ Set') : chalk.hex('#FF1744').bold('❌ NOT SET!')));
+  console.log(label('  🔧  PREFIX    : ') + accent(CONFIG.PREFIX));
+  console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
+  console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
+  console.log(label('  🕐  TIMEZONE  : ') + value(CONFIG.TIMEZONE));
+  console.log(cyber(line) + '\n');
+}
+
+// ── Premium Log Helpers ──────────────────────────────────────────────
+const LOG = {
+  success: (msg) => console.log(chalk.hex('#39FF14').bold('  ✅  ') + chalk.hex('#FFFFFF')(msg)),
+  error:   (msg) => console.log(chalk.hex('#FF1744').bold('  ❌  ') + chalk.hex('#FF6B6B')(msg)),
+  warn:    (msg) => console.log(chalk.hex('#FFD700').bold('  ⚠️   ') + chalk.hex('#FFA500')(msg)),
+  info:    (msg) => console.log(chalk.hex('#00BFFF').bold('  ℹ️   ') + chalk.hex('#87CEEB')(msg)),
+  event:   (msg) => console.log(chalk.hex('#BF00FF').bold('  ⚡  ') + chalk.hex('#DDA0DD')(msg)),
+  msg:     (from, cmd) => console.log(
+    chalk.hex('#00FF7F').bold('  💬  ') +
+    chalk.hex('#00FFFF')(`From: `) + chalk.hex('#FFD700').bold(from) +
+    chalk.hex('#00FFFF')(` | CMD: `) + chalk.hex('#FF6F00').bold(cmd)
+  ),
+  divider: () => console.log(chalk.hex('#333333')('  ' + '─'.repeat(68))),
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  🔌 BOT CONNECTION CORE
+// ═══════════════════════════════════════════════════════════════════
 async function startBot() {
+  printBanner();
+
+  // Validate config before starting
+  const configErrors = validateConfig();
+  if (configErrors.length > 0) {
+    configErrors.forEach(err => LOG.error(err));
+    LOG.warn('Bot cannot start without valid configuration. Please fix the above errors.');
+    process.exit(1);
+  }
+
+  const { version, isLatest } = await fetchLatestBaileysVersion();
+  LOG.info(`Baileys Version: v${version.join('.')} | Latest: ${isLatest ? '✅' : '⚠️ Update available'}`);
+
+  const sessionPath = join(__dirname, SYSTEM.SESSION_DIR, 'auth');
+  if (!existsSync(sessionPath)) mkdirSync(sessionPath, { recursive: true });
+
   const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
-  const { version } = await fetchLatestBaileysVersion();
 
   const sock = makeWASocket({
     version,
-    auth: { 
-        creds: state.creds, 
-        keys: makeCacheableSignalKeyStore(state.keys, Pino({ level: 'silent' })) 
-    },
+    logger,
     printQRInTerminal: false,
-    logger: Pino({ level: 'silent' }),
-    browser: ['YOUSAF-BALOCH-MD', 'Chrome', '20.0.04'],
+    auth: {
+      creds: state.creds,
+      keys: makeCacheableSignalKeyStore(state.keys, logger),
+    },
+    // ✅ FIX: Browsers.ubuntu('Chrome') prevents device linking errors
+    browser: Browsers.ubuntu('Chrome'),
+    markOnlineOnConnect: true,
+    generateHighQualityLinkPreview: true,
+    syncFullHistory: false,
     getMessage: async (key) => {
-      const msg = await store.loadMessage(key.remoteJid, key.id);
-      return msg?.message || undefined;
-    }
+      if (store) {
+        const msg = await store.loadMessage(key.remoteJid, key.id);
+        return msg?.message || undefined;
+      }
+      return proto.Message.fromObject({});
+    },
   });
 
-  global.conn = sock;
-  store.bind(sock.ev);
+  store?.bind(sock.ev);
 
-  sock.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update;
-    if (connection === 'open') {
-        console.log(chalk.green('✅ YOUSAF-BALOCH-MD IS ONLINE!'));
+  // ── Connection Events ──────────────────────────────────────────────
+  sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
+    if (connection === 'connecting') {
+      LOG.info('Connecting to WhatsApp...');
     }
+
+    if (connection === 'open') {
+      LOG.divider();
+      LOG.success(chalk.bold.hex('#FFD700')('YOUSAF-BALOCH-MD CONNECTED SUCCESSFULLY! 🚀'));
+      LOG.success(`Logged in as: ${chalk.hex('#25D366').bold(sock.user?.name || sock.user?.id)}`);
+      LOG.divider();
+
+      // Send startup notification to owner
+      try {
+        const startupMsg = `╔══════════════════════════════════╗
+║  ⚡ YOUSAF-BALOCH-MD ONLINE! ⚡  ║
+╚══════════════════════════════════╝
+
+✅ *Bot Started Successfully!*
+
+🤖 *Bot:* ${OWNER.BOT_NAME}
+👑 *Owner:* ${OWNER.FULL_NAME}
+🔧 *Prefix:* \`${CONFIG.PREFIX}\`
+🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
+📅 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎵 ${OWNER.TIKTOK}
+🎬 ${OWNER.YOUTUBE}
+📢 ${OWNER.CHANNEL}
+💻 ${OWNER.GITHUB}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}* ⚡`;
+
+        await sock.sendMessage(OWNER.JID, { text: startupMsg });
+        LOG.success('Startup notification sent to owner!');
+      } catch (notifErr) {
+        LOG.warn('Could not send startup notification: ' + notifErr.message);
+      }
+    }
+
     if (connection === 'close') {
-      const reason = lastDisconnect?.error?.output?.statusCode;
-      if (reason !== DisconnectReason.loggedOut) {
-          console.log(chalk.yellow('🔄 Reconnecting...'));
-          startBot();
+      const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+      const shouldReconnect = reason !== DisconnectReason.loggedOut;
+
+      LOG.warn(`Connection closed. Reason: ${reason}`);
+
+      if (shouldReconnect) {
+        LOG.info('Reconnecting in 5 seconds...');
+        setTimeout(startBot, 5000);
+      } else {
+        LOG.error('Session logged out. Please generate a new SESSION_ID.');
+        LOG.error('Visit: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1');
+        process.exit(1);
       }
     }
   });
 
+  // ── Credentials Update ─────────────────────────────────────────────
   sock.ev.on('creds.update', saveCreds);
 
-  // Plugin Loader logic remains same...
+  // ── Message Handler ────────────────────────────────────────────────
+  sock.ev.on('messages.upsert', async ({ messages, type }) => {
+    if (type !== 'notify') return;
+
+    for (const msg of messages) {
+      if (!msg.message) continue;
+
+      try {
+        await handleMessage(sock, msg);
+      } catch (err) {
+        LOG.error(`Message handler error: ${err.message}`);
+      }
+    }
+  });
+
+  return sock;
 }
 
-app.listen(PORT, () => console.log(chalk.blue(`🚀 Dashboard: http://localhost:${PORT}`)));
-startBot();
+// ═══════════════════════════════════════════════════════════════════
+//  💬 MESSAGE HANDLER
+// ═══════════════════════════════════════════════════════════════════
+async function handleMessage(sock, rawMsg) {
+  const from     = rawMsg.key.remoteJid;
+  const isGroup  = from?.endsWith('@g.us');
+  const sender   = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
+  const isOwner  = sender?.replace(/[^0-9]/g, '') === OWNER.NUMBER;
+
+  // Extract message text
+  const msgContent = rawMsg.message;
+  const body =
+    msgContent?.conversation ||
+    msgContent?.extendedTextMessage?.text ||
+    msgContent?.imageMessage?.caption ||
+    msgContent?.videoMessage?.caption ||
+    '';
+
+  // Ignore if private mode and not owner
+  if (CONFIG.MODE === 'private' && !isOwner) return;
+
+  // Check for prefix
+  const hasPrefix = body.startsWith(CONFIG.PREFIX);
+  if (!hasPrefix) return;
+
+  const command = body.slice(CONFIG.PREFIX.length).trim().split(' ')[0].toLowerCase();
+  const args    = body.slice(CONFIG.PREFIX.length + command.length).trim().split(' ').filter(a => a);
+
+  if (!command) return;
+
+  LOG.msg(sender?.split('@')[0] || 'unknown', command);
+
+  // ── Built-in Commands ──────────────────────────────────────────────
+  const context = { sock, msg: rawMsg, from, sender, isOwner, isGroup, args, body };
+
+  switch (command) {
+    case 'owner':
+      await cmdOwner(context);
+      break;
+    case 'alive':
+    case 'ping':
+      await cmdAlive(context);
+      break;
+    default:
+      // Plugin loader would handle other commands here
+      break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  🛠️  BUILT-IN COMMANDS
+// ═══════════════════════════════════════════════════════════════════
+
+// Owner Info Command
+async function cmdOwner({ sock, from }) {
+  const text = `╔══════════════════════════════════════╗
+║     👑 BOT DEVELOPER INFO 👑         ║
+╚══════════════════════════════════════╝
+
+🌟 *Developer: ${OWNER.FULL_NAME}*
+
+📱 *WhatsApp:*
+wa.me/${OWNER.NUMBER}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🌐 *Official Social Media:*
+
+🎵 *TikTok:*
+${OWNER.TIKTOK}
+
+🎬 *YouTube:*
+${OWNER.YOUTUBE}
+
+📢 *WhatsApp Channel:*
+${OWNER.CHANNEL}
+
+💻 *GitHub:*
+${OWNER.GITHUB}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ *${OWNER.BOT_NAME} v${OWNER.VERSION}*
+⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}*`;
+
+  await sock.sendMessage(from, { text });
+}
+
+// Alive / Ping Command
+async function cmdAlive({ sock, from }) {
+  const uptime  = process.uptime();
+  const hours   = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
+
+  const text = `╔══════════════════════════════════════╗
+║   ⚡ ${OWNER.BOT_NAME} IS ALIVE! ⚡   ║
+╚══════════════════════════════════════╝
+
+✅ *Status:* Online 🟢
+🤖 *Bot:* ${CONFIG.APP_NAME}
+👑 *Owner:* ${OWNER.FULL_NAME}
+⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
+🔧 *Prefix:* \`${CONFIG.PREFIX}\`
+🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
+🕐 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🎵 ${OWNER.TIKTOK}
+🎬 ${OWNER.YOUTUBE}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ *Powered by ${OWNER.FULL_NAME}*`;
+
+  await sock.sendMessage(from, { text });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  🚦 GLOBAL ERROR HANDLERS
+// ═══════════════════════════════════════════════════════════════════
+process.on('uncaughtException', (err) => {
+  LOG.error(`Uncaught Exception: ${err.message}`);
+  LOG.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason) => {
+  LOG.error(`Unhandled Rejection: ${reason}`);
+});
+
+process.on('SIGTERM', () => {
+  LOG.warn('SIGTERM received. Shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  LOG.warn('SIGINT received. Shutting down...');
+  process.exit(0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  🚀 START
+// ═══════════════════════════════════════════════════════════════════
+startBot().catch((err) => {
+  LOG.error('Fatal startup error: ' + err.message);
+  LOG.error(err.stack);
+  process.exit(1);
+});
