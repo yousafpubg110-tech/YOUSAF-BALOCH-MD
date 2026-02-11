@@ -1,24 +1,39 @@
 {
   "name": "yousaf-baloch-md",
   "version": "3.0.0",
-  "description": "Advanced WhatsApp Bot by Muhammad Yousaf Baloch",
+  "description": "YOUSAF-BALOCH-MD - Advanced WhatsApp Bot with 40+ Plugins by Muhammad Yousaf Baloch",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [
     "whatsapp",
     "bot",
     "baileys",
-    "md",
-    "yousaf-baloch"
+    "multi-device",
+    "yousaf-baloch",
+    "md-bot",
+    "whatsapp-automation",
+    "ai-bot",
+    "chatgpt",
+    "gemini",
+    "downloader-bot"
   ],
   "author": {
     "name": "Muhammad Yousaf Baloch",
     "email": "musakhanbaloch03@gmail.com",
     "url": "https://github.com/musakhanbaloch03-sad"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD.git"
+  },
+  "bugs": {
+    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues"
+  },
+  "homepage": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD#readme",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0",
@@ -31,6 +46,15 @@
     "qrcode-terminal": "^0.12.0",
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
-    "moment-timezone": "^0.5.43"
+    "moment-timezone": "^0.5.43",
+    "chalk": "^5.3.0",
+    "file-type": "^19.0.0",
+    "form-data": "^4.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "node-fetch": "^3.3.2",
+    "ytdl-core": "^4.11.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
