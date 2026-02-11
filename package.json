@@ -15,11 +15,7 @@
     "multi-device",
     "yousaf-baloch",
     "md-bot",
-    "whatsapp-automation",
-    "ai-bot",
-    "chatgpt",
-    "gemini",
-    "downloader-bot"
+    "ai-bot"
   ],
   "author": {
     "name": "Muhammad Yousaf Baloch",
@@ -30,17 +26,13 @@
     "type": "git",
     "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD.git"
   },
-  "bugs": {
-    "url": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues"
-  },
-  "homepage": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD#readme",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "baileys": "github:WhiskeySockets/Baileys",
+    "@whiskeysockets/baileys": "^6.7.9",
     "express": "^4.19.2",
     "pino": "^9.0.0",
     "qrcode-terminal": "^0.12.0",
@@ -52,7 +44,8 @@
     "form-data": "^4.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "node-fetch": "^3.3.2",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.11.5",
+    "link-preview-js": "^3.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
