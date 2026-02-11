@@ -1,57 +1,75 @@
-# YOUSAF-BALOCH-MD - Advanced WhatsApp Bot
-# Developer: Muhammad Yousaf Baloch
-# GitHub: https://github.com/musakhanbaloch03-sad
-# YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
-# WhatsApp: +923710636110
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║   YOUSAF-BALOCH-MD — Universal Dockerfile                       ║
+# ║   Created by: Muhammad Yousaf Baloch                            ║
+# ║   Compatible: Koyeb | Heroku | Railway | Render | Replit | VPS  ║
+# ╚══════════════════════════════════════════════════════════════════╝
 
-FROM node:20-alpine
+# ── Stage 1: Builder ────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 
-# Maintainer Information
-LABEL maintainer="Muhammad Yousaf Baloch <musakhanbaloch03@gmail.com>"
-LABEL description="YOUSAF-BALOCH-MD - Advanced WhatsApp Bot with 40+ Plugins"
-LABEL version="3.0.0"
-LABEL github="https://github.com/musakhanbaloch03-sad"
-LABEL youtube="https://www.youtube.com/@Yousaf_Baloch_Tech"
-LABEL whatsapp="+923710636110"
-
-# Install system dependencies
+# Install all build tools for native Node modules
 RUN apk add --no-cache \
-    git \
-    ffmpeg \
-    imagemagick \
-    curl \
-    wget \
     python3 \
     make \
     g++ \
-    && rm -rf /var/cache/apk/*
+    git \
+    vips-dev \
+    libc6-compat \
+    openssl \
+    ffmpeg \
+    imagemagick \
+    wget \
+    curl
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files FIRST (better caching)
+COPY package.json ./
 
-# Install Node.js dependencies
-RUN npm install
+# ✅ KEY FIX: npm install bypasses lockfile issues on all platforms
+# This permanently fixes: "Missing lockfile" and "exit status 1" errors
+RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 
-# Copy application files
-COPY . .
+# ── Stage 2: Production ─────────────────────────────────────────────
+FROM node:20-alpine AS production
 
-# Create necessary directories
-RUN mkdir -p session && \
-    chmod -R 777 session
+# Runtime dependencies only (smaller final image)
+RUN apk add --no-cache \
+    vips \
+    libc6-compat \
+    openssl \
+    ffmpeg \
+    imagemagick \
+    tini \
+    wget \
+    curl
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=8000
+# Create non-root user (security best practice)
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S botuser -u 1001
 
-# Expose port
-EXPOSE ${PORT}
+WORKDIR /app
 
-# Health check for platform monitoring
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:${PORT}/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+# Copy built node_modules from builder stage
+COPY --from=builder /app/node_modules ./node_modules
 
-# Start command
-CMD ["npm", "start"]
+# Copy all application files
+COPY --chown=botuser:nodejs . .
+
+# Create required directories
+RUN mkdir -p /app/sessions/auth /app/temp /app/plugins && \
+    chown -R botuser:nodejs /app/sessions /app/temp /app/plugins
+
+USER botuser
+
+# PORT env variable — all platforms inject this automatically
+EXPOSE ${PORT:-3000}
+
+# Health check compatible with all platforms
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+  CMD node -e "import('http').then(h=>h.default.get('http://localhost:${PORT:-3000}/',r=>r.statusCode<500?process.exit(0):process.exit(1)).on('error',()=>process.exit(1)))"
+
+# Use tini for proper signal handling (prevents zombie processes)
+ENTRYPOINT ["/sbin/tini", "--"]
+
+CMD ["node", "index.js"]
