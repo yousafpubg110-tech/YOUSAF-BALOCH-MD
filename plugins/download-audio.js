@@ -26,44 +26,49 @@ export default {
   async execute(msg, args) {
     try {
       if (!args[0]) {
-        return await msg.reply('❌ Please provide a YouTube URL or search query!\n\nExample:\n.audio https://youtu.be/xxxxx\n.audio Despacito');
+        return await msg.reply('\u274C Please provide a YouTube URL or search query!\n\nExample:\n.audio https://youtu.be/xxxxx\n.audio Despacito');
       }
 
-      await msg.react('🔍');
+      await msg.react('\u{1F50D}');
       const query = args.join(' ');
 
       // Check if URL or search query
       let videoUrl = query;
       let videoInfo;
 
-      if (!query.includes('youtube.com') && !query.includes('youtu.be')) {
+      if (!isValidYouTubeUrl(query)) {
         // Search YouTube
         const search = await yts(query);
         if (!search.videos.length) {
-          await msg.react('❌');
-          return await msg.reply('❌ No audio found!');
+          await msg.react('\u274C');
+          return await msg.reply('\u274C No audio found!');
         }
         videoInfo = search.videos[0];
         videoUrl = videoInfo.url;
       } else {
         // Get video info from URL
-        const search = await yts({ videoId: extractVideoId(query) });
+        const videoId = extractVideoId(query);
+        if (!videoId) {
+          await msg.react('\u274C');
+          return await msg.reply('\u274C Invalid YouTube URL!');
+        }
+        const search = await yts({ videoId });
         videoInfo = search;
       }
 
       // Send audio info
       const caption = `
-╭━━━『 *YOUTUBE AUDIO* 』━━━╮
+\u256D\u2501\u2501\u2501\u300E *YOUTUBE AUDIO* \u300F\u2501\u2501\u2501\u256E
 
-🎵 *Title:* ${videoInfo.title}
-👤 *Artist:* ${videoInfo.author?.name || 'Unknown'}
-⏱️ *Duration:* ${videoInfo.timestamp}
-👁️ *Views:* ${formatNumber(videoInfo.views)}
-📅 *Uploaded:* ${videoInfo.ago}
+\u{1F3B5} *Title:* ${videoInfo.title}
+\u{1F464} *Artist:* ${videoInfo.author?.name || 'Unknown'}
+\u23F1\uFE0F *Duration:* ${videoInfo.timestamp}
+\u{1F441}\uFE0F *Views:* ${formatNumber(videoInfo.views)}
+\u{1F4C5} *Uploaded:* ${videoInfo.ago}
 
-╰━━━━━━━━━━━━━━━━━━━━━━━━╯
+\u2570\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u256F
 
-⏳ *Downloading audio...*
+\u23F3 *Downloading audio...*
 
 _Powered by YOUSAF-BALOCH-MD_
 _GitHub: musakhanbaloch03-sad_
@@ -78,14 +83,22 @@ _GitHub: musakhanbaloch03-sad_
         await msg.reply(caption);
       }
 
-      await msg.react('⬇️');
+      await msg.react('\u2B07\uFE0F');
 
-      // Download audio using API
+      // Download audio using API - URL is already validated above
       const apiUrl = `https://api.nexoracle.com/downloader/ytmp3?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
       const response = await axios.get(apiUrl);
 
       if (response.data && response.data.result && response.data.result.download) {
-        const audioBuffer = await axios.get(response.data.result.download, { responseType: 'arraybuffer' });
+        const downloadUrl = response.data.result.download;
+
+        // Validate download URL before using
+        if (!isValidHttpUrl(downloadUrl)) {
+          await msg.react('\u274C');
+          return await msg.reply('\u274C Invalid download URL received!');
+        }
+
+        const audioBuffer = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
         
         await msg.sendAudio(
           Buffer.from(audioBuffer.data),
@@ -103,24 +116,51 @@ _GitHub: musakhanbaloch03-sad_
           }
         );
 
-        await msg.react('✅');
+        await msg.react('\u2705');
       } else {
-        await msg.react('❌');
-        await msg.reply('❌ Failed to download audio. Try again later!');
+        await msg.react('\u274C');
+        await msg.reply('\u274C Failed to download audio. Try again later!');
       }
 
     } catch (error) {
       console.error('Audio download error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error downloading audio: ' + error.message);
+      await msg.react('\u274C');
+      await msg.reply('\u274C Error downloading audio: ' + error.message);
     }
   }
 };
 
+function isValidYouTubeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'www.youtube.com' || parsed.hostname === 'youtube.com' || parsed.hostname === 'youtu.be') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 function extractVideoId(url) {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'youtu.be') {
+      return parsed.pathname.slice(1);
+    }
+    return parsed.searchParams.get('v') || null;
+  } catch {
+    return null;
+  }
 }
 
 function formatNumber(num) {
@@ -131,9 +171,10 @@ function formatNumber(num) {
 
 async function getBuffer(url) {
   try {
+    if (!isValidHttpUrl(url)) return Buffer.from('');
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     return Buffer.from(response.data);
   } catch {
     return Buffer.from('');
   }
-}
+                }
