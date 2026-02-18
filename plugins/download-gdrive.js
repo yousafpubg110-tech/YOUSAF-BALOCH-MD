@@ -30,21 +30,21 @@ export default {
 
       const url = args[0];
 
-      if (!url.includes('drive.google.com')) {
+      // Properly validate Google Drive URL
+      if (!isValidGoogleDriveUrl(url)) {
         return await msg.reply('❌ Please provide a valid Google Drive URL!');
       }
 
       await msg.react('☁️');
       await msg.reply('⏳ *Fetching Google Drive file...*\n\n_Please wait..._');
 
-      // Extract file ID
-      const fileIdMatch = url.match(/[-\w]{25,}/);
-      if (!fileIdMatch) {
+      // Extract file ID properly
+      const fileId = extractGoogleDriveId(url);
+      if (!fileId) {
         await msg.react('❌');
         return await msg.reply('❌ Invalid Google Drive URL!');
       }
 
-      const fileId = fileIdMatch[0];
       const apiUrl = `https://api.nexoracle.com/downloader/gdrive?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
       
       const response = await axios.get(apiUrl);
@@ -70,7 +70,6 @@ _Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j_
         await msg.reply(fileInfo);
         await msg.react('⬇️');
 
-        // Check file size
         if (result.size && result.size.includes('GB')) {
           await msg.react('⚠️');
           return await msg.reply(`
@@ -87,7 +86,11 @@ _YOUSAF-BALOCH-MD_
 `.trim());
         }
 
-        const downloadUrl = result.download || `https://drive.google.com/uc?id=${fileId}&export=download`;
+        // Validate download URL before using
+        let downloadUrl = result.download;
+        if (!downloadUrl || !isValidHttpUrl(downloadUrl)) {
+          downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+        }
         
         await msg.reply(`
 ✅ *Google Drive File Ready!*
@@ -118,3 +121,39 @@ _Downloaded by YOUSAF-BALOCH-MD_
     }
   }
 };
+
+function isValidGoogleDriveUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'drive.google.com') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+function extractGoogleDriveId(url) {
+  try {
+    const parsed = new URL(url);
+    // Format: /file/d/FILE_ID/view
+    const pathMatch = parsed.pathname.match(/\/d\/([a-zA-Z0-9_-]{25,})/);
+    if (pathMatch) return pathMatch[1];
+    // Format: ?id=FILE_ID
+    const idParam = parsed.searchParams.get('id');
+    if (idParam && /^[a-zA-Z0-9_-]{25,}$/.test(idParam)) return idParam;
+    return null;
+  } catch {
+    return null;
+  }
+}
