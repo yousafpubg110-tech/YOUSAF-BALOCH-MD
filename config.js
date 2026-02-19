@@ -68,9 +68,6 @@ export const CONFIG = {
 
   // Heroku app name (for keep-alive pings)
   HEROKU_APP_NAME: process.env.HEROKU_APP_NAME || '',
-
-  // MongoDB URI (optional, for premium plugins)
-  MONGO_URI: process.env.MONGO_URI || '',
 };
 // ═══════════════════════════════════════════════════════════════════
 
