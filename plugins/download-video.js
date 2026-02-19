@@ -32,11 +32,10 @@ export default {
       await msg.react('🔍');
       const query = args.join(' ');
 
-      // Check if URL or search query
       let videoUrl = query;
       let videoInfo;
 
-      if (!query.includes('youtube.com') && !query.includes('youtu.be')) {
+      if (!isValidYouTubeUrl(query)) {
         // Search YouTube
         const search = await yts(query);
         if (!search.videos.length) {
@@ -47,11 +46,15 @@ export default {
         videoUrl = videoInfo.url;
       } else {
         // Get video info from URL
-        const search = await yts({ videoId: extractVideoId(query) });
+        const videoId = extractVideoId(query);
+        if (!videoId) {
+          await msg.react('❌');
+          return await msg.reply('❌ Invalid YouTube URL!');
+        }
+        const search = await yts({ videoId });
         videoInfo = search;
       }
 
-      // Send video info
       const caption = `
 ╭━━━『 *YOUTUBE VIDEO* 』━━━╮
 
@@ -70,26 +73,30 @@ _GitHub: musakhanbaloch03-sad_
 `.trim();
 
       if (videoInfo.thumbnail) {
-        await msg.sendImage(
-          { url: videoInfo.thumbnail },
-          caption
-        );
+        await msg.sendImage({ url: videoInfo.thumbnail }, caption);
       } else {
         await msg.reply(caption);
       }
 
       await msg.react('⬇️');
 
-      // Download video using API
       const apiUrl = `https://api.nexoracle.com/downloader/youtube?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
       const response = await axios.get(apiUrl);
 
       if (response.data && response.data.result && response.data.result.url) {
-        const videoBuffer = await axios.get(response.data.result.url, { responseType: 'arraybuffer' });
+        const downloadUrl = response.data.result.url;
+
+        // Validate download URL before using
+        if (!isValidHttpUrl(downloadUrl)) {
+          await msg.react('❌');
+          return await msg.reply('❌ Invalid download URL received!');
+        }
+
+        const videoBuffer = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
         
         await msg.sendVideo(
           Buffer.from(videoBuffer.data),
-          `🎥 *${videoInfo.title}*\n\n_Downloaded by YOUSAF-BALOCH-MD_\n📢 ${global.config.channel}`,
+          `🎥 *${videoInfo.title}*\n\n_Downloaded by YOUSAF-BALOCH-MD_\n📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`,
           { mimetype: 'video/mp4' }
         );
 
@@ -107,10 +114,37 @@ _GitHub: musakhanbaloch03-sad_
   }
 };
 
+function isValidYouTubeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'www.youtube.com' || parsed.hostname === 'youtube.com' || parsed.hostname === 'youtu.be') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 function extractVideoId(url) {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'youtu.be') {
+      return parsed.pathname.slice(1);
+    }
+    return parsed.searchParams.get('v') || null;
+  } catch {
+    return null;
+  }
 }
 
 function formatNumber(num) {
