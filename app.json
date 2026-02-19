@@ -1,42 +1,162 @@
 {
   "name": "YOUSAF-BALOCH-MD",
-  "description": "YOUSAF-BALOCH-MD | Premium WhatsApp Multi-Device Bot | Created by Muhammad Yousaf Baloch",
+  "description": "⚡ YOUSAF-BALOCH-MD | Ultra-Premium WhatsApp Multi-Device Bot | Created by Muhammad Yousaf Baloch | +923710636110",
   "repository": "https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD",
   "logo": "https://i.imgur.com/placeholder.png",
-  "keywords": ["whatsapp", "bot", "baileys", "node"],
+  "keywords": ["whatsapp", "bot", "baileys", "node", "yousaf-baloch", "md-bot", "multi-device"],
   "env": {
     "SESSION_ID": {
-      "description": "Your Session ID from YOUSAF-PAIRING-V1. Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1",
+      "description": "🔑 Your Session ID — Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1 | Bot by Muhammad Yousaf Baloch | +923710636110",
       "required": true
     },
     "PREFIX": {
-      "description": "Command prefix for bot (default: .)",
+      "description": "🔧 Command prefix for bot commands (default: .) | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
       "value": ".",
       "required": false
     },
     "MODE": {
-      "description": "Bot mode: 'public' (everyone can use) or 'private' (owner only)",
+      "description": "🌐 Bot mode — 'public' (everyone can use) or 'private' (owner only) | YOUSAF-BALOCH-MD",
       "value": "public",
       "required": false
     },
     "APP_NAME": {
-      "description": "Custom display name for the bot",
+      "description": "🤖 Custom display name for your bot | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch | +923710636110",
       "value": "YOUSAF-BALOCH-MD",
       "required": false
     },
     "TIMEZONE": {
-      "description": "Timezone for bot schedules (e.g. Asia/Karachi)",
+      "description": "🕐 Timezone for bot schedules and logs (e.g. Asia/Karachi) | YOUSAF-BALOCH-MD",
       "value": "Asia/Karachi",
       "required": false
     },
     "AUTO_READ": {
-      "description": "Auto-read incoming messages (true/false)",
+      "description": "📖 Auto-read incoming messages — true/false | YOUSAF-BALOCH-MD",
       "value": "false",
       "required": false
     },
     "AUTO_READ_STATUS": {
-      "description": "Auto-read WhatsApp status updates (true/false)",
+      "description": "👁️ Auto-read WhatsApp status updates — true/false | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
+      "value": "true",
+      "required": false
+    },
+    "AUTO_REACT_STATUS": {
+      "description": "❤️ Auto-react to WhatsApp status updates — true/false | YOUSAF-BALOCH-MD",
+      "value": "true",
+      "required": false
+    },
+    "AUTO_DOWNLOAD_STATUS": {
+      "description": "⬇️ Auto-download WhatsApp status photos/videos — true/false | YOUSAF-BALOCH-MD",
       "value": "false",
+      "required": false
+    },
+    "AUTO_REPLY_STATUS": {
+      "description": "💬 Auto-reply when someone views your status — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_REPLY": {
+      "description": "💬 Auto-reply to private messages in Roman Urdu/English — true/false | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_REPLY_MESSAGE": {
+      "description": "✉️ Custom auto-reply message — Aap ka message mil gaya! Owner busy hain, thodi der mein reply karenge | YOUSAF-BALOCH-MD",
+      "value": "Aap ka message mil gaya! Owner busy hain, thodi der mein reply karenge. 😊",
+      "required": false
+    },
+    "ROMAN_URDU_AI": {
+      "description": "🤖 Auto-detect Roman Urdu and reply in Roman Urdu using AI — true/false | YOUSAF-BALOCH-MD",
+      "value": "true",
+      "required": false
+    },
+    "ANTI_LINK": {
+      "description": "🔗 Delete links in groups automatically — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "ANTI_DELETE": {
+      "description": "🗑️ Recover deleted messages in groups — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "ANTI_SPAM": {
+      "description": "🚫 Auto-kick spammers in groups — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "ANTI_BOT": {
+      "description": "🤖 Block other bots from joining groups — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "WELCOME_MESSAGE": {
+      "description": "👋 Send welcome message when someone joins group — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "GOODBYE_MESSAGE": {
+      "description": "👋 Send goodbye message when someone leaves group — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "ALWAYS_ONLINE": {
+      "description": "🟢 Keep bot always online on WhatsApp — true/false | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_TYPING": {
+      "description": "⌨️ Show typing indicator before sending messages — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_RECORDING": {
+      "description": "🎙️ Show recording indicator for voice notes — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "AZAN_NOTIFICATION": {
+      "description": "🕌 Send Azan notification 5 times a day — true/false | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch | +923710636110",
+      "value": "true",
+      "required": false
+    },
+    "AZAN_CITY": {
+      "description": "🕌 City for Azan timings (e.g. Karachi, Lahore, Islamabad, Quetta) | YOUSAF-BALOCH-MD",
+      "value": "Karachi",
+      "required": false
+    },
+    "PRAY_REMINDER": {
+      "description": "🤲 Send prayer time reminders — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "ONE_VIEW_MESSAGE": {
+      "description": "👁️ Save one-view photos and videos automatically — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "AUTO_STICKER": {
+      "description": "🖼️ Auto-convert images to stickers when tagged — true/false | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch 03710636110",
+      "value": "true",
+      "required": false
+    },
+    "GROUP_LINK_DETECTION": {
+      "description": "🔍 Detect and delete WhatsApp group invite links — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "BLOCK_NON_CONTACTS": {
+      "description": "🚫 Auto-block messages from unknown numbers — true/false | YOUSAF-BALOCH-MD",
+      "value": "false",
+      "required": false
+    },
+    "BOT_LANGUAGE": {
+      "description": "🌍 Bot response language (en / ur / roman-ur) | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
+      "value": "en",
+      "required": false
+    },
+    "HEROKU_APP_NAME": {
+      "description": "☁️ Your Heroku app name for keep-alive — prevents bot from sleeping | YOUSAF-BALOCH-MD",
+      "value": "",
       "required": false
     }
   },
