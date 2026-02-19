@@ -7,7 +7,7 @@
   "env": {
     "SESSION_ID": {
       "description": "🔑 Your Session ID — Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1 | Bot by Muhammad Yousaf Baloch | +923710636110",
-      "required": true
+      "required": false
     },
     "PREFIX": {
       "description": "🔧 Command prefix for bot commands (default: .) | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
@@ -60,7 +60,7 @@
       "required": false
     },
     "AUTO_REPLY_MESSAGE": {
-      "description": "✉️ Custom auto-reply message — Aap ka message mil gaya! Owner busy hain, thodi der mein reply karenge | YOUSAF-BALOCH-MD",
+      "description": "✉️ Custom auto-reply message | YOUSAF-BALOCH-MD",
       "value": "Aap ka message mil gaya! Owner busy hain, thodi der mein reply karenge. 😊",
       "required": false
     },
@@ -152,6 +152,11 @@
     "BOT_LANGUAGE": {
       "description": "🌍 Bot response language (en / ur / roman-ur) | YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch",
       "value": "en",
+      "required": false
+    },
+    "DATABASE_URL": {
+      "description": "🗄️ MongoDB connection string for database (optional) | YOUSAF-BALOCH-MD",
+      "value": "",
       "required": false
     },
     "HEROKU_APP_NAME": {
