@@ -30,14 +30,14 @@ export default {
 
       const url = args[0];
 
-      if (!url.includes('pinterest.com') && !url.includes('pin.it')) {
+      // Properly validate Pinterest URL
+      if (!isValidPinterestUrl(url)) {
         return await msg.reply('❌ Please provide a valid Pinterest URL!');
       }
 
       await msg.react('📌');
       await msg.reply('⏳ *Downloading from Pinterest...*\n\n_Please wait..._');
 
-      // Download Pinterest content using API
       const apiUrl = `https://api.nexoracle.com/downloader/pinterest?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
       const response = await axios.get(apiUrl);
 
@@ -47,7 +47,7 @@ export default {
         const result = response.data.result;
         const mediaUrl = result.image || result.video || result.url;
         
-        if (!mediaUrl) {
+        if (!mediaUrl || !isValidHttpUrl(mediaUrl)) {
           await msg.react('❌');
           return await msg.reply('❌ Failed to download from Pinterest!');
         }
@@ -91,3 +91,26 @@ ${result.title ? `📝 ${result.title}\n\n` : ''}_Downloaded by YOUSAF-BALOCH-MD
     }
   }
 };
+
+function isValidPinterestUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'www.pinterest.com' || 
+       parsed.hostname === 'pinterest.com' || 
+       parsed.hostname === 'pin.it') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
