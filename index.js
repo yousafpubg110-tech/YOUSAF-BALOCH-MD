@@ -22,12 +22,14 @@ import pino from 'pino';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import { OWNER, CONFIG, SYSTEM, validateConfig } from './config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 
 // ── Silent Baileys Logger ────────────────────────────────────────────
 const logger = pino({ level: 'silent' });
@@ -35,10 +37,105 @@ const logger = pino({ level: 'silent' });
 // ── In-memory store ──────────────────────────────────────────────────
 const store = makeInMemoryStore({ logger });
 
+// ── Plugin Storage ───────────────────────────────────────────────────
+const plugins = new Map();
+
 // ── Ensure directories exist ─────────────────────────────────────────
 [SYSTEM.SESSION_DIR, SYSTEM.TEMP_DIR, SYSTEM.PLUGINS_DIR].forEach(dir => {
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  try {
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  } catch (err) {
+    console.error(`Failed to create directory ${dir}: ${err.message}`);
+  }
 });
+
+// ═══════════════════════════════════════════════════════════════════
+//  🔌 PLUGIN LOADER SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+async function loadPlugins() {
+  const pluginsDir = join(__dirname, SYSTEM.PLUGINS_DIR);
+
+  if (!existsSync(pluginsDir)) {
+    LOG.warn('Plugins directory not found. Skipping plugin load.');
+    return;
+  }
+
+  let files;
+  try {
+    files = readdirSync(pluginsDir).filter(f => f.endsWith('.js'));
+  } catch (err) {
+    LOG.error('Failed to read plugins directory: ' + err.message);
+    return;
+  }
+
+  if (files.length === 0) {
+    LOG.warn('No plugin files found in plugins/ folder.');
+    return;
+  }
+
+  let loaded = 0;
+  let failed = 0;
+
+  for (const file of files) {
+    try {
+      const pluginPath = join(pluginsDir, file);
+      const plugin = await import(`file://${pluginPath}`);
+
+      // Each plugin must export a default array or object of commands
+      if (plugin.default) {
+        const commands = Array.isArray(plugin.default)
+          ? plugin.default
+          : [plugin.default];
+
+        for (const cmd of commands) {
+          if (cmd.command && typeof cmd.handler === 'function') {
+            const cmdNames = Array.isArray(cmd.command)
+              ? cmd.command
+              : [cmd.command];
+
+            for (const name of cmdNames) {
+              plugins.set(name.toLowerCase(), cmd);
+            }
+          }
+        }
+      }
+
+      loaded++;
+      LOG.success(`Plugin loaded: ${file}`);
+    } catch (err) {
+      failed++;
+      LOG.error(`Failed to load plugin ${file}: ${err.message}`);
+    }
+  }
+
+  LOG.info(`Plugins: ${loaded} loaded, ${failed} failed. Total commands: ${plugins.size}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  🔑 SESSION RESTORATION FROM SESSION_ID
+// ═══════════════════════════════════════════════════════════════════
+async function restoreSessionFromId(sessionPath) {
+  if (!CONFIG.SESSION_ID) return false;
+
+  try {
+    const credsPath = join(sessionPath, 'creds.json');
+
+    // If creds.json already exists, no need to restore
+    if (existsSync(credsPath)) return true;
+
+    // Decode base64 SESSION_ID to creds.json
+    const decoded = Buffer.from(CONFIG.SESSION_ID, 'base64').toString('utf-8');
+    const parsed = JSON.parse(decoded);
+
+    writeFileSync(credsPath, JSON.stringify(parsed, null, 2));
+    LOG.success('Session restored from SESSION_ID successfully!');
+    return true;
+  } catch (err) {
+    LOG.warn('Could not restore session from SESSION_ID: ' + err.message);
+    LOG.info('Bot will proceed without session restoration.');
+    return false;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════
 //  🎨 ULTRA-PREMIUM TERMINAL UI
@@ -78,7 +175,7 @@ function printBanner() {
 
   console.log('\n' + cyber(line));
   console.log(neon('  ⚙️  CONFIGURATION:'));
-  console.log(label('  🔑  SESSION   : ') + (CONFIG.SESSION_ID ? green('✅ Set') : chalk.hex('#FF1744').bold('❌ NOT SET!')));
+  console.log(label('  🔑  SESSION   : ') + (CONFIG.SESSION_ID ? green('✅ Set') : chalk.hex('#FFD700').bold('⚠️  Not Set — Use Pairing')));
   console.log(label('  🔧  PREFIX    : ') + accent(CONFIG.PREFIX));
   console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
   console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
@@ -107,6 +204,7 @@ const LOG = {
 async function startBot() {
   printBanner();
 
+  // FIX: validateConfig no longer exits if SESSION_ID is missing
   const configErrors = validateConfig();
   if (configErrors.length > 0) {
     configErrors.forEach(err => LOG.error(err));
@@ -114,11 +212,23 @@ async function startBot() {
     process.exit(1);
   }
 
+  // Load all plugins before starting
+  await loadPlugins();
+
   const { version, isLatest } = await fetchLatestBaileysVersion();
   LOG.info(`Baileys Version: v${version.join('.')} | Latest: ${isLatest ? '✅' : '⚠️ Update available'}`);
 
-  const sessionPath = join(__dirname, SYSTEM.SESSION_DIR, 'auth');
-  if (!existsSync(sessionPath)) mkdirSync(sessionPath, { recursive: true });
+  // FIX: Consistent session path — no more double-folder confusion
+  const sessionPath = join(__dirname, SYSTEM.SESSION_DIR);
+  try {
+    if (!existsSync(sessionPath)) mkdirSync(sessionPath, { recursive: true });
+  } catch (err) {
+    LOG.error('Failed to create session directory: ' + err.message);
+    process.exit(1);
+  }
+
+  // FIX: Restore session from SESSION_ID if provided
+  await restoreSessionFromId(sessionPath);
 
   const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
 
@@ -168,6 +278,7 @@ async function startBot() {
 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
 📅 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
+🔌 *Plugins:* ${plugins.size} commands loaded
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎵 ${OWNER.TIKTOK}
@@ -250,18 +361,48 @@ async function handleMessage(sock, rawMsg) {
 
   LOG.msg(sender?.split('@')[0] || 'unknown', command);
 
-  const context = { sock, msg: rawMsg, from, sender, isOwner, isGroup, args, body };
+  const context = { sock, msg: rawMsg, from, sender, isOwner, isGroup, args, body, plugins };
 
+  // FIX: Check built-in commands first, then fall through to plugins
   switch (command) {
     case 'owner':
       await cmdOwner(context);
-      break;
+      return;
     case 'alive':
     case 'ping':
       await cmdAlive(context);
-      break;
+      return;
     default:
       break;
+  }
+
+  // FIX: Plugin command routing — all plugin commands are now called properly
+  if (plugins.has(command)) {
+    const plugin = plugins.get(command);
+    try {
+      // Check if command is owner-only
+      if (plugin.ownerOnly && !isOwner) {
+        await sock.sendMessage(from, {
+          text: `❌ This command is only for the bot owner.${SYSTEM.SHORT_WATERMARK}`,
+        });
+        return;
+      }
+
+      // Check if command is group-only
+      if (plugin.groupOnly && !isGroup) {
+        await sock.sendMessage(from, {
+          text: `❌ This command can only be used in groups.${SYSTEM.SHORT_WATERMARK}`,
+        });
+        return;
+      }
+
+      await plugin.handler(context);
+    } catch (pluginErr) {
+      LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
+      await sock.sendMessage(from, {
+        text: `❌ An error occurred while running *${command}*.\n\n_Error: ${pluginErr.message}_${SYSTEM.SHORT_WATERMARK}`,
+      });
+    }
   }
 }
 
@@ -316,6 +457,7 @@ async function cmdAlive({ sock, from }) {
 ⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
+🔌 *Plugins:* ${plugins.size} commands loaded
 🕐 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 🎵 ${OWNER.TIKTOK}
