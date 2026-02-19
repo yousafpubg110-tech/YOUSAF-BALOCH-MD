@@ -31,14 +31,14 @@ export default {
 
       const url = args[0];
 
-      if (!url.includes('mediafire.com')) {
+      // Properly validate MediaFire URL
+      if (!isValidMediaFireUrl(url)) {
         return await msg.reply('❌ Please provide a valid MediaFire URL!');
       }
 
       await msg.react('📁');
       await msg.reply('⏳ *Fetching MediaFire file...*\n\n_Please wait..._');
 
-      // Scrape MediaFire page
       const response = await axios.get(url);
       const $ = cheerio.load(response.data);
 
@@ -47,12 +47,12 @@ export default {
       const filetype = $('.details li:nth-child(2) span').text().trim();
       const downloadUrl = $('#downloadButton').attr('href');
 
-      if (!downloadUrl) {
+      // Validate download URL before using
+      if (!downloadUrl || !isValidHttpUrl(downloadUrl)) {
         await msg.react('❌');
         return await msg.reply('❌ Failed to get download link! Make sure the file is publicly accessible.');
       }
 
-      // Send file info
       const fileInfo = `
 ╭━━━『 *MEDIAFIRE FILE* 』━━━╮
 
@@ -71,7 +71,6 @@ _Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j_
       await msg.reply(fileInfo);
       await msg.react('⬇️');
 
-      // Check file size (WhatsApp limit: 100MB for documents)
       const sizeMatch = filesize.match(/([\d.]+)\s*(MB|GB)/i);
       if (sizeMatch) {
         const size = parseFloat(sizeMatch[1]);
@@ -94,13 +93,11 @@ _YOUSAF-BALOCH-MD_
         }
       }
 
-      // Download file
       const fileBuffer = await axios.get(downloadUrl, { 
         responseType: 'arraybuffer',
-        maxContentLength: 100 * 1024 * 1024 // 100MB limit
+        maxContentLength: 100 * 1024 * 1024
       });
 
-      // Determine mimetype
       let mimetype = 'application/octet-stream';
       if (filetype.includes('APK')) mimetype = 'application/vnd.android.package-archive';
       else if (filetype.includes('PDF')) mimetype = 'application/pdf';
@@ -138,3 +135,24 @@ _Downloaded by YOUSAF-BALOCH-MD_
     }
   }
 };
+
+function isValidMediaFireUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'www.mediafire.com' || parsed.hostname === 'mediafire.com') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
