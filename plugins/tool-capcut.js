@@ -41,14 +41,14 @@ export default {
 
       const url = args[0];
 
-      if (!url.includes('capcut.com')) {
+      // Properly validate CapCut URL
+      if (!isValidCapCutUrl(url)) {
         return await msg.reply('❌ Please provide a valid CapCut template URL!');
       }
 
       await msg.react('🎬');
       await msg.reply('⏳ *Downloading CapCut template...*\n\n_Please wait..._');
 
-      // Download CapCut template using API
       const apiUrl = `https://api.nexoracle.com/downloader/capcut?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
       const response = await axios.get(apiUrl);
 
@@ -58,7 +58,8 @@ export default {
         const result = response.data.result;
         const videoUrl = result.video || result.download;
         
-        if (!videoUrl) {
+        // Validate video URL before using
+        if (!videoUrl || !isValidHttpUrl(videoUrl)) {
           await msg.react('❌');
           return await msg.reply('❌ Failed to download CapCut template!');
         }
@@ -80,6 +81,12 @@ _Downloaded by YOUSAF-BALOCH-MD_
 `.trim();
 
         const videoBuffer = await axios.get(videoUrl, { responseType: 'arraybuffer' });
+
+        // Validate thumbnail URL before using
+        let thumbnail = Buffer.from('');
+        if (result.thumbnail && isValidHttpUrl(result.thumbnail)) {
+          thumbnail = await getBuffer(result.thumbnail);
+        }
         
         await msg.sendVideo(
           Buffer.from(videoBuffer.data),
@@ -90,7 +97,7 @@ _Downloaded by YOUSAF-BALOCH-MD_
               externalAdReply: {
                 title: result.title || 'CapCut Template',
                 body: 'YOUSAF-BALOCH-MD • Template Downloader',
-                thumbnail: result.thumbnail ? await getBuffer(result.thumbnail) : Buffer.from(''),
+                thumbnail: thumbnail,
                 sourceUrl: 'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD'
               }
             }
@@ -111,6 +118,27 @@ _Downloaded by YOUSAF-BALOCH-MD_
   }
 };
 
+function isValidCapCutUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'www.capcut.com' || parsed.hostname === 'capcut.com') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 function formatNumber(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -119,6 +147,7 @@ function formatNumber(num) {
 
 async function getBuffer(url) {
   try {
+    if (!isValidHttpUrl(url)) return Buffer.from('');
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     return Buffer.from(response.data);
   } catch {
