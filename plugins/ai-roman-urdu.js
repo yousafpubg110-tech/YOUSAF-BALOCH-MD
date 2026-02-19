@@ -27,7 +27,7 @@ function isRomanUrdu(text) {
   for (const pattern of romanUrduPatterns) {
     if (pattern.test(text)) matches++;
   }
-  return matches >= 2; // At least 2 Urdu words detected
+  return matches >= 2;
 }
 
 export default {
@@ -38,32 +38,26 @@ export default {
   
   async execute(msg, args) {
     try {
-      // This is triggered automatically when Roman Urdu is detected
       const userMessage = msg.body;
 
       if (!isRomanUrdu(userMessage)) {
-        return; // Not Roman Urdu, skip
+        return;
       }
 
       await msg.react('🤔');
 
-      // Use AI to generate Roman Urdu response
       const prompt = `You are a friendly Pakistani chatbot. Respond ONLY in Roman Urdu (Urdu written in English letters). Be natural, casual, and friendly. User said: "${userMessage}"`;
 
       const apiUrl = `https://api.nexoracle.com/ai/chatgpt?apikey=free_key@maher_apis&prompt=${encodeURIComponent(prompt)}`;
       const response = await axios.get(apiUrl);
 
       if (response.data && response.data.result) {
-        let reply = response.data.result;
-        
-        // Add friendly Roman Urdu touches
-        reply = reply.replace(/\?/g, '?');
-        reply = reply.replace(/!/g, '!');
+        // یہ دو لائنیں ہٹا دی گئی ہیں جو خود کو replace کر رہی تھیں (یہی error تھی)
+        const reply = response.data.result;
         
         await msg.reply(reply);
         await msg.react('✅');
       } else {
-        // Fallback responses in Roman Urdu
         const fallbacks = [
           'Ji bilkul! Kya main aur kuch madad kar sakta hun?',
           'Theek hai yar, batao aur kya chahiye?',
@@ -79,11 +73,9 @@ export default {
 
     } catch (error) {
       console.error('Roman Urdu AI error:', error);
-      // Friendly error response in Roman Urdu
       await msg.reply('Yar sorry, mujhe samajh nahi aaya. Dubara try karo na!');
     }
   }
 };
 
-// Export detection function for use in main handler
 export { isRomanUrdu };
