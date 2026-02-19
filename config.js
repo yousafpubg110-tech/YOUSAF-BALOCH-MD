@@ -77,7 +77,7 @@ export const CONFIG = {
 export const SYSTEM = Object.freeze({
   BAILEYS_VERSION: '6.7.9',
   NODE_MIN:        '18.0.0',
-  SESSION_DIR:     './sessions',
+  SESSION_DIR:     './session',
   TEMP_DIR:        './temp',
   PLUGINS_DIR:     './plugins',
 
@@ -93,12 +93,11 @@ export const SYSTEM = Object.freeze({
 // ═══════════════════════════════════════════════════════════════════
 
 // ── Validation on startup ────────────────────────────────────────────
+// FIX: SESSION_ID is now OPTIONAL — bot will still start without it.
+// If SESSION_ID is set, it will be used to restore the session.
+// If not set, bot will wait for pairing via YOUSAF-PAIRING-V1.
 export function validateConfig() {
   const errors = [];
-
-  if (!CONFIG.SESSION_ID) {
-    errors.push('SESSION_ID is not set. Get it from: https://github.com/musakhanbaloch03-sad/YOUSAF-PAIRING-V1');
-  }
 
   if (!['public', 'private'].includes(CONFIG.MODE)) {
     errors.push(`Invalid MODE "${CONFIG.MODE}". Use "public" or "private".`);
