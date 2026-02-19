@@ -30,14 +30,14 @@ export default {
 
       const url = args[0];
 
-      if (!url.includes('soundcloud.com')) {
+      // Properly validate SoundCloud URL
+      if (!isValidSoundCloudUrl(url)) {
         return await msg.reply('❌ Please provide a valid SoundCloud URL!');
       }
 
       await msg.react('🎧');
       await msg.reply('⏳ *Downloading from SoundCloud...*\n\n_Please wait..._');
 
-      // Download SoundCloud track using API
       const apiUrl = `https://api.nexoracle.com/downloader/soundcloud?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
       const response = await axios.get(apiUrl);
 
@@ -47,12 +47,12 @@ export default {
         const result = response.data.result;
         const audioUrl = result.download || result.url;
         
-        if (!audioUrl) {
+        // Validate audio URL before using
+        if (!audioUrl || !isValidHttpUrl(audioUrl)) {
           await msg.react('❌');
           return await msg.reply('❌ Failed to download from SoundCloud!');
         }
 
-        // Send track info
         const trackInfo = `
 ╭━━━『 *SOUNDCLOUD TRACK* 』━━━╮
 
@@ -71,6 +71,12 @@ _Powered by YOUSAF-BALOCH-MD_
 
         const audioBuffer = await axios.get(audioUrl, { responseType: 'arraybuffer' });
         
+        // Validate thumbnail URL before using
+        let thumbnail = Buffer.from('');
+        if (result.thumbnail && isValidHttpUrl(result.thumbnail)) {
+          thumbnail = await getBuffer(result.thumbnail);
+        }
+
         await msg.sendAudio(
           Buffer.from(audioBuffer.data),
           {
@@ -80,7 +86,7 @@ _Powered by YOUSAF-BALOCH-MD_
               externalAdReply: {
                 title: result.title || 'SoundCloud Track',
                 body: `🎧 ${result.artist || 'SoundCloud'} • YOUSAF-BALOCH-MD`,
-                thumbnail: result.thumbnail ? await getBuffer(result.thumbnail) : Buffer.from(''),
+                thumbnail: thumbnail,
                 mediaType: 2,
                 sourceUrl: url
               }
@@ -111,6 +117,27 @@ _YOUSAF-BALOCH-MD_
   }
 };
 
+function isValidSoundCloudUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'soundcloud.com' || parsed.hostname === 'www.soundcloud.com') &&
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 function formatNumber(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -119,6 +146,7 @@ function formatNumber(num) {
 
 async function getBuffer(url) {
   try {
+    if (!isValidHttpUrl(url)) return Buffer.from('');
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     return Buffer.from(response.data);
   } catch {
