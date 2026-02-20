@@ -13,205 +13,193 @@
 */
 
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  command: ['playstore', 'ps', 'playstoreapp', 'apk'],
   name: 'playstore',
-  aliases: ['ps', 'playstoreapp'],
-  category: 'downloader',
-  description: 'Download apps directly from Play Store',
+  category: 'Downloader',
+  description: 'Download apps from Play Store via APKPure',
   usage: '.playstore <app name>',
-  cooldown: 10000,
+  cooldown: 15,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ براہ کرم app کا نام لکھیں!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide an app name!
 
-*مثال:*
+*Example:*
 .playstore WhatsApp
 .playstore Instagram
-.playstore Facebook
 .playstore TikTok
 .playstore Telegram
+.playstore PUBG
 
-*مشہور Apps:*
+*Popular Apps:*
 📱 WhatsApp, Instagram, Facebook
 🎮 PUBG, Free Fire, Call of Duty
 🎵 Spotify, YouTube Music
 📺 Netflix, YouTube
-📸 Snapchat, TikTok
-`.trim());
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('📱');
       const query = args.join(' ');
 
-      await msg.reply(`
-⏳ *Play Store میں تلاش کر رہا ہوں...*
+      await msg.reply(`⏳ *Searching Play Store...*\n\n🔍 Searching: ${query}\n\nPlease wait...`);
 
-🔍 Searching: ${query}
+      // FIX: sanitizeUrl on search URL — CodeQL High error fix
+      const rawSearchUrl = `https://apkpure.com/search?q=${encodeURIComponent(query)}`;
+      const safeSearchUrl = sanitizeUrl(rawSearchUrl);
 
-_براہ کرم انتظار کریں..._
-`.trim());
+      if (!safeSearchUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build search URL.');
+      }
 
-      // Search on APKPure (Play Store mirror)
-      const searchUrl = `https://apkpure.com/search?q=${encodeURIComponent(query)}`;
-      const response = await axios.get(searchUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      const response = await axios.get(safeSearchUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       });
-      
+
       const $ = cheerio.load(response.data);
       const apps = [];
 
       $('.search-dl').slice(0, 5).each((i, elem) => {
         const title = $(elem).find('.p1').text().trim();
         const developer = $(elem).find('.p2').text().trim();
-        const url = 'https://apkpure.com' + $(elem).find('a').attr('href');
-        const icon = $(elem).find('img').attr('src');
+        const href = $(elem).find('a').attr('href');
         const rating = $(elem).find('.star').text().trim();
-        
-        if (title && url) {
-          apps.push({ title, developer, url, icon, rating });
+        if (title && href) {
+          apps.push({
+            title,
+            developer,
+            url: 'https://apkpure.com' + href,
+            rating,
+          });
         }
       });
 
       if (apps.length === 0) {
         await msg.react('❌');
-        return await msg.reply('❌ کوئی app نہیں ملی! دوسرا نام try کریں۔');
+        return await msg.reply('❌ No apps found! Try a different name.');
       }
 
-      // Show search results
-      let resultMsg = `
-╭━━━『 *PLAY STORE SEARCH* 』━━━╮
-
-📱 *${apps.length} Apps ملیں: ${query}*
-
-`;
-
+      let resultMsg = `╭━━━『 *PLAY STORE SEARCH* 』━━━╮\n\n📱 *Found ${apps.length} apps for: ${query}*\n`;
       apps.forEach((app, i) => {
-        resultMsg += `
-${i + 1}. *${app.title}*
-   👤 Developer: ${app.developer}
-   ⭐ Rating: ${app.rating || 'N/A'}
-`;
+        resultMsg += `\n${i + 1}. *${app.title}*\n   👤 ${app.developer}\n   ⭐ ${app.rating || 'N/A'}\n`;
       });
-
-      resultMsg += `
-╰━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-⏳ *پہلی app download کر رہا ہوں...*
-
-_Powered by YOUSAF-BALOCH-MD_
-`.trim();
+      resultMsg += `\n╰━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n⏳ *Downloading first result...*`;
 
       await msg.reply(resultMsg);
       await msg.react('⬇️');
 
-      // Get download link from first app
-      const appPage = await axios.get(apps[0].url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      // FIX: sanitizeUrl on app page URL
+      const safeAppUrl = sanitizeUrl(apps[0].url);
+      if (!safeAppUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid app page URL.');
+      }
+
+      const appPage = await axios.get(safeAppUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       });
-      
+
       const $app = cheerio.load(appPage.data);
-      const downloadPageUrl = 'https://apkpure.com' + $app('.download-btn').attr('href');
+      const downloadHref = $app('.download-btn').attr('href');
 
-      if (!downloadPageUrl) {
+      if (!downloadHref) {
         await msg.react('❌');
-        return await msg.reply('❌ Download link نہیں مل سکا!');
+        return await msg.reply('❌ Download link not found!');
       }
 
-      // Get final APK download link
-      const downloadPage = await axios.get(downloadPageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      // FIX: sanitizeUrl on download page URL
+      const rawDownloadPageUrl = downloadHref.startsWith('http')
+        ? downloadHref
+        : 'https://apkpure.com' + downloadHref;
+      const safeDownloadPageUrl = sanitizeUrl(rawDownloadPageUrl);
+
+      if (!safeDownloadPageUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid download page URL.');
+      }
+
+      const downloadPage = await axios.get(safeDownloadPageUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       });
-      
-      const $dl = cheerio.load(downloadPage.data);
-      const apkUrl = $dl('#download_link').attr('href');
 
-      if (!apkUrl) {
+      const $dl = cheerio.load(downloadPage.data);
+      const rawApkUrl = $dl('#download_link').attr('href');
+
+      // FIX: sanitizeUrl on APK download URL — CodeQL High error fix
+      const safeApkUrl = rawApkUrl ? sanitizeUrl(rawApkUrl) : null;
+
+      if (!safeApkUrl) {
         await msg.react('❌');
-        return await msg.reply('❌ APK download نہیں ہو سکا! دوبارہ try کریں۔');
+        return await msg.reply('❌ APK download link not found! Try again.');
       }
 
-      // Get APK info
-      const version = $app('.details-sdk span:first').text().trim();
-      const size = $app('.details-sdk span:last').text().trim();
+      const version = $app('.details-sdk span:first').text().trim() || 'Latest';
+      const size = $app('.details-sdk span:last').text().trim() || 'Unknown';
 
-      await msg.reply(`
-✅ *APK تیار ہے!*
+      await msg.reply(`✅ *APK Ready!*
 
 📱 *App:* ${apps[0].title}
 👤 *Developer:* ${apps[0].developer}
-📦 *Version:* ${version || 'Latest'}
-📊 *Size:* ${size || 'Unknown'}
+📦 *Version:* ${version}
+📊 *Size:* ${size}
 ⭐ *Rating:* ${apps[0].rating || 'N/A'}
 
 ⏳ *Downloading APK...*
 
-_یہ کچھ وقت لے سکتا ہے..._
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
 
-      // Download APK file
-      const apkBuffer = await axios.get(apkUrl, { 
+      const apkRes = await axios.get(safeApkUrl, {
         responseType: 'arraybuffer',
-        maxContentLength: 100 * 1024 * 1024, // 100MB limit
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        timeout: 120000,
+        maxContentLength: 100 * 1024 * 1024,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       });
 
-      // Send APK as document
-      await msg.sendDocument(
-        Buffer.from(apkBuffer.data),
-        `${apps[0].title}.apk`,
-        'application/vnd.android.package-archive',
-        `
-📱 *${apps[0].title}*
+      const apkBuffer = Buffer.from(apkRes.data);
+
+      await sock.sendMessage(from, {
+        document: apkBuffer,
+        fileName: `${apps[0].title}.apk`,
+        mimetype: 'application/vnd.android.package-archive',
+        caption: `📱 *${apps[0].title}*
 
 👤 Developer: ${apps[0].developer}
-📦 Version: ${version || 'Latest'}
-📊 Size: ${size || 'Unknown'}
+📦 Version: ${version}
+📊 Size: ${size}
 ⭐ Rating: ${apps[0].rating || 'N/A'}
 
 *Installation:*
 1️⃣ Download APK
-2️⃣ Settings میں "Unknown Sources" enable کریں
-3️⃣ APK install کریں
+2️⃣ Enable Unknown Sources in Settings
+3️⃣ Install APK
 4️⃣ Enjoy!
 
-_Downloaded by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 https://tiktok.com/@loser_boy.110
-`.trim()
-      );
+${SYSTEM.SHORT_WATERMARK}`,
+      }, { quoted: msg });
 
       await msg.react('✅');
 
     } catch (error) {
-      console.error('Play Store download error:', error);
-      await msg.react('❌');
-      
-      if (error.message.includes('maxContentLength')) {
-        await msg.reply('❌ APK بہت بڑی ہے (100MB سے زیادہ)');
-      } else {
-        await msg.reply(`
-❌ *Error occurred!*
-
-براہ کرم دوبارہ try کریں یا مختلف app name استعمال کریں۔
-
-_YOUSAF-BALOCH-MD_
-`.trim());
-      }
+      console.error('Play Store download error:', error.message);
+      try {
+        await msg.react('❌');
+        if (error.message.includes('maxContentLength')) {
+          await msg.reply('❌ APK is too large (over 100MB)');
+        } else {
+          await msg.reply('❌ Error: ' + error.message);
+        }
+      } catch (_) {}
     }
-  }
+  },
 };
