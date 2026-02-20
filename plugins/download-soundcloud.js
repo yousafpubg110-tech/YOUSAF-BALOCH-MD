@@ -13,48 +13,75 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  command: ['soundcloud', 'sc', 'scdl'],
   name: 'soundcloud',
-  aliases: ['sc', 'scdl'],
-  category: 'downloader',
+  category: 'Downloader',
   description: 'Download music from SoundCloud',
   usage: '.soundcloud <soundcloud url>',
-  cooldown: 5000,
+  cooldown: 10,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply('❌ Please provide a SoundCloud URL!\n\nExample:\n.soundcloud https://soundcloud.com/artist/track');
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide a SoundCloud URL!
+
+*Example:*
+.soundcloud https://soundcloud.com/artist/track-name
+.sc https://soundcloud.com/artist/track-name
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       const url = args[0];
 
-      // Properly validate SoundCloud URL
       if (!isValidSoundCloudUrl(url)) {
-        return await msg.reply('❌ Please provide a valid SoundCloud URL!');
+        return await msg.reply(`❌ Invalid SoundCloud URL!
+
+Please provide a valid SoundCloud track link.
+
+*Example:*
+.sc https://soundcloud.com/artist/track-name
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🎧');
-      await msg.reply('⏳ *Downloading from SoundCloud...*\n\n_Please wait..._');
+      await msg.reply('⏳ *Downloading from SoundCloud...*\n\nPlease wait...');
 
-      const apiUrl = `https://api.nexoracle.com/downloader/soundcloud?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
-      const response = await axios.get(apiUrl);
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/downloader/soundcloud?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-      if (response.data && response.data.result) {
-        await msg.react('⬇️');
-        
-        const result = response.data.result;
-        const audioUrl = result.download || result.url;
-        
-        // Validate audio URL before using
-        if (!audioUrl || !isValidHttpUrl(audioUrl)) {
-          await msg.react('❌');
-          return await msg.reply('❌ Failed to download from SoundCloud!');
-        }
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build download URL.');
+      }
 
-        const trackInfo = `
-╭━━━『 *SOUNDCLOUD TRACK* 』━━━╮
+      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+      const result = response.data?.result;
+
+      if (!result) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to download from SoundCloud!');
+      }
+
+      await msg.react('⬇️');
+
+      const rawAudioUrl = result.download || result.url;
+
+      // FIX: sanitizeUrl on audio URL — CodeQL High error fix
+      const safeAudioUrl = rawAudioUrl ? sanitizeUrl(rawAudioUrl) : null;
+
+      if (!safeAudioUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid audio URL received!');
+      }
+
+      const trackInfo = `╭━━━『 *SOUNDCLOUD TRACK* 』━━━╮
 
 🎧 *Title:* ${result.title || 'Unknown'}
 👤 *Artist:* ${result.artist || 'Unknown'}
@@ -64,57 +91,54 @@ ${result.plays ? `▶️ *Plays:* ${formatNumber(result.plays)}\n` : ''}
 
 ⏳ *Sending audio...*
 
-_Powered by YOUSAF-BALOCH-MD_
-`.trim();
+${SYSTEM.SHORT_WATERMARK}`;
 
-        await msg.reply(trackInfo);
+      await msg.reply(trackInfo);
 
-        const audioBuffer = await axios.get(audioUrl, { responseType: 'arraybuffer' });
-        
-        // Validate thumbnail URL before using
-        let thumbnail = Buffer.from('');
-        if (result.thumbnail && isValidHttpUrl(result.thumbnail)) {
-          thumbnail = await getBuffer(result.thumbnail);
+      const audioRes = await axios.get(safeAudioUrl, {
+        responseType: 'arraybuffer',
+        timeout: 60000,
+      });
+
+      const audioBuffer = Buffer.from(audioRes.data);
+
+      // FIX: sanitizeUrl on thumbnail URL
+      let thumbnailBuffer = Buffer.from('');
+      if (result.thumbnail) {
+        const safeThumbnailUrl = sanitizeUrl(result.thumbnail);
+        if (safeThumbnailUrl) {
+          thumbnailBuffer = await getBuffer(safeThumbnailUrl);
         }
-
-        await msg.sendAudio(
-          Buffer.from(audioBuffer.data),
-          {
-            mimetype: 'audio/mp4',
-            ptt: false,
-            contextInfo: {
-              externalAdReply: {
-                title: result.title || 'SoundCloud Track',
-                body: `🎧 ${result.artist || 'SoundCloud'} • YOUSAF-BALOCH-MD`,
-                thumbnail: thumbnail,
-                mediaType: 2,
-                sourceUrl: url
-              }
-            }
-          }
-        );
-
-        await msg.react('✅');
-        await msg.reply(`
-✅ *Downloaded!*
-
-_YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 https://tiktok.com/@loser_boy.110
-`.trim());
-      } else {
-        await msg.react('❌');
-        await msg.reply('❌ Failed to download from SoundCloud!');
       }
 
+      // FIX: sanitizeUrl on source URL for contextInfo
+      const safeSourceUrl = sanitizeUrl(url) || OWNER.GITHUB;
+
+      await sock.sendMessage(from, {
+        audio: audioBuffer,
+        mimetype: 'audio/mp4',
+        ptt: false,
+        contextInfo: {
+          externalAdReply: {
+            title: result.title || 'SoundCloud Track',
+            body: `🎧 ${result.artist || 'SoundCloud'} • ${OWNER.BOT_NAME}`,
+            thumbnail: thumbnailBuffer,
+            mediaType: 2,
+            sourceUrl: safeSourceUrl,
+          },
+        },
+      }, { quoted: msg });
+
+      await msg.react('✅');
+
     } catch (error) {
-      console.error('SoundCloud download error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('SoundCloud download error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
 
 function isValidSoundCloudUrl(url) {
@@ -129,25 +153,19 @@ function isValidSoundCloudUrl(url) {
   }
 }
 
-function isValidHttpUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-  } catch {
-    return false;
-  }
-}
-
 function formatNumber(num) {
+  if (!num || isNaN(num)) return '0';
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
   return num.toString();
 }
 
-async function getBuffer(url) {
+async function getBuffer(safeUrl) {
   try {
-    if (!isValidHttpUrl(url)) return Buffer.from('');
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const response = await axios.get(safeUrl, {
+      responseType: 'arraybuffer',
+      timeout: 15000,
+    });
     return Buffer.from(response.data);
   } catch {
     return Buffer.from('');
