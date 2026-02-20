@@ -14,37 +14,45 @@
 
 import axios from 'axios';
 import yts from 'yt-search';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  // FIX: command field added
+  command: ['drama', 'pakistanidrama', 'dramadownload'],
   name: 'drama',
-  aliases: ['pakistanidrama', 'dramadownload'],
-  category: 'downloader',
+  category: 'Downloader',
   description: 'Download Pakistani dramas from YouTube',
   usage: '.drama <drama name and episode>',
-  cooldown: 5000,
+  cooldown: 15,
 
-  async execute(msg, args) {
+  // FIX: execute -> handler, context object
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply('❌ Please provide drama name and episode!\n\nExample:\n.drama Tere Bin Episode 1\n.drama Mere Paas Tum Ho last episode');
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide drama name and episode!
+
+*Example:*
+.drama Tere Bin Episode 1
+.drama Mere Paas Tum Ho last episode
+.drama Kabhi Main Kabhi Tum episode 20
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🎬');
-      const query = args.join(' ') + ' drama';
+      const query = args.join(' ') + ' pakistani drama';
 
-      // Search YouTube for drama
       const search = await yts(query);
       if (!search.videos.length) {
         await msg.react('❌');
-        return await msg.reply('❌ No drama found!');
+        return await msg.reply('❌ No drama found! Try different keywords.');
       }
 
       const videoInfo = search.videos[0];
       const videoUrl = videoInfo.url;
 
-      // Send drama info
-      const caption = `
-╭━━━『 *PAKISTANI DRAMA* 』━━━╮
+      const caption = `╭━━━『 *PAKISTANI DRAMA* 』━━━╮
 
 🎬 *Drama:* ${videoInfo.title}
 📺 *Channel:* ${videoInfo.author?.name || 'Unknown'}
@@ -56,52 +64,76 @@ export default {
 
 ⏳ *Downloading drama...*
 
-_Powered by YOUSAF-BALOCH-MD_
-_Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j_
-`.trim();
+${SYSTEM.SHORT_WATERMARK}`;
 
+      // FIX: sanitizeUrl on thumbnail
       if (videoInfo.thumbnail) {
-        await msg.sendImage(
-          { url: videoInfo.thumbnail },
-          caption
-        );
+        const safeThumbnail = sanitizeUrl(videoInfo.thumbnail);
+        if (safeThumbnail) {
+          await sock.sendMessage(from, {
+            image: { url: safeThumbnail },
+            caption,
+          }, { quoted: msg });
+        } else {
+          await msg.reply(caption);
+        }
       } else {
         await msg.reply(caption);
       }
 
       await msg.react('⬇️');
 
-      // Download video
-      const apiUrl = `https://api.nexoracle.com/downloader/youtube?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
-      const response = await axios.get(apiUrl);
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/downloader/youtube?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-      if (response.data && response.data.result && response.data.result.url) {
-        const videoBuffer = await axios.get(response.data.result.url, { responseType: 'arraybuffer' });
-        
-        await msg.sendVideo(
-          Buffer.from(videoBuffer.data),
-          `
-🎬 *${videoInfo.title}*
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build download URL.');
+      }
 
-📺 ${videoInfo.author?.name || 'Unknown'}
-⏱️ ${videoInfo.timestamp}
+      const response = await axios.get(safeApiUrl, { timeout: 30000 });
 
-_Downloaded by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-`.trim(),
-          { 
-            mimetype: 'video/mp4',
-            contextInfo: {
-              externalAdReply: {
-                title: videoInfo.title,
-                body: '🎬 Pakistani Drama • YOUSAF-BALOCH-MD',
-                thumbnail: await getBuffer(videoInfo.thumbnail),
-                sourceUrl: 'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD'
-              }
-            }
+      if (response.data?.result?.url) {
+        // FIX: sanitizeUrl on video download URL — CodeQL High error fix
+        const safeVideoUrl = sanitizeUrl(response.data.result.url);
+
+        if (!safeVideoUrl) {
+          await msg.react('❌');
+          return await msg.reply('❌ Invalid download URL received!');
+        }
+
+        const videoRes = await axios.get(safeVideoUrl, {
+          responseType: 'arraybuffer',
+          timeout: 120000,
+        });
+
+        const videoBuffer = Buffer.from(videoRes.data);
+
+        // FIX: sanitizeUrl on thumbnail for context
+        let thumbnailBuffer = Buffer.from('');
+        if (videoInfo.thumbnail) {
+          const safeThumbnailUrl = sanitizeUrl(videoInfo.thumbnail);
+          if (safeThumbnailUrl) {
+            thumbnailBuffer = await getBuffer(safeThumbnailUrl);
           }
-        );
+        }
+
+        const safeSourceUrl = sanitizeUrl(videoUrl) || OWNER.GITHUB;
+
+        await sock.sendMessage(from, {
+          video: videoBuffer,
+          mimetype: 'video/mp4',
+          caption: `🎬 *${videoInfo.title}*\n\n📺 ${videoInfo.author?.name || 'Unknown'}\n⏱️ ${videoInfo.timestamp}\n\n${SYSTEM.SHORT_WATERMARK}`,
+          contextInfo: {
+            externalAdReply: {
+              title: videoInfo.title,
+              body: `🎬 Pakistani Drama • ${OWNER.BOT_NAME}`,
+              thumbnail: thumbnailBuffer,
+              sourceUrl: safeSourceUrl,
+            },
+          },
+        }, { quoted: msg });
 
         await msg.react('✅');
       } else {
@@ -110,22 +142,28 @@ _Downloaded by YOUSAF-BALOCH-MD_
       }
 
     } catch (error) {
-      console.error('Drama download error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('❌ Drama download error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
 
 function formatNumber(num) {
+  if (!num || isNaN(num)) return '0';
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
   return num.toString();
 }
 
-async function getBuffer(url) {
+async function getBuffer(safeUrl) {
   try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const response = await axios.get(safeUrl, {
+      responseType: 'arraybuffer',
+      timeout: 15000,
+    });
     return Buffer.from(response.data);
   } catch {
     return Buffer.from('');
