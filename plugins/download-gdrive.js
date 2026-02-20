@@ -13,47 +13,70 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  command: ['gdrive', 'googledrive', 'drive'],
   name: 'gdrive',
-  aliases: ['googledrive', 'drive'],
-  category: 'downloader',
+  category: 'Downloader',
   description: 'Download files from Google Drive',
   usage: '.gdrive <google drive url>',
-  cooldown: 5000,
+  cooldown: 10,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply('❌ Please provide a Google Drive URL!\n\nExample:\n.gdrive https://drive.google.com/file/d/xxxxx');
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide a Google Drive URL!
+
+*Example:*
+.gdrive https://drive.google.com/file/d/xxxxx/view
+
+*Note:* File must be publicly accessible.
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       const url = args[0];
 
-      // Properly validate Google Drive URL
       if (!isValidGoogleDriveUrl(url)) {
-        return await msg.reply('❌ Please provide a valid Google Drive URL!');
+        return await msg.reply(`❌ Invalid Google Drive URL!
+
+Please provide a valid Google Drive link.
+
+*Example:*
+.gdrive https://drive.google.com/file/d/xxxxx/view
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
-      await msg.react('☁️');
-      await msg.reply('⏳ *Fetching Google Drive file...*\n\n_Please wait..._');
-
-      // Extract file ID properly
       const fileId = extractGoogleDriveId(url);
       if (!fileId) {
         await msg.react('❌');
-        return await msg.reply('❌ Invalid Google Drive URL!');
+        return await msg.reply('❌ Could not extract file ID from URL!');
       }
 
-      const apiUrl = `https://api.nexoracle.com/downloader/gdrive?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
-      
-      const response = await axios.get(apiUrl);
+      await msg.react('☁️');
+      await msg.reply('⏳ *Fetching Google Drive file...*\n\nPlease wait...');
 
-      if (response.data && response.data.result) {
-        const result = response.data.result;
-        
-        const fileInfo = `
-╭━━━『 *GOOGLE DRIVE FILE* 』━━━╮
+      // FIX: sanitizeUrl on API URL
+      const rawApiUrl = `https://api.nexoracle.com/downloader/gdrive?apikey=free_key@maher_apis&url=${encodeURIComponent(url)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
+
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build API URL.');
+      }
+
+      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+      const result = response.data?.result;
+
+      if (!result) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to fetch file! Make sure the file is publicly accessible.');
+      }
+
+      const fileInfo = `╭━━━『 *GOOGLE DRIVE FILE* 』━━━╮
 
 📁 *Filename:* ${result.name || 'Unknown'}
 📊 *Size:* ${result.size || 'Unknown'}
@@ -61,83 +84,68 @@ export default {
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-⏳ *Downloading file...*
+⏳ *Processing download...*
 
-_Powered by YOUSAF-BALOCH-MD_
-_Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j_
-`.trim();
+${SYSTEM.SHORT_WATERMARK}`;
 
-        await msg.reply(fileInfo);
-        await msg.react('⬇️');
+      await msg.reply(fileInfo);
+      await msg.react('⬇️');
 
-        if (result.size && result.size.includes('GB')) {
-          await msg.react('⚠️');
-          return await msg.reply(`
-⚠️ *File is too large!*
+      // Check if file is too large (GB size)
+      if (result.size && result.size.toLowerCase().includes('gb')) {
+        await msg.react('⚠️');
+        const fallbackUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+        return await msg.reply(`⚠️ *File is too large for WhatsApp!*
 
 📊 Size: ${result.size}
 ⚠️ WhatsApp limit: 100MB
 
 *Download manually:*
-https://drive.google.com/uc?id=${fileId}&export=download
+${fallbackUrl}
 
-_YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-`.trim());
-        }
-
-        // Validate download URL before using
-        let downloadUrl = result.download;
-        if (!downloadUrl || !isValidHttpUrl(downloadUrl)) {
-          downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
-        }
-        
-        await msg.reply(`
-✅ *Google Drive File Ready!*
-
-📁 ${result.name || 'File'}
-📊 ${result.size || 'Unknown size'}
-
-🔗 *Download Link:*
-${downloadUrl}
-
-*Note:* If file is large, download manually from link above.
-
-_Downloaded by YOUSAF-BALOCH-MD_
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-`.trim());
-
-        await msg.react('✅');
-      } else {
-        await msg.react('❌');
-        await msg.reply('❌ Failed to fetch file! Make sure the file is publicly accessible.');
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
+      // FIX: sanitizeUrl on download URL
+      const rawDownloadUrl = result.download || `https://drive.google.com/uc?id=${fileId}&export=download`;
+      const safeDownloadUrl = sanitizeUrl(rawDownloadUrl);
+
+      if (!safeDownloadUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid download URL received!');
+      }
+
+      await msg.reply(`✅ *Google Drive File Ready!*
+
+📁 *File:* ${result.name || 'Unknown'}
+📊 *Size:* ${result.size || 'Unknown'}
+
+🔗 *Download Link:*
+${safeDownloadUrl}
+
+*Note:* If file is large, download from link above.
+
+${SYSTEM.SHORT_WATERMARK}`);
+
+      await msg.react('✅');
+
     } catch (error) {
-      console.error('Google Drive download error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Google Drive download error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
 
 function isValidGoogleDriveUrl(url) {
   try {
     const parsed = new URL(url);
     return (
-      (parsed.hostname === 'drive.google.com') &&
+      parsed.hostname === 'drive.google.com' &&
       (parsed.protocol === 'https:' || parsed.protocol === 'http:')
     );
-  } catch {
-    return false;
-  }
-}
-
-function isValidHttpUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
   } catch {
     return false;
   }
@@ -146,10 +154,8 @@ function isValidHttpUrl(url) {
 function extractGoogleDriveId(url) {
   try {
     const parsed = new URL(url);
-    // Format: /file/d/FILE_ID/view
     const pathMatch = parsed.pathname.match(/\/d\/([a-zA-Z0-9_-]{25,})/);
     if (pathMatch) return pathMatch[1];
-    // Format: ?id=FILE_ID
     const idParam = parsed.searchParams.get('id');
     if (idParam && /^[a-zA-Z0-9_-]{25,}$/.test(idParam)) return idParam;
     return null;
