@@ -13,59 +13,60 @@
 */
 
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  command: ['modapk', 'premiumapk', 'apkmod'],
   name: 'modapk',
-  aliases: ['premiumapk', 'apkmod'],
-  category: 'downloader',
+  category: 'Downloader',
   description: 'Download premium/modded APKs',
   usage: '.modapk <app name>',
-  cooldown: 10000,
+  cooldown: 15,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ براہ کرم app کا نام لکھیں!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide an app name!
 
-*مثال:*
+*Example:*
 .modapk CapCut Pro
 .modapk InShot Premium
 .modapk Spotify Premium
 .modapk Netflix Mod
 .modapk PicsArt Gold
 
-*مشہور Premium Apps:*
-🎬 CapCut Pro (No Watermark)
-🎥 InShot Premium (All Features)
-🎵 Spotify Premium (Ad Free)
-📺 Netflix Mod (Free Subscription)
-📸 PicsArt Gold (All Unlocked)
-🎮 Game Mods (Unlimited Money)
-`.trim());
+*Popular Premium Apps:*
+🎬 CapCut Pro
+🎥 InShot Premium
+🎵 Spotify Premium
+📺 Netflix Mod
+📸 PicsArt Gold
+🎮 Game Mods
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('💎');
       const query = args.join(' ');
 
-      await msg.reply(`
-⏳ *Premium APK تلاش کر رہا ہوں...*
+      await msg.reply(`⏳ *Searching Premium APK...*\n\n🔍 Searching: ${query}\n📦 Source: APKMody\n\nPlease wait...`);
 
-🔍 Searching: ${query}
-📦 Sources: APKMody, LiteAPK
+      // FIX: sanitizeUrl on search URL — CodeQL High error fix
+      const rawSearchUrl = `https://apkmody.io/?s=${encodeURIComponent(query)}`;
+      const safeSearchUrl = sanitizeUrl(rawSearchUrl);
 
-_براہ کرم انتظار کریں..._
-`.trim());
+      if (!safeSearchUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build search URL.');
+      }
 
-      // Search on APKMody
-      const searchUrl = `https://apkmody.io/?s=${encodeURIComponent(query)}`;
-      const response = await axios.get(searchUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      const response = await axios.get(safeSearchUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       });
-      
+
       const $ = cheerio.load(response.data);
       const apps = [];
 
@@ -73,169 +74,130 @@ _براہ کرم انتظار کریں..._
         const title = $(elem).find('.entry-title a').text().trim();
         const url = $(elem).find('.entry-title a').attr('href');
         const version = $(elem).find('.version').text().trim() || 'Latest';
-        const img = $(elem).find('img').attr('src');
         const features = $(elem).find('.excerpt').text().trim();
-        
-        if (title && url) {
-          apps.push({ title, url, version, img, features });
-        }
+        if (title && url) apps.push({ title, url, version, features });
       });
 
       if (apps.length === 0) {
         await msg.react('❌');
-        return await msg.reply('❌ کوئی Premium APK نہیں ملی! مختلف نام try کریں۔');
+        return await msg.reply('❌ No Premium APK found! Try a different app name.');
       }
 
-      // Show results
-      let resultMsg = `
-╭━━━『 *PREMIUM APK SEARCH* 』━━━╮
-
-💎 *${apps.length} Premium Apps ملیں: ${query}*
-
-`;
+      let resultMsg = `╭━━━『 *PREMIUM APK SEARCH* 』━━━╮\n\n💎 *Found ${apps.length} apps for: ${query}*\n`;
 
       apps.forEach((app, i) => {
-        resultMsg += `
-${i + 1}. *${app.title}*
-   📦 Version: ${app.version}
-   ✨ Features: ${app.features.substring(0, 50)}...
-`;
+        resultMsg += `\n${i + 1}. *${app.title}*\n   📦 Version: ${app.version}\n`;
       });
 
-      resultMsg += `
-╰━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-⏳ *پہلی app download کر رہا ہوں...*
-
-_Powered by YOUSAF-BALOCH-MD_
-`.trim();
+      resultMsg += `\n╰━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n⏳ *Downloading first result...*`;
 
       await msg.reply(resultMsg);
       await msg.react('⬇️');
 
-      // Get download page
-      const appPage = await axios.get(apps[0].url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-      
-      const $app = cheerio.load(appPage.data);
-      
-      // Find download button
-      let downloadUrl = $app('a.btn-download').attr('href');
-      if (!downloadUrl) {
-        downloadUrl = $app('a[href*="download"]').first().attr('href');
-      }
-      if (!downloadUrl) {
-        downloadUrl = $app('.download-btn').attr('href');
+      // FIX: sanitizeUrl on app page URL
+      const safeAppUrl = sanitizeUrl(apps[0].url);
+      if (!safeAppUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid app page URL.');
       }
 
-      if (!downloadUrl || downloadUrl === '#') {
-        // Try to find direct APK link
-        const links = [];
+      const appPage = await axios.get(safeAppUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      });
+
+      const $app = cheerio.load(appPage.data);
+
+      let rawDownloadUrl = $app('a.btn-download').attr('href')
+        || $app('a[href*="download"]').first().attr('href')
+        || $app('.download-btn').attr('href');
+
+      if (!rawDownloadUrl || rawDownloadUrl === '#') {
         $app('a').each((i, elem) => {
-          const href = $(elem).attr('href');
+          const href = $app(elem).attr('href');
           if (href && href.includes('.apk')) {
-            links.push(href);
+            rawDownloadUrl = href;
+            return false;
           }
         });
-        
-        if (links.length > 0) {
-          downloadUrl = links[0];
-        }
       }
 
-      if (!downloadUrl || downloadUrl === '#') {
+      if (!rawDownloadUrl || rawDownloadUrl === '#') {
         await msg.react('❌');
-        return await msg.reply('❌ Download link نہیں مل سکا! دوبارہ try کریں۔');
+        return await msg.reply('❌ Download link not found! Try again.');
       }
 
-      // If download URL is relative, make it absolute
-      if (!downloadUrl.startsWith('http')) {
-        downloadUrl = 'https://apkmody.io' + downloadUrl;
+      // Fix relative URLs
+      if (!rawDownloadUrl.startsWith('http')) {
+        rawDownloadUrl = 'https://apkmody.io' + rawDownloadUrl;
       }
 
-      // Get APK info
-      const modInfo = $app('.mod-info').text().trim();
+      // FIX: sanitizeUrl on download URL — CodeQL High error fix
+      const safeDownloadUrl = sanitizeUrl(rawDownloadUrl);
+      if (!safeDownloadUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid download URL!');
+      }
+
+      const modInfo = $app('.mod-info').text().trim() || 'Premium Unlocked';
       const size = $app('.file-size').text().trim() || 'Unknown';
 
-      await msg.reply(`
-✅ *Premium APK تیار ہے!*
+      await msg.reply(`✅ *Premium APK Ready!*
 
 💎 *App:* ${apps[0].title}
 📦 *Version:* ${apps[0].version}
 📊 *Size:* ${size}
-✨ *Mod Features:* ${modInfo || 'Premium Unlocked'}
+✨ *Mod:* ${modInfo}
 
-⏳ *Downloading Modded APK...*
+⏳ *Downloading...*
 
-_یہ کچھ وقت لے سکتا ہے..._
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
 
-      // Download APK
-      const apkBuffer = await axios.get(downloadUrl, { 
+      const apkRes = await axios.get(safeDownloadUrl, {
         responseType: 'arraybuffer',
-        maxContentLength: 100 * 1024 * 1024, // 100MB limit
+        timeout: 120000,
+        maxContentLength: 100 * 1024 * 1024,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Referer': apps[0].url
-        }
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          'Referer': safeAppUrl,
+        },
       });
 
-      // Send APK
-      await msg.sendDocument(
-        Buffer.from(apkBuffer.data),
-        `${apps[0].title}.apk`,
-        'application/vnd.android.package-archive',
-        `
-💎 *${apps[0].title}*
+      const apkBuffer = Buffer.from(apkRes.data);
+
+      await sock.sendMessage(from, {
+        document: apkBuffer,
+        fileName: `${apps[0].title}.apk`,
+        mimetype: 'application/vnd.android.package-archive',
+        caption: `💎 *${apps[0].title}*
 
 📦 Version: ${apps[0].version}
 📊 Size: ${size}
-✨ Mod Features: ${modInfo || 'Premium Features Unlocked'}
-
-*Premium Features:*
-✅ All Features Unlocked
-✅ No Ads
-✅ Pro/Premium Free
-✅ No Watermark (if video editor)
+✨ Mod: ${modInfo}
 
 *Installation:*
-1️⃣ Uninstall original app (if installed)
-2️⃣ Enable "Unknown Sources" in Settings
-3️⃣ Install this modded APK
-4️⃣ Enjoy Premium Features!
+1️⃣ Uninstall original app
+2️⃣ Enable Unknown Sources in Settings
+3️⃣ Install this APK
+4️⃣ Enjoy Premium!
 
-⚠️ *Note:* Use at your own risk
+⚠️ Use at your own risk.
 
-_Downloaded by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 https://tiktok.com/@loser_boy.110
-`.trim()
-      );
+${SYSTEM.SHORT_WATERMARK}`,
+      }, { quoted: msg });
 
       await msg.react('✅');
 
     } catch (error) {
-      console.error('Mod APK download error:', error);
-      await msg.react('❌');
-      
-      if (error.message.includes('maxContentLength')) {
-        await msg.reply('❌ APK بہت بڑی ہے (100MB سے زیادہ)');
-      } else {
-        await msg.reply(`
-❌ *Error occurred!*
-
-براہ کرم:
-• مختلف app name try کریں
-• یا دوبارہ command استعمال کریں
-
-_YOUSAF-BALOCH-MD_
-`.trim());
-      }
+      console.error('Mod APK download error:', error.message);
+      try {
+        await msg.react('❌');
+        if (error.message.includes('maxContentLength')) {
+          await msg.reply('❌ APK is too large (over 100MB)');
+        } else {
+          await msg.reply('❌ Error: ' + error.message);
+        }
+      } catch (_) {}
     }
-  }
+  },
 };
