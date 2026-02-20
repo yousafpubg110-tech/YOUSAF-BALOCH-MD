@@ -13,27 +13,29 @@
 */
 
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+import { sanitizeUrl } from '../lib/utils.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 export default {
+  // FIX: command field added — pluginLoader ke liye zaruri
+  command: ['apk', 'apkdl', 'modapk', 'premiumapk'],
   name: 'apk',
-  aliases: ['apkdl', 'modapk', 'premiumapk'],
-  category: 'downloader',
+  category: 'Downloader',
   description: 'Download premium/modded APKs',
   usage: '.apk <app name>',
-  cooldown: 10000,
+  cooldown: 10,
 
-  async execute(msg, args) {
+  // FIX: execute -> handler, context object use kiya
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please provide an app name!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide an app name!
 
 *Example:*
 .apk capcut pro
 .apk inshot premium
 .apk spotify premium
-.apk netflix mod
 
 *Popular Apps:*
 🎬 CapCut Pro
@@ -41,40 +43,39 @@ export default {
 🎵 Spotify Premium
 📺 Netflix Mod
 📸 PicsArt Premium
-🎮 Game Mods
 
-*Note:* Apps are downloaded from trusted modded APK sources.
-`.trim());
+*Note:* Apps are downloaded from trusted sources.`);
       }
 
       await msg.react('📱');
       const query = args.join(' ');
 
-      await msg.reply(`
-⏳ *Searching for: ${query}*
+      await msg.reply(`⏳ *Searching for: ${query}*\n\n🔍 Please wait...`);
 
-🔍 Searching on:
-• APKMody
-• LiteAPK
-• APKPure Modded
+      // FIX: sanitizeUrl used — CodeQL High error fix
+      const rawUrl = `https://apkmody.io/?s=${encodeURIComponent(query)}`;
+      const safeUrl = sanitizeUrl(rawUrl);
 
-_Please wait, this may take a moment..._
-`.trim());
+      if (!safeUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid search query. Please try again.');
+      }
 
-      // Search for APK
-      const searchUrl = `https://apkmody.io/?s=${encodeURIComponent(query)}`;
-      const response = await axios.get(searchUrl);
+      const response = await axios.get(safeUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      });
+
       const $ = cheerio.load(response.data);
-
       const apps = [];
+
       $('.post').slice(0, 3).each((i, elem) => {
         const title = $(elem).find('.entry-title a').text().trim();
         const url = $(elem).find('.entry-title a').attr('href');
         const version = $(elem).find('.version').text().trim();
-        const img = $(elem).find('img').attr('src');
-        
+
         if (title && url) {
-          apps.push({ title, url, version, img });
+          apps.push({ title, url, version });
         }
       });
 
@@ -83,49 +84,42 @@ _Please wait, this may take a moment..._
         return await msg.reply('❌ No APK found! Try a different app name.');
       }
 
-      // Show results
-      let resultMsg = `
-╭━━━『 *APK SEARCH RESULTS* 』━━━╮
-
-📱 *Found ${apps.length} results for: ${query}*
-
-`;
+      let resultMsg = `╭━━━『 *APK SEARCH RESULTS* 』━━━╮\n\n📱 *Found ${apps.length} results for: ${query}*\n`;
 
       apps.forEach((app, i) => {
-        resultMsg += `
-${i + 1}. *${app.title}*
-   📦 Version: ${app.version || 'Latest'}
-   🔗 ${app.url}
-`;
+        resultMsg += `\n${i + 1}. *${app.title}*\n   📦 Version: ${app.version || 'Latest'}\n   🔗 ${app.url}\n`;
       });
 
-      resultMsg += `
-╰━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-*Downloading first result...*
-
-_Powered by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-`.trim();
+      resultMsg += `\n╰━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n*Checking download link...*`;
 
       await msg.reply(resultMsg);
       await msg.react('⬇️');
 
-      // Try to get download link from first result
-      const appPage = await axios.get(apps[0].url);
-      const $app = cheerio.load(appPage.data);
-      
-      const downloadBtn = $app('a.btn-download, a.download-btn, a[href*="download"]').first();
-      const downloadUrl = downloadBtn.attr('href');
+      // FIX: sanitizeUrl on app page URL too
+      const appPageUrl = sanitizeUrl(apps[0].url);
+      if (!appPageUrl) {
+        return await msg.reply(`✅ *APK Found!*\n\n📱 *App:* ${apps[0].title}\n🔗 *Visit:* ${apps[0].url}\n\nPlease visit the link to download manually.\n\n${SYSTEM.SHORT_WATERMARK}`);
+      }
 
-      if (downloadUrl) {
-        await msg.reply(`
-✅ *APK Found!*
+      const appPage = await axios.get(appPageUrl, {
+        timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      });
+
+      const $app = cheerio.load(appPage.data);
+      const downloadBtn = $app('a.btn-download, a.download-btn, a[href*="download"]').first();
+      const rawDownloadUrl = downloadBtn.attr('href');
+
+      // FIX: sanitizeUrl on download URL — CodeQL fix
+      const safeDownloadUrl = rawDownloadUrl ? sanitizeUrl(rawDownloadUrl) : null;
+
+      if (safeDownloadUrl) {
+        await msg.reply(`✅ *APK Found!*
 
 📱 *App:* ${apps[0].title}
 📦 *Version:* ${apps[0].version || 'Latest'}
 🔗 *Download Link:*
-${downloadUrl}
+${safeDownloadUrl}
 
 *Installation Guide:*
 1️⃣ Download the APK
@@ -133,42 +127,35 @@ ${downloadUrl}
 3️⃣ Install the APK
 4️⃣ Open and enjoy!
 
-⚠️ *Note:* Download at your own risk. Make sure to scan APK with antivirus.
+⚠️ *Note:* Scan APK with antivirus before installing.
 
-_Downloaded by YOUSAF-BALOCH-MD_
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-`.trim());
-        
+${SYSTEM.SHORT_WATERMARK}`);
         await msg.react('✅');
       } else {
-        await msg.reply(`
-✅ *APK Page Found!*
+        await msg.reply(`✅ *APK Page Found!*
 
 📱 *App:* ${apps[0].title}
 🔗 *Visit:* ${apps[0].url}
 
-Please visit the link above to download the APK manually.
+Please visit the link above to download manually.
 
-_YOUSAF-BALOCH-MD_
-`.trim());
-        
+${SYSTEM.SHORT_WATERMARK}`);
         await msg.react('✅');
       }
 
     } catch (error) {
-      console.error('APK download error:', error);
-      await msg.react('❌');
-      await msg.reply(`
-❌ *Error searching for APK*
+      console.error('❌ APK download error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply(`❌ *Error searching for APK*
 
 Please try:
 • Different app name
-• Visit manually: https://apkmody.io
+• Visit: https://apkmody.io
 • Or try: https://liteapks.com
 
-_YOUSAF-BALOCH-MD_
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
+      } catch (_) {}
     }
-  }
+  },
 };
