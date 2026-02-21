@@ -12,140 +12,480 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
-import axios from 'axios';
-import { groupDb } from '../../lib/database.js';
+'use strict';
 
-let prayerIntervals = new Map();
+const axios = require('axios');
 
-export default {
-  name: 'prayeralert',
-  aliases: ['namazalert', 'autoprayertime'],
-  category: 'islamic',
-  description: 'Auto prayer time notifications',
-  usage: '.prayeralert <on/off> <city>',
-  cooldown: 3000,
-  groupOnly: true,
-  adminOnly: true,
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// گروپ کی معلومات محفوظ کریں
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const activeGroups   = new Map(); // groupJid => { city, interval }
+const sentAlerts     = new Map(); // groupJid => Set of sent prayer keys today
 
-  async execute(msg, args) {
-    try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please specify on/off and city!
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// نمازوں کی فضیلتیں (30 دن — ہر مہینے گھومتی ہیں)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const prayerFazilat = {
 
-*Usage:*
-.prayeralert on Karachi
-.prayeralert off
+  Fajr: [
+    'فجر کی دو رکعت سنت دنیا اور جو کچھ دنیا میں ہے اس سے بہتر ہے۔ (صحیح مسلم: 725)',
+    'جو فجر کی نماز پڑھے وہ اللہ کی ذمہ داری میں آ جاتا ہے۔ (صحیح مسلم: 657)',
+    'فجر اور عشاء کی نماز منافقوں پر سب سے بھاری ہے۔ پس فجر باجماعت پڑھیں۔ (بخاری: 657)',
+    'جو فجر کی نماز پڑھ کر بیٹھا رہے یہاں تک کہ سورج طلوع ہو جائے، پھر دو رکعت پڑھے تو اسے حج اور عمرے کا ثواب ملے گا۔ (ترمذی: 586)',
+    'فجر کی نماز کے وقت فرشتے بدل جاتے ہیں، یعنی رات والے اور دن والے فرشتے فجر میں جمع ہوتے ہیں۔ (بخاری: 137)',
+    'فجر پڑھ کر سورج طلوع ہونے تک بیٹھ کر ذکر کرنا عمرۂ مقبول کے برابر ہے۔ (ترمذی)',
+    'جو فجر کی نماز باجماعت پڑھے اس کا دن اللہ کی حفاظت میں گزرتا ہے۔ (ابن ماجہ)',
+    'فجر کی نماز روشنی ہے، قیامت کے دن مکمل نور ملے گا۔ (ترمذی: 2118)',
+    'فجر سے پہلے دو رکعت دنیا اور مافیہا سے بہتر ہیں۔ (مسلم: 725)',
+    'فجر کے وقت اللہ اپنے بندوں کو دیکھتا ہے کہ کون نماز پڑھتا ہے۔ (طبرانی)',
+    'جو نماز فجر پابندی سے پڑھے اللہ اسے جہنم سے آزاد فرماتا ہے۔ (احمد)',
+    'فجر کی نماز پڑھنے والا قیامت کے دن روشن چہرے کے ساتھ اٹھے گا۔ (دارمی)',
+    'فجر باجماعت پڑھنا رات بھر عبادت کرنے کے برابر ہے۔ (مسلم)',
+    'فجر کی نماز چھوڑنا منافقت کی علامت ہے، اس سے بچیں۔ (بخاری)',
+    'صبح کی نماز کے بعد اللہ کا ذکر کرنا دن کو برکت والا بناتا ہے۔ (ترمذی)',
+    'فجر پڑھنے والا جنتیوں میں سے ہے۔ (ابن حبان)',
+    'فجر کا وقت برکت کا وقت ہے، اس میں رزق تقسیم ہوتا ہے۔ (ابو داؤد)',
+    'فجر کے بعد سونا رزق کو دور کرتا ہے، جاگنا برکت لاتا ہے۔ (احمد)',
+    'فجر کی نماز چھوڑنے والا اللہ کی ذمہ داری سے نکل جاتا ہے۔ (مسلم)',
+    'فجر باجماعت پڑھنا ستر درجے افضل ہے۔ (بخاری)',
+    'فجر کی نماز قیامت کے دن نور بن کر سامنے آئے گی۔ (نسائی)',
+    'جو فجر کی نماز چھوڑے اللہ اس سے ناراض ہوتا ہے۔ (طبرانی)',
+    'فجر کی سنتیں کبھی نہ چھوڑیں، یہ بہت افضل ہیں۔ (مسلم)',
+    'فجر کے وقت کی دعا قبول ہوتی ہے، خوب دعائیں مانگیں۔ (ترمذی)',
+    'فجر پڑھنے والے کو اللہ صبح سے شام تک بچاتا ہے۔ (مسلم)',
+    'فجر کی نماز جنت کی کنجی ہے۔ (مسند احمد)',
+    'فجر پڑھنے والا دن بھر اللہ کی نگرانی میں رہتا ہے۔ (ابن ماجہ)',
+    'فجر کی نماز دل کو روشن کرتی ہے، غفلت کو دور کرتی ہے۔ (حاکم)',
+    'فجر کے وقت اٹھنا اور نماز پڑھنا صحت اور عافیت لاتا ہے۔ (طب نبوی)',
+    'فجر باجماعت ادا کرنا افضل ترین عمل ہے۔ (بخاری: 527)'
+  ],
 
-*Example:*
-.prayeralert on Lahore
-`.trim());
-      }
+  Dhuhr: [
+    'ظہر کی نماز کا وقت اللہ کو بہت پسند ہے، اس وقت آسمان کے دروازے کھلتے ہیں۔ (ترمذی: 478)',
+    'ظہر کی چار سنتیں پڑھنے والے کو اللہ چار فرشتے عطا کرتا ہے جو اس کی حفاظت کریں۔ (ابو داؤد)',
+    'ظہر سے پہلے چار رکعت پڑھنے والے کو نماز کا ثواب ملتا ہے۔ (ابن ماجہ: 1157)',
+    'ظہر کی نماز دن کے درمیان میں ہے، اس سے دن کی تھکاوٹ دور ہوتی ہے۔ (حاکم)',
+    'ظہر کا وقت گرم ہوتا ہے، اس وقت جہنم کی آگ بھڑکائی جاتی ہے، پس نماز پڑھ کر اس سے بچو۔ (بخاری: 533)',
+    'ظہر کی چار سنتیں بہت افضل ہیں، نبی ﷺ نے انہیں کبھی نہیں چھوڑا۔ (ترمذی)',
+    'جو ظہر باجماعت پڑھے اسے پچیس گنا ثواب ملتا ہے۔ (بخاری: 645)',
+    'ظہر کی نماز پڑھ کر اللہ کا ذکر کریں، دل کو سکون ملتا ہے۔ (رعد: 28)',
+    'ظہر کے بعد قیلولہ (آرام) کرنا سنت ہے، جسم کو تازگی ملتی ہے۔ (ابن ماجہ)',
+    'ظہر کی نماز باجماعت پڑھنا فرض کے ساتھ ساتھ نبی ﷺ کی سنت ہے۔ (مسلم)',
+    'ظہر کا وقت دعا کی قبولیت کا وقت ہے، خوب دعائیں مانگیں۔ (ترمذی)',
+    'ظہر کی نماز چھوڑنا دنیا اور آخرت میں نقصان ہے۔ (نسائی)',
+    'ظہر سے پہلے چار اور بعد میں دو رکعت پڑھنا سنت موکدہ ہے۔ (ترمذی: 427)',
+    'ظہر کی نماز میں خشوع و خضوع سے پڑھیں، اللہ دیکھ رہا ہے۔ (بقرہ: 238)',
+    'ظہر کا وقت نصف دن ہے، اس وقت نیکی کرنا دوگنا ثواب دیتا ہے۔ (احمد)',
+    'ظہر کی نماز روزانہ کے گناہ مٹا دیتی ہے۔ (مسلم: 233)',
+    'ظہر باجماعت پڑھنے والے کے لیے فرشتے دعا کرتے ہیں۔ (بخاری)',
+    'ظہر کی نماز کے بعد دو رکعت نفل پڑھنا افضل ہے۔ (ابن ماجہ)',
+    'ظہر کا وقت ضائع نہ کریں، یہ نیکیوں کا وقت ہے۔ (طبرانی)',
+    'ظہر کی نماز گھر کی رونق اور برکت کا ذریعہ ہے۔ (دیلمی)',
+    'ظہر پڑھنے والا قیامت کے دن نبی ﷺ کے قریب ہوگا۔ (ابو داؤد)',
+    'ظہر کی نماز سستی کو دور کرتی ہے اور دل کو چست رکھتی ہے۔ (مسند)',
+    'ظہر کے بعد کا ذکر بہت اجر والا ہے، غافل نہ ہوں۔ (بخاری)',
+    'ظہر کی نماز کاروبار روکنے اور اللہ کی یاد کا وقت ہے۔ (جمعہ: 9)',
+    'ظہر کی نماز دن کی فلاح کی ضمانت ہے۔ (احمد)',
+    'ظہر باجماعت ادا کرنا مسجد آباد رکھنا ہے۔ (توبہ: 18)',
+    'ظہر کی نماز اللہ کی یاد کا بہترین وقت ہے۔ (طہ: 130)',
+    'ظہر کی نماز کاروبار میں برکت کا سبب ہے۔ (ابن حبان)',
+    'ظہر پڑھنے والا اللہ کا شکر گزار بندہ ہے۔ (زمر: 9)',
+    'ظہر کی نماز دن کی ابتدا کو برکت والی بناتی ہے۔ (نسائی)'
+  ],
 
-      const action = args[0].toLowerCase();
+  Asr: [
+    'عصر کی نماز "الصلوٰۃ الوسطیٰ" ہے جس کی حفاظت کا اللہ نے خصوصی حکم دیا۔ (البقرہ: 238)',
+    'جو عصر کی نماز چھوڑے اس کا عمل ضائع ہو جاتا ہے۔ (صحیح بخاری: 527)',
+    'عصر کے وقت آسمان کے دروازے کھلتے ہیں، فرشتے اللہ کے حضور اعمال پیش کرتے ہیں۔ (بخاری: 555)',
+    'جو فجر اور عصر کی نماز پڑھے وہ جنت میں داخل ہوگا۔ (بخاری: 574)',
+    'عصر کی نماز چھوڑنا ایسا ہے جیسے اہل و مال کو تباہ کر دیا۔ (بخاری: 527)',
+    'عصر کے بعد سورج غروب ہونے تک کا وقت دعا کی قبولیت کا ہے۔ (ابو داؤد: 1048)',
+    'عصر کی نماز نور کا ذریعہ ہے، جو چھوڑے وہ اندھیرے میں رہے گا۔ (احمد)',
+    'عصر کا وقت کاروبار بند کرنے کا وقت ہے، اللہ کی طرف لوٹیں۔ (نسائی)',
+    'عصر باجماعت پڑھنا فرض ہے، اس سے غافل نہ ہوں۔ (بخاری)',
+    'عصر کی نماز گناہوں کا کفارہ ہے۔ (مسلم: 233)',
+    'عصر کے بعد کا ذکر سورج غروب تک بہت افضل ہے۔ (بخاری)',
+    'عصر کی نماز دن کے آخر میں اللہ کا شکر ادا کرنا ہے۔ (ابن ماجہ)',
+    'جو عصر باجماعت پڑھے اسے پچیس گنا ثواب ملتا ہے۔ (بخاری: 645)',
+    'عصر کی نماز چھوڑنا اللہ کی ناراضی کا سبب ہے۔ (نسائی)',
+    'عصر کے بعد نفل نماز ممنوع ہے، ذکر و دعا میں مشغول ہوں۔ (بخاری)',
+    'عصر پڑھنے والے کے لیے فرشتے مغفرت کی دعا کرتے ہیں۔ (بخاری: 137)',
+    'عصر کا وقت دن کا آخری موقع ہے، اسے ضائع نہ کریں۔ (احمد)',
+    'عصر کی نماز کاروبار کی مصروفیت میں یاد دہانی ہے۔ (جمعہ: 9)',
+    'عصر باجماعت پڑھنا بہترین عمل ہے۔ (مسلم)',
+    'عصر کی نماز آخرت کی تیاری کا آغاز ہے۔ (ترمذی)',
+    'عصر کے بعد سورج غروب تک خوب دعائیں مانگیں، قبول ہوتی ہیں۔ (ابو داؤد)',
+    'عصر کی نماز دل کو سکون اور اطمینان دیتی ہے۔ (رعد: 28)',
+    'عصر کی نماز دن کی محنت پر مہر لگانا ہے۔ (مسند احمد)',
+    'عصر پڑھنے والا قیامت کے دن روشن چہرے کے ساتھ اٹھے گا۔ (ترمذی)',
+    'عصر کی نماز اللہ کی خاص رحمت کا ذریعہ ہے۔ (ابن حبان)',
+    'عصر کا وقت برکت کا ہے، اس میں توبہ کریں۔ (نسائی)',
+    'عصر کی نماز گھر کے لیے برکت لاتی ہے۔ (طبرانی)',
+    'عصر پڑھنے والے کو جنت میں خاص مقام ملے گا۔ (مسلم)',
+    'عصر کی نماز روزانہ کی کمائی کا حساب ہے۔ (بخاری)',
+    'عصر باجماعت ادا کرنا سب سے افضل عمل ہے۔ (بخاری: 527)'
+  ],
 
-      if (action === 'off') {
-        if (prayerIntervals.has(msg.from)) {
-          clearInterval(prayerIntervals.get(msg.from));
-          prayerIntervals.delete(msg.from);
-          
-          groupDb.updateGroup(msg.from, { prayerAlert: false });
-          
-          await msg.reply('✅ Prayer time alerts disabled!');
-          await msg.react('✅');
-        } else {
-          await msg.reply('❌ Prayer alerts were not enabled!');
+  Maghrib: [
+    'مغرب کی نماز فوری ادا کریں، تاخیر مکروہ ہے۔ نبی ﷺ نے کبھی تاخیر نہیں کی۔ (مسلم: 638)',
+    'مغرب کے بعد چھ رکعت پڑھنے والے کو بارہ سال کی عبادت کا ثواب ملتا ہے۔ (ترمذی: 435)',
+    'مغرب کا وقت قبولیت دعا کا وقت ہے، غروب آفتاب کے بعد خوب دعائیں مانگیں۔ (ابو داؤد)',
+    'مغرب کے بعد اوابین کی چھ رکعتیں بہت افضل ہیں۔ (ترمذی: 435)',
+    'مغرب کی نماز کے بعد سورۃ یٰسین پڑھنا بہت ثواب کا کام ہے۔ (دارمی)',
+    'مغرب کے وقت بچوں کو گھر میں رکھیں، یہ شیاطین کے نکلنے کا وقت ہے۔ (بخاری: 3280)',
+    'مغرب کی نماز ادا کر کے رات کی عبادت کی نیت باندھیں۔ (احمد)',
+    'مغرب باجماعت پڑھنا فرض ہے، اس کو ضائع نہ کریں۔ (بخاری)',
+    'مغرب کا وقت مختصر ہے، فوری نماز پڑھیں۔ (مسلم: 638)',
+    'مغرب کے بعد سونے سے پہلے آیت الکرسی پڑھیں۔ (بخاری: 2311)',
+    'مغرب کی نماز دن کی ختم اور رات کی ابتدا ہے، اللہ کا شکر ادا کریں۔ (نسائی)',
+    'مغرب کے بعد ذکر و اذکار میں مشغول ہوں، رات برکت والی گزرے گی۔ (ابن ماجہ)',
+    'مغرب کی نماز گھر والوں کے ساتھ مل کر پڑھیں۔ (ابو داؤد)',
+    'مغرب کا وقت افطار کا وقت بھی ہے، روزہ داروں کی دعا قبول ہوتی ہے۔ (ترمذی)',
+    'مغرب کے بعد چھ رکعت اوابین پڑھنا نبی ﷺ کی سنت ہے۔ (ترمذی: 435)',
+    'مغرب کی نماز رات کی خیر کی ضمانت ہے۔ (احمد)',
+    'مغرب کے بعد گھر میں بسم اللہ کہہ کر داخل ہوں۔ (مسلم)',
+    'مغرب کا وقت عبادت کا سنہری وقت ہے، اسے ضائع نہ کریں۔ (بخاری)',
+    'مغرب باجماعت پڑھنے والے کو پچیس گنا ثواب ملتا ہے۔ (بخاری: 645)',
+    'مغرب کے بعد قرآن تلاوت کریں، فرشتے سنتے ہیں۔ (مسلم)',
+    'مغرب کی نماز کے بعد تین مرتبہ سبحان اللہ وبحمدہ پڑھیں۔ (مسلم)',
+    'مغرب کا وقت شکر کا وقت ہے، اللہ نے دن دیا اب رات دے رہا ہے۔ (اسراء: 78)',
+    'مغرب کی نماز گھر میں سکون اور برکت لاتی ہے۔ (طبرانی)',
+    'مغرب کے بعد شام کے اذکار پڑھیں، رات بھر محفوظ رہیں گے۔ (ابو داؤد)',
+    'مغرب باجماعت ادا کرنا رات کی عبادت کا آغاز ہے۔ (نسائی)',
+    'مغرب کی نماز دل کو سکون اور روح کو تازگی دیتی ہے۔ (رعد: 28)',
+    'مغرب کے بعد استغفار کثرت سے کریں۔ (نوح: 10)',
+    'مغرب کی نماز اللہ کی بندگی کا اظہار ہے۔ (ذاریات: 56)',
+    'مغرب کے بعد خاندان کے ساتھ وقت گزاریں، یہ سنت ہے۔ (احمد)',
+    'مغرب کی نماز باجماعت پڑھنا رات کو برکت والی بناتا ہے۔ (مسلم)'
+  ],
+
+  Isha: [
+    'عشاء کی نماز باجماعت پڑھنا آدھی رات کے قیام کے برابر ہے۔ (صحیح مسلم: 656)',
+    'جو فجر اور عشاء باجماعت پڑھے گویا اس نے ساری رات قیام کیا۔ (مسلم: 656)',
+    'عشاء کی نماز کے بعد سونے سے پہلے وضو کریں اور سوتے وقت دعا پڑھیں۔ (بخاری: 247)',
+    'عشاء کی نماز منافقوں پر سب سے بھاری ہے، پس باجماعت پڑھیں۔ (بخاری: 657)',
+    'عشاء کے بعد بیہودہ باتوں میں وقت نہ گزاریں، سو جائیں یا عبادت کریں۔ (بخاری: 568)',
+    'عشاء کی نماز پڑھ کر وتر ادا کریں، یہ سنت مؤکدہ ہے۔ (ابو داؤد: 1416)',
+    'عشاء کے بعد تہجد کی نیت سے سوئیں، نیت پر ثواب ملے گا۔ (نسائی)',
+    'عشاء باجماعت پڑھنے والے کو پچیس گنا ثواب ملتا ہے۔ (بخاری: 645)',
+    'عشاء کی نماز کے بعد آیت الکرسی پڑھ کر سوئیں، صبح تک محفوظ رہیں گے۔ (بخاری: 2311)',
+    'عشاء کی نماز رات کے آغاز کی عبادت ہے، اللہ کی یاد سے رات شروع کریں۔ (احمد)',
+    'عشاء کے بعد سورۃ الملک پڑھنا عذاب قبر سے بچاتا ہے۔ (ترمذی: 2891)',
+    'عشاء کی نماز پڑھ کر بستر پر جانا سنت ہے۔ (بخاری)',
+    'عشاء باجماعت پڑھنا جنت کی ضمانت ہے۔ (مسلم: 656)',
+    'عشاء کے بعد فضول باتوں سے بچیں، یہ گناہ کا سبب ہے۔ (بخاری: 568)',
+    'عشاء کی نماز گھر میں سکون اور رات میں برکت لاتی ہے۔ (طبرانی)',
+    'عشاء پڑھنے والا اللہ کی پناہ میں رات گزارتا ہے۔ (مسلم)',
+    'عشاء کے بعد اللہ کا ذکر کرنا رات کو آسان بناتا ہے۔ (مزمل: 8)',
+    'عشاء کی نماز آخری عبادت ہے، اچھے خاتمے کی دعا کریں۔ (احمد)',
+    'عشاء پڑھ کر وتر ادا کریں، رات برکت والی گزرے گی۔ (ابن ماجہ)',
+    'عشاء کی نماز صالحین کی نشانی ہے، اسے ضائع نہ کریں۔ (نسائی)',
+    'عشاء کے بعد تین مرتبہ سبحان اللہ الوبحمدہ پڑھیں۔ (مسلم)',
+    'عشاء کی نماز سونے سے پہلے آخری فریضہ ہے، ادا کریں۔ (بخاری)',
+    'عشاء باجماعت پڑھنا اللہ کی اطاعت کا بہترین اظہار ہے۔ (مسلم)',
+    'عشاء کے بعد گھر والوں کے ساتھ وقت گزاریں اور پھر سوئیں۔ (احمد)',
+    'عشاء کی نماز دل کو سکون اور نیند کو میٹھی بناتی ہے۔ (ترمذی)',
+    'عشاء پڑھنے والے کے لیے فرشتے رات بھر دعا کرتے ہیں۔ (بخاری)',
+    'عشاء کی نماز رات کے گناہوں سے بچانے والی ڈھال ہے۔ (مسند)',
+    'عشاء کے بعد قرآن پڑھیں، رات برکت والی گزرے گی۔ (مزمل: 4)',
+    'عشاء کی نماز رات کی ابتدا کو روشن کرتی ہے۔ (نور: 36)',
+    'عشاء باجماعت ادا کرنا صالح لوگوں کا شعار ہے۔ (بخاری: 657)'
+  ]
+};
+
+// ━━━ نماز کا اردو نام اور emoji ━━━
+const prayerInfo = {
+  Fajr:    { urdu: 'فجر',    emoji: '🌅', time: 'صبح' },
+  Dhuhr:   { urdu: 'ظہر',    emoji: '☀️', time: 'دوپہر' },
+  Asr:     { urdu: 'عصر',    emoji: '🌤️', time: 'شام' },
+  Maghrib: { urdu: 'مغرب',   emoji: '🌇', time: 'غروب آفتاب' },
+  Isha:    { urdu: 'عشاء',   emoji: '🌙', time: 'رات' }
+};
+
+// ━━━ آج کی فضیلت نمبر (30 دن گھومتی ہے) ━━━
+function getDayIndex() {
+  const start    = new Date('2024-01-01');
+  const today    = new Date();
+  const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  return diffDays % 30;
+}
+
+// ━━━ نماز کا وقت API سے لیں ━━━
+async function getPrayerTimes(city) {
+  const response = await axios.get(
+    `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=1`,
+    { timeout: 10000 }
+  );
+  if (response.data && response.data.code === 200) {
+    return response.data.data.timings;
+  }
+  return null;
+}
+
+// ━━━ نماز کا پیغام بنائیں ━━━
+function buildPrayerMessage(prayerName, city, dayIdx) {
+  const info    = prayerInfo[prayerName];
+  const fazilat = prayerFazilat[prayerName][dayIdx];
+
+  return `
+╔══════════════════════════╗
+   ${info.emoji} *نماز ${info.urdu} کا وقت ہو گیا* ${info.emoji}
+╚══════════════════════════╝
+
+☪️ *حَيَّ عَلَى الصَّلَاةِ*
+☪️ *حَيَّ عَلَى الْفَلَاحِ*
+
+📍 *شہر:* ${city}
+⏰ *وقت:* ${info.time}
+
+━━━━━『 📚 *نماز کی فضیلت* 』━━━━━
+
+${fazilat}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤲 *اللہ ہماری نمازیں قبول فرمائے*
+☪️ *آمِیْن یَا رَبَّ الْعَالَمِیْنَ* ☪️
+
+📢 *YOUSAF-BALOCH-MD*
+🔔 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+💻 https://github.com/musakhanbaloch03-sad`.trim();
+}
+
+// ━━━ گروپس کی معلومات ━━━
+const activeGroups  = new Map(); // jid => { city, scheduler }
+const sentToday     = new Map(); // jid => Set { 'Fajr-2024-02-22', ... }
+let   schedulerStarted = false;
+
+// ━━━ ایک بار Scheduler چلائیں ━━━
+function startScheduler(sock) {
+  if (schedulerStarted) return;
+  schedulerStarted = true;
+  console.log('[PRAYER ALERT] Scheduler started ✅');
+
+  setInterval(async () => {
+    if (activeGroups.size === 0) return;
+
+    const now        = new Date();
+    const hh         = String(now.getHours()).padStart(2, '0');
+    const mm         = String(now.getMinutes()).padStart(2, '0');
+    const currentTime = `${hh}:${mm}`;
+    const todayStr    = now.toISOString().split('T')[0];
+    const dayIdx      = getDayIndex();
+
+    for (const [jid, data] of activeGroups.entries()) {
+      try {
+        const timings = await getPrayerTimes(data.city);
+        if (!timings) continue;
+
+        if (!sentToday.has(jid)) sentToday.set(jid, new Set());
+        const sent = sentToday.get(jid);
+
+        const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+        for (const prayer of prayers) {
+          const pTime   = timings[prayer].slice(0, 5); // HH:MM
+          const alertKey = `${prayer}-${todayStr}`;
+
+          if (currentTime === pTime && !sent.has(alertKey)) {
+            sent.add(alertKey);
+            const message = buildPrayerMessage(prayer, data.city, dayIdx);
+            await sock.sendMessage(jid, { text: message });
+            console.log(`[PRAYER ALERT] ${prayer} sent to ${jid}`);
+            await new Promise(r => setTimeout(r, 1500));
+          }
         }
+
+        // آدھی رات کو sentToday صاف کریں
+        if (hh === '00' && mm === '01') {
+          sentToday.delete(jid);
+        }
+
+      } catch (err) {
+        console.error(`[PRAYER ALERT] Error for ${jid}:`, err.message);
+      }
+    }
+  }, 60 * 1000); // ہر منٹ چیک
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Plugin Export
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+module.exports = {
+  name: 'prayeralert',
+  aliases: ['namazalert', 'نمازالرٹ', 'salahtime'],
+  category: 'islamic',
+  description: 'پانچوں نمازوں کا خودکار اعلان — فضیلت کے ساتھ',
+  usage: '.prayeralert on <شہر> | .prayeralert off | .prayeralert times | .prayeralert test <نماز>',
+  cooldown: 5000,
+  groupOnly: true,
+
+  async execute(sock, msg, args) {
+    try {
+      const jid        = msg.key.remoteJid;
+      const isGroup    = jid.endsWith('@g.us');
+      const subCommand = (args[0] || '').toLowerCase();
+
+      if (!isGroup) {
+        await sock.sendMessage(jid, {
+          text: '❌ یہ command صرف گروپ میں استعمال ہو سکتا ہے۔'
+        }, { quoted: msg });
         return;
       }
 
-      if (action === 'on') {
+      // ━━━ Scheduler شروع کریں ━━━
+      startScheduler(sock);
+
+      // ━━━ ON ━━━
+      if (subCommand === 'on' || subCommand === 'شروع') {
         if (!args[1]) {
-          return await msg.reply('❌ Please specify city! Example: .prayeralert on Karachi');
+          await sock.sendMessage(jid, {
+            text: '❌ *شہر کا نام لکھیں!*\n\nمثال:\n*.prayeralert on Karachi*\n*.prayeralert on Lahore*\n*.prayeralert on Islamabad*'
+          }, { quoted: msg });
+          return;
         }
 
         const city = args.slice(1).join(' ');
-        
-        await msg.react('🕌');
-        await msg.reply('⏳ *Setting up prayer alerts...*');
 
-        // Get prayer times
-        const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=1`;
-        const response = await axios.get(apiUrl);
+        await sock.sendMessage(jid, {
+          react: { text: '⏳', key: msg.key }
+        });
 
-        if (response.data && response.data.data) {
-          groupDb.updateGroup(msg.from, { 
-            prayerAlert: true,
-            prayerCity: city
-          });
+        const timings = await getPrayerTimes(city);
 
-          // Check prayer times every 5 minutes
-          const interval = setInterval(async () => {
-            await checkAndSendPrayerAlert(msg.from, city, msg.conn);
-          }, 5 * 60 * 1000); // 5 minutes
-
-          prayerIntervals.set(msg.from, interval);
-
-          await msg.reply(`
-✅ *Prayer time alerts enabled!*
-
-📍 City: ${city}
-⏰ You'll receive notifications before each prayer time
-
-_Powered by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-`.trim());
-
-          await msg.react('✅');
-        } else {
-          await msg.react('❌');
-          await msg.reply('❌ City not found! Try different spelling.');
+        if (!timings) {
+          await sock.sendMessage(jid, {
+            text: `❌ *شہر نہیں ملا:* "${city}"\n\nدوبارہ صحیح نام لکھیں۔`
+          }, { quoted: msg });
+          await sock.sendMessage(jid, { react: { text: '❌', key: msg.key } });
+          return;
         }
+
+        activeGroups.set(jid, { city });
+
+        const timingMsg = `
+✅ *نماز الرٹ فعال ہو گیا!*
+
+📍 *شہر:* ${city}
+
+⏰ *آج کے نماز اوقات:*
+🌅 فجر:   ${timings.Fajr}
+☀️ ظہر:   ${timings.Dhuhr}
+🌤️ عصر:   ${timings.Asr}
+🌇 مغرب:  ${timings.Maghrib}
+🌙 عشاء:  ${timings.Isha}
+
+📢 اب ہر نماز کے وقت یہاں خودکار اعلان آئے گا جس میں اس نماز کی *روزانہ نئی فضیلت* بھی ہوگی۔
+
+*بند کرنے کے لیے:* .prayeralert off`.trim();
+
+        await sock.sendMessage(jid, { text: timingMsg }, { quoted: msg });
+        await sock.sendMessage(jid, { react: { text: '✅', key: msg.key } });
+      }
+
+      // ━━━ OFF ━━━
+      else if (subCommand === 'off' || subCommand === 'بند') {
+        if (activeGroups.has(jid)) {
+          activeGroups.delete(jid);
+          sentToday.delete(jid);
+          await sock.sendMessage(jid, {
+            text: '🔕 *نماز الرٹ بند ہو گیا۔*\n\nدوبارہ شروع کریں:\n*.prayeralert on <شہر>*'
+          }, { quoted: msg });
+          await sock.sendMessage(jid, { react: { text: '🔕', key: msg.key } });
+        } else {
+          await sock.sendMessage(jid, {
+            text: '❌ نماز الرٹ پہلے سے بند ہے۔'
+          }, { quoted: msg });
+        }
+      }
+
+      // ━━━ TIMES — آج کے اوقات ━━━
+      else if (subCommand === 'times' || subCommand === 'اوقات') {
+        const data = activeGroups.get(jid);
+        if (!data) {
+          await sock.sendMessage(jid, {
+            text: '❌ پہلے الرٹ فعال کریں:\n*.prayeralert on <شہر>*'
+          }, { quoted: msg });
+          return;
+        }
+
+        const timings = await getPrayerTimes(data.city);
+        if (!timings) {
+          await sock.sendMessage(jid, { text: '❌ اوقات لوڈ نہیں ہو سکے، دوبارہ کوشش کریں۔' }, { quoted: msg });
+          return;
+        }
+
+        const timingMsg = `
+╭━━━『 *آج کے نماز اوقات* 』━━━╮
+
+📍 *شہر:* ${data.city}
+
+🌅 *فجر:*   ${timings.Fajr}
+🌞 *طلوع:*  ${timings.Sunrise}
+☀️ *ظہر:*   ${timings.Dhuhr}
+🌤️ *عصر:*   ${timings.Asr}
+🌇 *مغرب:*  ${timings.Maghrib}
+🌙 *عشاء:*  ${timings.Isha}
+🌙 *وتر:*   ${timings.Lastthird || 'دستیاب نہیں'}
+
+╰━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+☪️ *اللہ ہماری نمازیں قبول فرمائے* ☪️
+
+_YOUSAF-BALOCH-MD_
+📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`.trim();
+
+        await sock.sendMessage(jid, { text: timingMsg }, { quoted: msg });
+        await sock.sendMessage(jid, { react: { text: '✅', key: msg.key } });
+      }
+
+      // ━━━ TEST — مخصوص نماز کا ٹیسٹ ━━━
+      else if (subCommand === 'test' || subCommand === 'ٹیسٹ') {
+        const prayerName = args[1]
+          ? args[1].charAt(0).toUpperCase() + args[1].slice(1).toLowerCase()
+          : 'Fajr';
+
+        const validPrayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+        if (!validPrayers.includes(prayerName)) {
+          await sock.sendMessage(jid, {
+            text: `❌ غلط نماز کا نام!\n\nدرست نام:\nFajr | Dhuhr | Asr | Maghrib | Isha`
+          }, { quoted: msg });
+          return;
+        }
+
+        const city    = activeGroups.get(jid)?.city || 'Karachi';
+        const dayIdx  = getDayIndex();
+        const message = buildPrayerMessage(prayerName, city, dayIdx);
+
+        await sock.sendMessage(jid, { text: message }, { quoted: msg });
+        await sock.sendMessage(jid, { react: { text: '✅', key: msg.key } });
+      }
+
+      // ━━━ STATUS ━━━
+      else if (subCommand === 'status' || subCommand === 'اسٹیٹس') {
+        const data     = activeGroups.get(jid);
+        const isActive = !!data;
+
+        await sock.sendMessage(jid, {
+          text: `📊 *نماز الرٹ کی حالت:*\n\n${isActive ? `✅ فعال ہے\n📍 شہر: ${data.city}` : '🔕 بند ہے'}\n\n*کل فعال گروپس:* ${activeGroups.size}`
+        }, { quoted: msg });
+      }
+
+      // ━━━ Help ━━━
+      else {
+        await sock.sendMessage(jid, {
+          text: `🕌 *نماز الرٹ — استعمال کا طریقہ:*\n\n• .prayeralert on Karachi — شروع کریں\n• .prayeralert off — بند کریں\n• .prayeralert times — آج کے اوقات\n• .prayeralert test Fajr — ٹیسٹ پیغام\n• .prayeralert status — حالت دیکھیں`
+        }, { quoted: msg });
       }
 
     } catch (error) {
-      console.error('Prayer alert error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('[PRAYERALERT ERROR]', error);
+      const jid = msg.key.remoteJid;
+      await sock.sendMessage(jid, { react: { text: '❌', key: msg.key } });
+      await sock.sendMessage(jid,
+        { text: `❌ *غلطی:* ${error.message}` },
+        { quoted: msg }
+      );
     }
   }
 };
-
-async function checkAndSendPrayerAlert(groupId, city, conn) {
-  try {
-    const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=1`;
-    const response = await axios.get(apiUrl);
-
-    if (response.data && response.data.data) {
-      const timings = response.data.data.timings;
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-      const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-      
-      for (const prayer of prayers) {
-        const prayerTime = timings[prayer];
-        
-        // Check if current time matches prayer time
-        if (currentTime === prayerTime) {
-          await conn.sendMessage(groupId, {
-            text: `
-🕌 *${prayer.toUpperCase()} TIME*
-
-⏰ Prayer time has arrived!
-📍 ${city}
-
-☪️ *حَيَّ عَلَى الصَّلاَةِ* ☪️
-_Come to prayer_
-
-_YOUSAF-BALOCH-MD_
-`.trim()
-          });
-          break;
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Auto prayer alert error:', error);
-  }
-        }
