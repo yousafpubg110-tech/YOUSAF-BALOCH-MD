@@ -1,26 +1,79 @@
-let handler = async (m, { conn, usedPrefix, command }) => {
-  if (!m.isGroup) return m.reply('❌ *This command is only for groups!*');
-  
-  let user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-  
-  if (!user) return m.reply(`❌ *Tag someone to promote!*\n\n*Example:* ${usedPrefix + command} @user`);
-  
-  let botAdmin = await conn.groupMetadata(m.chat).then(data => {
-    return data.participants.find(v => v.id === conn.user.jid)?.admin;
-  });
-  
-  if (!botAdmin) return m.reply('❌ *I need to be admin to promote members!*');
-  
-  await conn.groupParticipantsUpdate(m.chat, [user], 'promote');
-  
-  await m.reply(`✅ *Successfully promoted @${user.split('@')[0]} to admin!*\n\n_© YOUSAF-BALOCH-MD | Muhammad Yousaf Baloch_`, null, { mentions: [user] });
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  YOUSAF-BALOCH-MD Group Promote        ┃
+┃        Created by MR YOUSAF BALOCH     ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📱 WhatsApp: +923710636110
+📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
+🎵 TikTok: https://tiktok.com/@loser_boy.110
+💻 GitHub: https://github.com/musakhanbaloch03-sad
+🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+*/
+
+import { SYSTEM } from '../config.js';
+
+export default {
+  command: ['promote', 'admin'],
+  name: 'promote',
+  category: 'Group',
+  description: 'Promote member to admin',
+  usage: '.promote @user',
+  cooldown: 5,
+  groupOnly: true,
+  adminOnly: true,
+  botAdminRequired: true,
+
+  handler: async ({ sock, msg, from, args, isAdmin, isBotAdmin, isOwner }) => {
+    try {
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can promote members!');
+      }
+
+      if (!isBotAdmin) {
+        return await msg.reply('❌ Bot must be admin to promote members!');
+      }
+
+      // Get target user — mention or quoted message or number
+      let targetJid = null;
+
+      if (msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
+        targetJid = msg.message.extendedTextMessage.contextInfo.mentionedJid[0];
+      } else if (msg.message?.extendedTextMessage?.contextInfo?.quotedMessage) {
+        targetJid = msg.message.extendedTextMessage.contextInfo.participant;
+      } else if (args[0]) {
+        const clean = args[0].replace(/[^0-9]/g, '');
+        if (clean.length >= 10) targetJid = clean + '@s.whatsapp.net';
+      }
+
+      if (!targetJid) {
+        return await msg.reply(`❌ Please tag someone to promote!
+
+*Example:*
+.promote @user
+.promote 923001234567
+
+${SYSTEM.SHORT_WATERMARK}`);
+      }
+
+      const targetNumber = targetJid.split('@')[0];
+
+      await sock.groupParticipantsUpdate(from, [targetJid], 'promote');
+
+      await sock.sendMessage(from, {
+        text: `✅ Successfully promoted @${targetNumber} to admin!\n\n${SYSTEM.SHORT_WATERMARK}`,
+        mentions: [targetJid],
+      }, { quoted: msg });
+
+      await msg.react('✅');
+
+    } catch (error) {
+      console.error('Group promote error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
+    }
+  },
 };
-
-handler.help = ['promote'];
-handler.tags = ['group'];
-handler.command = /^(promote|admin)$/i;
-handler.admin = true;
-handler.group = true;
-handler.botAdmin = true;
-
-export default handler;
