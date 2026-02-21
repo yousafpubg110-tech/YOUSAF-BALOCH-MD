@@ -13,23 +13,24 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { SYSTEM } from '../config.js';
 
 export default {
+  command: ['bing', 'bingai', 'sydney'],
   name: 'bing',
-  aliases: ['bingai', 'sydney'],
-  category: 'ai',
+  category: 'AI',
   description: 'Chat with Bing AI (Microsoft Copilot)',
   usage: '.bing <your question>',
-  cooldown: 3000,
+  cooldown: 5,
 
-  async execute(msg, args) {
+  handler: async ({ msg, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please ask a question!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please ask a question!
 
 *Example:*
-.bing What's happening in the world today?
+.bing What is happening in the world today?
 .bing Summarize latest tech news
 .bing Creative writing tips
 
@@ -38,7 +39,8 @@ export default {
 📰 Real-time information
 💡 Creative responses
 📊 Factual data
-`.trim());
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🔍');
@@ -46,26 +48,30 @@ export default {
 
       await msg.reply('🔍 *Bing AI is searching...*');
 
-      const apiUrl = `https://api.nexoracle.com/ai/bing?apikey=free_key@maher_apis&prompt=${encodeURIComponent(question)}`;
-      const response = await axios.get(apiUrl);
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/ai/bing?apikey=free_key@maher_apis&prompt=${encodeURIComponent(question)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-      if (response.data && response.data.result) {
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build API URL.');
+      }
+
+      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+
+      if (response.data?.result) {
         const answer = response.data.result;
-        
-        await msg.reply(`
-╭━━━『 *BING AI* 』━━━╮
+
+        await msg.reply(`╭━━━『 *BING AI* 』━━━╮
 
 💭 *Question:* ${question}
 
-🔍 *Bing's Answer:*
+🔍 *Answer:*
 ${answer}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-_Powered by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
 
         await msg.react('✅');
       } else {
@@ -74,9 +80,11 @@ _Powered by YOUSAF-BALOCH-MD_
       }
 
     } catch (error) {
-      console.error('Bing error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Bing AI error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
