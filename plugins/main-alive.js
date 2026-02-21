@@ -1,56 +1,100 @@
-import fetch from 'node-fetch';
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  YOUSAF-BALOCH-MD Alive Status         ┃
+┃        Created by MR YOUSAF BALOCH     ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-let handler = async (m, { conn, usedPrefix, command }) => {
-  let name = await conn.getName(m.sender);
-  let pp = await conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://i.imgur.com/whjlJSf.jpg');
-  
-  let uptime = process.uptime();
-  let hours = Math.floor(uptime / 3600);
-  let minutes = Math.floor((uptime % 3600) / 60);
-  let seconds = Math.floor(uptime % 60);
-  
-  let aliveMsg = `
-╭━━━━━━━━━━━━━━━━━╮
-┃ *YOUSAF-BALOCH-MD* ✅
-╰━━━━━━━━━━━━━━━━━╯
+📱 WhatsApp: +923710636110
+📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
+🎵 TikTok: https://tiktok.com/@loser_boy.110
+💻 GitHub: https://github.com/musakhanbaloch03-sad
+🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+*/
 
-👋 *Hello ${name}!*
+import { OWNER, CONFIG } from '../config.js';
 
-✅ *Bot is Active & Running*
+export default {
+  command: ['alive', 'active', 'status', 'bot'],
+  name: 'alive',
+  category: 'Info',
+  description: 'Check if bot is alive',
+  usage: '.alive',
+  cooldown: 5,
+
+  handler: async ({ sock, msg, from, sender }) => {
+    try {
+
+      // ✅ FIX 1: React sirf ek baar — shuru mein
+      if (typeof msg.react === 'function') {
+        await msg.react('✅');
+      }
+
+      // Uptime calculate
+      const uptime  = process.uptime();
+      const hours   = Math.floor(uptime / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+      const seconds = Math.floor(uptime % 60);
+
+      // ✅ FIX 2: Sender number safe extraction
+      const senderNumber = sender?.split('@')[0] || 'User';
+
+      // ✅ FIX 3: OWNER.YEAR safe fallback
+      const year = OWNER.YEAR || new Date().getFullYear();
+
+      const aliveMsg = `╭━━━『 *${OWNER.BOT_NAME}* 』━━━╮
+
+👋 *Hello +${senderNumber}!*
+
+✅ *Bot is Active & Running!*
 
 📊 *Bot Statistics:*
 ├ ⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
-├ 👑 *Owner:* Muhammad Yousaf Baloch
-├ 📞 *Contact:* +923710636110
-├ ✨ *Version:* 1.0.0
-└ 🌐 *Prefix:* ${usedPrefix}
+├ 👑 *Owner:* ${OWNER.FULL_NAME}
+├ 📞 *Contact:* +${OWNER.NUMBER}
+├ ✨ *Version:* ${OWNER.VERSION}
+└ 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 
-🚀 *Type ${usedPrefix}menu for commands*
+🚀 *Type ${CONFIG.PREFIX}menu for commands*
 
 ╭━━━『 *FOLLOW ME* 』━━━╮
-┃ 📺 *YouTube:* ${global.socialLinks.youtube}
-┃ 📢 *WhatsApp Channel:* ${global.socialLinks.whatsappChannel}
-╰━━━━━━━━━━━━━━━━━╯
 
-_© 2026 YOUSAF-BALOCH-MD_
-_Developed by Muhammad Yousaf Baloch_
-`;
+📺 *YouTube:*
+${OWNER.YOUTUBE}
 
-  await conn.sendMessage(m.chat, {
-    image: { url: global.thumb },
-    caption: aliveMsg,
-    footer: '© Muhammad Yousaf Baloch',
-    buttons: [
-      { buttonId: `${usedPrefix}menu`, buttonText: { displayText: '📜 Menu' }, type: 1 },
-      { buttonId: `${usedPrefix}owner`, buttonText: { displayText: '👑 Owner' }, type: 1 },
-      { buttonId: `${usedPrefix}ping`, buttonText: { displayText: '⚡ Ping' }, type: 1 }
-    ],
-    headerType: 4
-  }, { quoted: m });
+🎵 *TikTok:*
+${OWNER.TIKTOK}
+
+📢 *WhatsApp Channel:*
+${OWNER.CHANNEL}
+
+╰━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+_© ${year} ${OWNER.BOT_NAME}_
+_Developed by ${OWNER.FULL_NAME}_`;
+
+      // ✅ Main alive message
+      await sock.sendMessage(from, {
+        text: aliveMsg,
+      }, { quoted: msg });
+
+      // ✅ Channel link — alag message mein
+      await sock.sendMessage(from, {
+        text: `📢 *ہمارے WhatsApp Channel سے جڑیں:*\n${OWNER.CHANNEL}`,
+      }, { quoted: msg });
+
+    } catch (error) {
+      console.error('[ALIVE ERROR]:', error.message);
+      try {
+        if (typeof msg.react === 'function') await msg.react('❌');
+        if (typeof msg.reply === 'function') {
+          await msg.reply('❌ Alive command error: ' + error.message);
+        } else {
+          await sock.sendMessage(from, {
+            text: '❌ Alive command error: ' + error.message,
+          }, { quoted: msg });
+        }
+      } catch (_) {}
+    }
+  },
 };
-
-handler.help = ['alive', 'active', 'status'];
-handler.tags = ['main'];
-handler.command = /^(alive|active|status|bot)$/i;
-
-export default handler;
