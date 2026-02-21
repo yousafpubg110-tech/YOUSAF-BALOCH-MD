@@ -12,37 +12,57 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import { SYSTEM } from '../config.js';
+
 export default {
+  command: ['link', 'grouplink', 'gclink'],
   name: 'link',
-  aliases: ['grouplink', 'gclink'],
-  category: 'group',
-  description: 'Get group link',
+  category: 'Group',
+  description: 'Get group invite link',
   usage: '.link',
-  cooldown: 3000,
+  cooldown: 5,
   groupOnly: true,
+  adminOnly: true,
   botAdminRequired: true,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, isAdmin, isBotAdmin, isOwner }) => {
     try {
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can get the group link!');
+      }
+
+      if (!isBotAdmin) {
+        return await msg.reply('❌ Bot must be admin to get group link!');
+      }
+
       await msg.react('🔗');
 
-      const code = await msg.conn.groupInviteCode(msg.from);
+      // FIX: msg.conn removed — sock directly used
+      const code = await sock.groupInviteCode(from);
       const link = `https://chat.whatsapp.com/${code}`;
 
-      await msg.reply(`
-🔗 *Group Invite Link:*
+      const groupMetadata = await sock.groupMetadata(from);
 
+      await msg.reply(`╭━━━『 *GROUP LINK* 』━━━╮
+
+📱 *Group:* ${groupMetadata.subject}
+👥 *Members:* ${groupMetadata.participants.length}
+
+🔗 *Invite Link:*
 ${link}
 
-_YOUSAF-BALOCH-MD_
-`.trim());
+╰━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+${SYSTEM.SHORT_WATERMARK}`);
 
       await msg.react('✅');
 
     } catch (error) {
-      console.error('Link error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Group link error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
