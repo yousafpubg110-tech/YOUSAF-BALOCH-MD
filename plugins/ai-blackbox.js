@@ -13,20 +13,21 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { SYSTEM } from '../config.js';
 
 export default {
+  command: ['blackbox', 'code', 'codegen'],
   name: 'blackbox',
-  aliases: ['code', 'codegen'],
-  category: 'ai',
+  category: 'AI',
   description: 'AI specialized for coding and programming',
   usage: '.blackbox <coding question>',
-  cooldown: 3000,
+  cooldown: 5,
 
-  async execute(msg, args) {
+  handler: async ({ msg, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please ask a coding question!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please ask a coding question!
 
 *Example:*
 .blackbox Write a Python function to reverse a string
@@ -40,7 +41,8 @@ export default {
 🔧 Best practices
 ⚡ Optimization tips
 🌐 All programming languages
-`.trim());
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('💻');
@@ -48,15 +50,21 @@ export default {
 
       await msg.reply('💻 *BlackBox AI is generating code...*');
 
-      // Call BlackBox API
-      const apiUrl = `https://api.nexoracle.com/ai/blackbox?apikey=free_key@maher_apis&prompt=${encodeURIComponent(question)}`;
-      const response = await axios.get(apiUrl);
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/ai/blackbox?apikey=free_key@maher_apis&prompt=${encodeURIComponent(question)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-      if (response.data && response.data.result) {
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build API URL.');
+      }
+
+      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+
+      if (response.data?.result) {
         const answer = response.data.result;
-        
-        await msg.reply(`
-╭━━━『 *BLACKBOX AI* 』━━━╮
+
+        await msg.reply(`╭━━━『 *BLACKBOX AI* 』━━━╮
 
 💭 *Question:* ${question}
 
@@ -67,10 +75,7 @@ ${answer}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-_Powered by YOUSAF-BALOCH-MD_
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
 
         await msg.react('✅');
       } else {
@@ -79,9 +84,11 @@ _Powered by YOUSAF-BALOCH-MD_
       }
 
     } catch (error) {
-      console.error('BlackBox error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('BlackBox AI error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
