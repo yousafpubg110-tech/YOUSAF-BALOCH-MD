@@ -12,27 +12,37 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import { SYSTEM } from '../config.js';
+
 export default {
+  command: ['settings', 'groupsettings', 'gsettings', 'open', 'close'],
   name: 'settings',
-  aliases: ['groupsettings', 'gsettings'],
-  category: 'group',
+  category: 'Group',
   description: 'Change group settings',
-  usage: '.settings <open/close>',
-  cooldown: 3000,
+  usage: '.settings open/close',
+  cooldown: 5,
   groupOnly: true,
   adminOnly: true,
   botAdminRequired: true,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args, isAdmin, isBotAdmin, isOwner }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please specify setting!
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can change group settings!');
+      }
+
+      if (!isBotAdmin) {
+        return await msg.reply('❌ Bot must be admin to change group settings!');
+      }
+
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please specify a setting!
 
 *Usage:*
-.settings open - Allow all to send
-.settings close - Only admins can send
-`.trim());
+.settings open — Allow all members to send messages
+.settings close — Only admins can send messages
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('⏳');
@@ -40,21 +50,27 @@ export default {
       const action = args[0].toLowerCase();
 
       if (action === 'open') {
-        await msg.conn.groupSettingUpdate(msg.from, 'not_announcement');
-        await msg.reply('✅ Group opened! All members can send messages.');
+        // FIX: msg.conn removed — sock directly used
+        await sock.groupSettingUpdate(from, 'not_announcement');
+        await msg.reply(`✅ Group is now *OPEN!*\n\nAll members can send messages.\n\n${SYSTEM.SHORT_WATERMARK}`);
         await msg.react('✅');
+
       } else if (action === 'close') {
-        await msg.conn.groupSettingUpdate(msg.from, 'announcement');
-        await msg.reply('✅ Group closed! Only admins can send messages.');
+        await sock.groupSettingUpdate(from, 'announcement');
+        await msg.reply(`✅ Group is now *CLOSED!*\n\nOnly admins can send messages.\n\n${SYSTEM.SHORT_WATERMARK}`);
         await msg.react('✅');
+
       } else {
-        await msg.reply('❌ Invalid option! Use: open or close');
+        await msg.react('❌');
+        await msg.reply(`❌ Invalid option! Use *open* or *close*\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
     } catch (error) {
-      console.error('Settings error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Group settings error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
