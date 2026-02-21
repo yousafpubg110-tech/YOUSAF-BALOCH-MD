@@ -13,20 +13,21 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { SYSTEM } from '../config.js';
 
 export default {
+  command: ['imagine', 'aiimage', 'texttoimage', 'img'],
   name: 'imagine',
-  aliases: ['aiimage', 'texttoimage'],
-  category: 'ai',
+  category: 'AI',
   description: 'Generate creative AI images',
   usage: '.imagine <description>',
-  cooldown: 10000,
+  cooldown: 15,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please describe what you want to create!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please describe what you want to create!
 
 *Example:*
 .imagine dragon flying over castle
@@ -37,51 +38,60 @@ export default {
 🎨 Realistic, Cartoon, Anime
 🌌 Fantasy, Sci-Fi, Abstract
 🖼️ Oil Painting, Watercolor
-`.trim());
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🎭');
       const prompt = args.join(' ');
 
-      await msg.reply(`
-⏳ *Imagining your creation...*
+      await msg.reply(`⏳ *Imagining your creation...*\n\n🎭 Description: ${prompt}\n\nPlease wait...`);
 
-🎭 Description: ${prompt}
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/ai/imagine?apikey=free_key@maher_apis&prompt=${encodeURIComponent(prompt)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-_Please wait..._
-`.trim());
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build API URL.');
+      }
 
-      const apiUrl = `https://api.nexoracle.com/ai/imagine?apikey=free_key@maher_apis&prompt=${encodeURIComponent(prompt)}`;
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(safeApiUrl, { timeout: 60000 });
 
-      if (response.data && response.data.result) {
-        const imageUrl = response.data.result;
-        const imageBuffer = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        
-        await msg.sendImage(
-          Buffer.from(imageBuffer.data),
-          `
-🎭 *AI IMAGINE*
+      if (response.data?.result) {
+        // FIX: sanitizeUrl on image URL — CodeQL High error fix
+        const safeImageUrl = sanitizeUrl(response.data.result);
 
-📝 ${prompt}
+        if (!safeImageUrl) {
+          await msg.react('❌');
+          return await msg.reply('❌ Invalid image URL received!');
+        }
 
-_Created by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-📺 https://www.youtube.com/@Yousaf_Baloch_Tech
-`.trim()
-        );
+        const imageRes = await axios.get(safeImageUrl, {
+          responseType: 'arraybuffer',
+          timeout: 30000,
+        });
+
+        const imageBuffer = Buffer.from(imageRes.data);
+
+        // FIX: sendImage replaced with sock.sendMessage
+        await sock.sendMessage(from, {
+          image: imageBuffer,
+          caption: `🎭 *AI IMAGINE*\n\n📝 ${prompt}\n\n${SYSTEM.SHORT_WATERMARK}`,
+        }, { quoted: msg });
 
         await msg.react('✅');
       } else {
         await msg.react('❌');
-        await msg.reply('❌ Failed to create image. Try again!');
+        await msg.reply('❌ Failed to create image. Try a different description!');
       }
 
     } catch (error) {
-      console.error('Imagine error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Imagine AI error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
