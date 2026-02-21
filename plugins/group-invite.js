@@ -12,46 +12,58 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import { SYSTEM } from '../config.js';
+
 export default {
+  command: ['invite', 'grouplink', 'link'],
   name: 'invite',
-  aliases: ['grouplink'],
-  category: 'group',
+  category: 'Group',
   description: 'Get group invite link',
   usage: '.invite',
-  cooldown: 3000,
+  cooldown: 5,
   groupOnly: true,
+  adminOnly: true,
   botAdminRequired: true,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, isAdmin, isBotAdmin, isOwner }) => {
     try {
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can get the group invite link!');
+      }
+
+      if (!isBotAdmin) {
+        return await msg.reply('❌ Bot must be admin to get invite link!');
+      }
+
       await msg.react('🔗');
 
-      const code = await msg.conn.groupInviteCode(msg.from);
+      // FIX: msg.conn removed — sock directly used
+      const code = await sock.groupInviteCode(from);
       const link = `https://chat.whatsapp.com/${code}`;
 
-      const groupMetadata = await msg.conn.groupMetadata(msg.from);
+      const groupMetadata = await sock.groupMetadata(from);
 
-      await msg.reply(`
-╭━━━『 *GROUP INVITE LINK* 』━━━╮
+      await msg.reply(`╭━━━『 *GROUP INVITE LINK* 』━━━╮
 
 📱 *Group:* ${groupMetadata.subject}
 👥 *Members:* ${groupMetadata.participants.length}
+📅 *Created:* ${new Date(groupMetadata.creation * 1000).toLocaleDateString()}
 
 🔗 *Invite Link:*
 ${link}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-_YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-`.trim());
+${SYSTEM.SHORT_WATERMARK}`);
 
       await msg.react('✅');
 
     } catch (error) {
-      console.error('Invite error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Group invite error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
