@@ -12,79 +12,146 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
-import axios from 'axios';
+'use strict';
 
-export default {
+const axios = require('axios');
+
+module.exports = {
   name: 'prayer',
-  aliases: ['prayertime', 'salah', 'namaz'],
+  aliases: ['prayertime', 'salah', 'namaz', 'نماز', 'اوقات'],
   category: 'islamic',
-  description: 'Get prayer times for your city',
-  usage: '.prayer <city name>',
+  description: 'کسی بھی شہر کے نماز کے اوقات معلوم کریں',
+  usage: '.prayer <شہر کا نام> — مثال: .prayer Karachi',
   cooldown: 3000,
 
-  async execute(msg, args) {
+  async execute(sock, msg, args) {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ Please specify your city!
+      const jid = msg.key.remoteJid;
 
-*Example:*
+      if (!args[0]) {
+        await sock.sendMessage(jid, {
+          text: `
+❌ *شہر کا نام لکھیں!*
+
+*مثال:*
 .prayer Karachi
 .prayer Lahore
 .prayer Islamabad
+.prayer Quetta
+.prayer Peshawar
+.prayer Multan
+.prayer Okara
+.prayer Sahiwal
 .prayer Dubai
-`.trim());
+.prayer London`.trim()
+        }, { quoted: msg });
+        return;
       }
 
-      await msg.react('🕌');
+      await sock.sendMessage(jid, {
+        react: { text: '🕌', key: msg.key }
+      });
+
       const city = args.join(' ');
 
-      await msg.reply('⏳ *Getting prayer times...*');
+      await sock.sendMessage(jid, {
+        text: '⏳ *نماز کے اوقات لوڈ ہو رہے ہیں...*'
+      }, { quoted: msg });
 
-      const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=1`;
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(
+        `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=1`,
+        { timeout: 10000 }
+      );
 
-      if (response.data && response.data.data) {
-        const data = response.data.data;
+      if (
+        response.data &&
+        response.data.code === 200 &&
+        response.data.data
+      ) {
+        const data    = response.data.data;
         const timings = data.timings;
-        const date = data.date.readable;
-        const hijri = data.date.hijri.date;
+        const date    = data.date.readable;
+        const hijri   = data.date.hijri;
 
-        await msg.reply(`
-╭━━━『 *PRAYER TIMES* 』━━━╮
+        // ━━━ اگلی نماز معلوم کریں ━━━
+        const now         = new Date();
+        const currentMins = now.getHours() * 60 + now.getMinutes();
 
-📍 *City:* ${city}
-📅 *Date:* ${date}
-☪️ *Hijri:* ${hijri}
+        const prayers = [
+          { name: 'فجر',   key: 'Fajr',    emoji: '🌅' },
+          { name: 'ظہر',   key: 'Dhuhr',   emoji: '☀️' },
+          { name: 'عصر',   key: 'Asr',     emoji: '🌤️' },
+          { name: 'مغرب',  key: 'Maghrib', emoji: '🌇' },
+          { name: 'عشاء',  key: 'Isha',    emoji: '🌙' }
+        ];
 
-🕌 *Prayer Times:*
+        let nextPrayer = null;
+        for (const p of prayers) {
+          const [ph, pm] = timings[p.key].split(':').map(Number);
+          const pMins    = ph * 60 + pm;
+          if (pMins > currentMins) {
+            nextPrayer = p;
+            break;
+          }
+        }
+        if (!nextPrayer) nextPrayer = prayers[0]; // اگلے دن فجر
 
-*Fajr:* ${timings.Fajr}
-*Sunrise:* ${timings.Sunrise}
-*Dhuhr:* ${timings.Dhuhr}
-*Asr:* ${timings.Asr}
-*Maghrib:* ${timings.Maghrib}
-*Isha:* ${timings.Isha}
+        const message = `
+╭━━━『 *نماز کے اوقات* 』━━━╮
+
+📍 *شہر:* ${city}
+📅 *تاریخ:* ${date}
+☪️ *ہجری:* ${hijri.day} ${hijri.month.en} ${hijri.year}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌅 *فجر:*    ${timings.Fajr}
+🌞 *طلوع:*   ${timings.Sunrise}
+☀️ *ظہر:*    ${timings.Dhuhr}
+🌤️ *عصر:*    ${timings.Asr}
+🌇 *مغرب:*   ${timings.Maghrib}
+🌙 *عشاء:*   ${timings.Isha}
+🌙 *آدھی رات:* ${timings.Midnight}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏰ *اگلی نماز:* ${nextPrayer.emoji} ${nextPrayer.name}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-☪️ *الصَّلاَةُ خَيْرٌ مِّنَ النَّوْمِ* ☪️
+☪️ *اَلصَّلَاةُ خَيْرٌ مِّنَ النَّوْمِ* ☪️
+*(نماز نیند سے بہتر ہے)*
+
+🤲 *اللہ ہماری نمازیں قبول فرمائے*
 
 _YOUSAF-BALOCH-MD_
 📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-`.trim());
+💻 https://github.com/musakhanbaloch03-sad`.trim();
 
-        await msg.react('✅');
+        await sock.sendMessage(jid, { text: message }, { quoted: msg });
+        await sock.sendMessage(jid, {
+          react: { text: '✅', key: msg.key }
+        });
+
       } else {
-        await msg.react('❌');
-        await msg.reply('❌ City not found! Try different spelling.');
+        await sock.sendMessage(jid, {
+          text: `❌ *شہر نہیں ملا:* "${city}"\n\nدوبارہ صحیح نام لکھیں۔\n*مثال:* .prayer Karachi`
+        }, { quoted: msg });
+        await sock.sendMessage(jid, {
+          react: { text: '❌', key: msg.key }
+        });
       }
 
     } catch (error) {
-      console.error('Prayer times error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('[PRAYER ERROR]', error);
+      const jid = msg.key.remoteJid;
+      await sock.sendMessage(jid, {
+        react: { text: '❌', key: msg.key }
+      });
+      await sock.sendMessage(jid,
+        { text: `❌ *غلطی:* نماز کے اوقات لوڈ نہیں ہو سکے\n*Error:* ${error.message}` },
+        { quoted: msg }
+      );
     }
   }
 };
