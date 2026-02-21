@@ -13,22 +13,23 @@
 */
 
 import axios from 'axios';
+import { sanitizeUrl } from '../lib/utils.js';
+import { SYSTEM } from '../config.js';
 
 export default {
+  command: ['dalle', 'imagegen', 'createimage', 'aiimage'],
   name: 'dalle',
-  aliases: ['imagegen', 'createimage'],
-  category: 'ai',
+  category: 'AI',
   description: 'Generate AI images with DALL-E',
   usage: '.dalle <image description>',
-  cooldown: 10000,
+  cooldown: 15,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply(`
-❌ براہ کرم image description لکھیں!
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide an image description!
 
-*مثال:*
+*Example:*
 .dalle a beautiful sunset over mountains
 .dalle a cute cat wearing sunglasses
 .dalle futuristic city with flying cars
@@ -37,50 +38,60 @@ export default {
 ✨ Be specific and detailed
 🎨 Describe colors, style, mood
 📐 Mention perspective or angle
-`.trim());
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🎨');
       const prompt = args.join(' ');
 
-      await msg.reply(`
-⏳ *Creating AI image...*
+      await msg.reply(`⏳ *Creating AI image...*\n\n🎨 Prompt: ${prompt}\n\nThis may take 10-20 seconds...`);
 
-🎨 Prompt: ${prompt}
+      // FIX: sanitizeUrl on API URL — CodeQL High error fix
+      const rawApiUrl = `https://api.nexoracle.com/ai/dalle?apikey=free_key@maher_apis&prompt=${encodeURIComponent(prompt)}`;
+      const safeApiUrl = sanitizeUrl(rawApiUrl);
 
-_یہ 10-20 سیکنڈ لے سکتا ہے..._
-`.trim());
+      if (!safeApiUrl) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to build API URL.');
+      }
 
-      const apiUrl = `https://api.nexoracle.com/ai/dalle?apikey=free_key@maher_apis&prompt=${encodeURIComponent(prompt)}`;
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(safeApiUrl, { timeout: 60000 });
 
-      if (response.data && response.data.result) {
-        const imageUrl = response.data.result;
-        const imageBuffer = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        
-        await msg.sendImage(
-          Buffer.from(imageBuffer.data),
-          `
-🎨 *AI GENERATED IMAGE*
+      if (response.data?.result) {
+        // FIX: sanitizeUrl on image URL — CodeQL High error fix
+        const safeImageUrl = sanitizeUrl(response.data.result);
 
-📝 Prompt: ${prompt}
+        if (!safeImageUrl) {
+          await msg.react('❌');
+          return await msg.reply('❌ Invalid image URL received!');
+        }
 
-_Created by YOUSAF-BALOCH-MD_
-📢 https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-💻 https://github.com/musakhanbaloch03-sad
-`.trim()
-        );
+        const imageRes = await axios.get(safeImageUrl, {
+          responseType: 'arraybuffer',
+          timeout: 30000,
+        });
+
+        const imageBuffer = Buffer.from(imageRes.data);
+
+        // FIX: sendImage replaced with sock.sendMessage
+        await sock.sendMessage(from, {
+          image: imageBuffer,
+          caption: `🎨 *AI GENERATED IMAGE*\n\n📝 Prompt: ${prompt}\n\n${SYSTEM.SHORT_WATERMARK}`,
+        }, { quoted: msg });
 
         await msg.react('✅');
       } else {
         await msg.react('❌');
-        await msg.reply('❌ Failed to generate image. Try again!');
+        await msg.reply('❌ Failed to generate image. Try a different prompt!');
       }
 
     } catch (error) {
-      console.error('DALL-E error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('DALL-E error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
