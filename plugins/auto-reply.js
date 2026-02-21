@@ -1,64 +1,99 @@
-// Auto reply for new users
-const replied = new Set();
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  YOUSAF-BALOCH-MD Anti Delete          ┃
+┃        Created by MR YOUSAF BALOCH     ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-export async function all(m, { conn }) {
-    // Ignore if:
-    // - Message is from bot itself
-    // - Message is from group
-    // - Message starts with command prefix
-    // - User already got auto reply in this session
-    if (m.fromMe || m.isGroup || m.text?.startsWith('.') || m.text?.startsWith('/') || replied.has(m.sender)) {
-        return;
-    }
-    
-    // Check if this is a new conversation (not replied before)
-    if (m.text && m.text.length > 0) {
-        replied.add(m.sender);
-        
-        const autoReplyText = `
-╭━━━━━━━━━━━━━━━━━━━╮
-│ *🤖 AUTO REPLY*
-╰━━━━━━━━━━━━━━━━━━━╯
-
-assalamu alaikum! 👋
-
-Thank you for contacting *Yousaf Baloch MD*. This is an automated assistant.
-
-Yousaf is currently unavailable or offline at the moment. Your message is important to us, and he will respond to you personally as soon as he returns.
-
-If you require immediate assistance or want to explore our professional tools and features, please type *.menu* to access the command list.
-
-━━━━━━━━━━━━━━━━━━━
-
-🔗 *Quick Links:*
+📱 WhatsApp: +923710636110
+📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
+🎵 TikTok: https://tiktok.com/@loser_boy.110
+💻 GitHub: https://github.com/musakhanbaloch03-sad
+🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
-🎥 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
-💻 GitHub: github.com/musakhanbaloch03-sad
+*/
 
-━━━━━━━━━━━━━━━━━━━
+import { SYSTEM } from '../config.js';
 
-*Best Regards,*
-⚡ Powered by *YOUSAF-BALOCH-MD*
-👨‍💻 Support Team
-`.trim();
+export default {
+  command: ['antidelete', 'antidel'],
+  name: 'antidelete',
+  category: 'Group',
+  description: 'Enable/disable anti-delete in group',
+  usage: '.antidelete on/off',
+  cooldown: 5,
+  groupOnly: true,
 
-        // Send auto reply message
-        await conn.sendMessage(m.chat, { 
-            text: autoReplyText 
-        });
-        
-        // Send voice note (optional - agar voice file hai to)
-        // Uncomment this if you have a voice file
-        /*
-        try {
-            await conn.sendMessage(m.chat, {
-                audio: { url: './media/autoreply.mp3' }, // voice file path
-                mimetype: 'audio/mpeg',
-                ptt: true // voice message format
-            });
-        } catch (err) {
-            console.log('Voice file not found');
-        }
-        */
+  handler: async ({ sock, msg, from, args, isAdmin, isOwner }) => {
+    try {
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can use this command!');
+      }
+
+      const setting = args[0]?.toLowerCase();
+
+      if (!setting || !['on', 'off'].includes(setting)) {
+        return await msg.reply(`Anti-Delete Settings:
+
+*Usage:*
+.antidelete on
+.antidelete off
+
+${SYSTEM.SHORT_WATERMARK}`);
+      }
+
+      // Store setting in group metadata
+      if (!global.db) global.db = { data: { chats: {} } };
+      if (!global.db.data.chats[from]) global.db.data.chats[from] = {};
+      global.db.data.chats[from].antidelete = setting === 'on';
+
+      await msg.reply(`Anti-Delete has been turned *${setting.toUpperCase()}* ${setting === 'on' ? '✅' : '❌'}\n\n${SYSTEM.SHORT_WATERMARK}`);
+      await msg.react(setting === 'on' ? '✅' : '❌');
+
+    } catch (error) {
+      console.error('Anti-delete command error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-}
+  },
+
+  // Event listener for deleted messages
+  onMessage: async ({ sock, msg, from, store }) => {
+    try {
+      if (msg.messageStubType !== 68 && msg.messageStubType !== 69) return;
+
+      if (!global.db?.data?.chats?.[from]?.antidelete) return;
+
+      const deletedKey = msg.message?.protocolMessage?.key;
+      if (!deletedKey) return;
+
+      // Load deleted message from store
+      const deletedMsg = store?.messages?.[deletedKey.remoteJid]?.get(deletedKey.id);
+      if (!deletedMsg) return;
+
+      const sender = deletedMsg.key.participant || deletedMsg.key.remoteJid;
+      const senderNumber = sender.split('@')[0];
+
+      const antiDeleteMsg = `╭━━━『 *ANTI DELETE* 』━━━╮
+
+🚫 *Deleted Message Caught!*
+👤 *User:* @${senderNumber}
+
+╰━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+${SYSTEM.SHORT_WATERMARK}`;
+
+      await sock.sendMessage(from, {
+        text: antiDeleteMsg,
+        mentions: [sender],
+      }, { quoted: deletedMsg });
+
+      // Forward deleted message
+      await sock.copyNForward(from, deletedMsg, false);
+
+    } catch (error) {
+      console.error('Anti-delete event error:', error.message);
+    }
+  },
+};
