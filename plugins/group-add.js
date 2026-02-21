@@ -12,47 +12,85 @@
 📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import { SYSTEM } from '../config.js';
+
 export default {
+  command: ['add', 'invite'],
   name: 'add',
-  aliases: ['invite'],
-  category: 'group',
+  category: 'Group',
   description: 'Add user to group',
   usage: '.add 923xxxxxxxxx',
-  cooldown: 3000,
+  cooldown: 5,
   groupOnly: true,
   adminOnly: true,
   botAdminRequired: true,
 
-  async execute(msg, args) {
+  handler: async ({ sock, msg, from, args, isAdmin, isBotAdmin, isOwner }) => {
     try {
-      if (!args[0]) {
-        return await msg.reply('❌ Please provide a phone number!\n\nExample:\n.add 923xxxxxxxxx');
+      if (!isAdmin && !isOwner) {
+        return await msg.reply('❌ Only admins can use this command!');
+      }
+
+      if (!isBotAdmin) {
+        return await msg.reply('❌ Bot must be admin to add members!');
+      }
+
+      if (!args || args.length === 0) {
+        return await msg.reply(`❌ Please provide a phone number!
+
+*Example:*
+.add 923xxxxxxxxx
+.add 923001234567
+
+*Note:* Include country code without +
+
+${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('⏳');
 
-      let number = args[0].replace(/[^0-9]/g, '');
-      if (!number.includes('@s.whatsapp.net')) {
-        number = number + '@s.whatsapp.net';
+      // Clean number — remove all non-digits
+      const cleanNumber = args[0].replace(/[^0-9]/g, '');
+
+      if (cleanNumber.length < 10) {
+        await msg.react('❌');
+        return await msg.reply('❌ Invalid phone number! Please include country code.\n\nExample: 923001234567');
       }
 
-      const response = await msg.conn.groupParticipantsUpdate(msg.from, [number], 'add');
+      const jid = cleanNumber + '@s.whatsapp.net';
 
-      if (response[0].status === '200') {
-        await msg.reply('✅ Successfully added user to group!');
+      const response = await sock.groupParticipantsUpdate(from, [jid], 'add');
+
+      if (!response || response.length === 0) {
+        await msg.react('❌');
+        return await msg.reply('❌ Failed to add user!');
+      }
+
+      const status = response[0]?.status;
+
+      if (status === '200') {
+        await msg.reply(`✅ Successfully added *+${cleanNumber}* to the group!\n\n${SYSTEM.SHORT_WATERMARK}`);
         await msg.react('✅');
-      } else if (response[0].status === '403') {
-        await msg.reply('❌ Unable to add! User privacy settings prevent adding.');
-      } else if (response[0].status === '408') {
-        await msg.reply('❌ User recently left the group. Wait before re-adding.');
+      } else if (status === '403') {
+        await msg.react('❌');
+        await msg.reply('❌ Unable to add! User privacy settings prevent adding to groups.');
+      } else if (status === '408') {
+        await msg.react('❌');
+        await msg.reply('❌ User recently left the group. Please wait before re-adding.');
+      } else if (status === '409') {
+        await msg.react('❌');
+        await msg.reply('❌ User is already in the group!');
       } else {
-        await msg.reply('❌ Failed to add user!');
+        await msg.react('❌');
+        await msg.reply(`❌ Failed to add user! Status: ${status}`);
       }
 
     } catch (error) {
-      console.error('Add error:', error);
-      await msg.react('❌');
-      await msg.reply('❌ Error: ' + error.message);
+      console.error('Group add error:', error.message);
+      try {
+        await msg.react('❌');
+        await msg.reply('❌ Error: ' + error.message);
+      } catch (_) {}
     }
-  }
+  },
 };
