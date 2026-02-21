@@ -12,8 +12,13 @@
  📢 Channel  : https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
-import { sticker }  from '../lib/sticker.js';
+import { sticker }       from '../lib/sticker.js';
 import { OWNER, CONFIG } from '../config.js';
+
+// ─── Constants — Owner info locked into every sticker ────────────────────────
+// These appear in WhatsApp when user long-presses any sticker
+const STICKER_PACK   = `${OWNER.BOT_NAME} | +${OWNER.NUMBER}`;
+const STICKER_AUTHOR = `${OWNER.FULL_NAME}`;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_VIDEO_SECONDS = 10;
@@ -27,11 +32,6 @@ function isValidMime(mime) {
 // ─── Helper: Check if mime is video ──────────────────────────────────────────
 function isVideo(mime) {
   return /^video\//i.test(mime);
-}
-
-// ─── Helper: Check if mime is image ──────────────────────────────────────────
-function isImage(mime) {
-  return /^image\//i.test(mime);
 }
 
 // ─── Plugin Export ───────────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ export default {
 
       // ── Send processing message ─────────────────────────────────
       await sock.sendMessage(from, {
-        text: `⏳ *Creating sticker...*\n\n🎨 *Pack:* ${OWNER.BOT_NAME}\n✍️ *Author:* ${OWNER.FULL_NAME}`,
+        text: `⏳ *Creating sticker...*\n\n🎨 *Pack:* ${STICKER_PACK}\n✍️ *Author:* ${STICKER_AUTHOR}`,
       }, { quoted: msg });
 
       // ── Download media ──────────────────────────────────────────
@@ -90,12 +90,13 @@ export default {
         throw new Error('Downloaded media is invalid or empty.');
       }
 
-      // ── Create sticker ──────────────────────────────────────────
+      // ── Create sticker with locked owner metadata ───────────────
+      // Pack name & author permanently branded with owner info
       const stickerBuffer = await sticker(
         media,
         false,
-        OWNER.BOT_NAME,   // Pack name — from config
-        OWNER.FULL_NAME,  // Author  — from config
+        STICKER_PACK,    // YOUSAF-BALOCH-MD | +923710636110
+        STICKER_AUTHOR,  // Muhammad Yousaf Baloch
       );
 
       if (!stickerBuffer) {
@@ -105,6 +106,11 @@ export default {
       // ── Send sticker ────────────────────────────────────────────
       await sock.sendMessage(from, {
         sticker: stickerBuffer,
+      }, { quoted: msg });
+
+      // ── Send info message ───────────────────────────────────────
+      await sock.sendMessage(from, {
+        text: `✅ *Sticker created!*\n\n🎨 *Pack:* ${STICKER_PACK}\n✍️ *Author:* ${STICKER_AUTHOR}\n\n_© ${OWNER.YEAR || new Date().getFullYear()} ${OWNER.BOT_NAME}_`,
       }, { quoted: msg });
 
       // ── React: done ─────────────────────────────────────────────
