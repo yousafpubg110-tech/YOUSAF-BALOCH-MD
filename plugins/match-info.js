@@ -3,7 +3,6 @@
 ┃   YOUSAF-BALOCH-MD - Match Info Plugin   ┃
 ┃       Created by MR YOUSAF BALOCH        ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
  📱 WhatsApp : +923710636110
  📺 YouTube  : https://www.youtube.com/@Yousaf_Baloch_Tech
  🎵 TikTok   : https://tiktok.com/@loser_boy.110
@@ -15,9 +14,20 @@
 import { OWNER, CONFIG } from '../config.js';
 
 const CRICAPI_KEY = process.env.CRICAPI_KEY || '';
-const API_BASE    = 'https://api.cricapi.com/v1';
 
-// ─── Helper: Fetch with timeout ───────────────────────────────────────────────
+// ─── Helper: Owner Footer ─────────────────────────────────────────────────────
+function ownerFooter() {
+  const year = OWNER.YEAR || new Date().getFullYear();
+  return `╭─『 👑 *${OWNER.BOT_NAME}* 』
+│ 👤 *Owner:*   ${OWNER.FULL_NAME}
+│ 📱 *Number:*  +${OWNER.NUMBER}
+│ 📢 *Channel:* ${OWNER.CHANNEL}
+│ 📺 *YouTube:* ${OWNER.YOUTUBE}
+│ 🎵 *TikTok:*  ${OWNER.TIKTOK}
+╰──────────────────────────
+_© ${year} ${OWNER.BOT_NAME}_`;
+}
+
 async function fetchData(url, timeoutMs = 15000) {
   const controller = new AbortController();
   const timer      = setTimeout(() => controller.abort(), timeoutMs);
@@ -25,42 +35,25 @@ async function fetchData(url, timeoutMs = 15000) {
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return await res.json();
-  } finally {
-    clearTimeout(timer);
-  }
+  } finally { clearTimeout(timer); }
 }
 
-// ─── Helper: Build safe API URL ───────────────────────────────────────────────
-function buildApiUrl(endpoint, params = {}) {
-  const url = new URL(`${API_BASE}/${endpoint}`);
-  url.searchParams.set('apikey', CRICAPI_KEY);
-  for (const [key, val] of Object.entries(params)) {
-    url.searchParams.set(key, val);
-  }
-  if (url.hostname !== 'api.cricapi.com') throw new Error('Invalid hostname.');
-  return url.toString();
-}
-
-// ─── Plugin Export ───────────────────────────────────────────────────────────
 export default {
   command    : ['matchinfo', 'minfo', 'result', 'lastmatch'],
   name       : 'match-info',
   category   : 'Sports',
-  description: 'Get match summary and recent results',
+  description: 'Match summary and recent results',
   usage      : '.matchinfo',
   cooldown   : 15,
 
   handler: async ({ sock, msg, from, sender }) => {
     try {
-
       if (typeof msg.react === 'function') await msg.react('🏏');
-
       const senderNum = sender?.split('@')[0] || 'User';
-      const year      = OWNER.YEAR || new Date().getFullYear();
 
       if (!CRICAPI_KEY) {
         return await sock.sendMessage(from, {
-          text: `❌ *CRICAPI_KEY not set in .env!*\n🔗 Get free key: https://cricapi.com`,
+          text: `❌ *CRICAPI_KEY not set!*\n🔗 https://cricapi.com\n\n${ownerFooter()}`,
         }, { quoted: msg });
       }
 
@@ -68,50 +61,27 @@ export default {
         text: `🏏 *Fetching match info...*\n⏳ Please wait...`,
       }, { quoted: msg });
 
-      // ── Fetch recent matches ────────────────────────────────────
-      const apiUrl = buildApiUrl('matches', { offset: 0 });
-      const data   = await fetchData(apiUrl);
+      const url  = new URL('https://api.cricapi.com/v1/matches');
+      url.searchParams.set('apikey', CRICAPI_KEY);
+      url.searchParams.set('offset', '0');
+      if (url.hostname !== 'api.cricapi.com') throw new Error('Invalid hostname.');
 
-      if (!data?.data || data.data.length === 0) {
-        return await sock.sendMessage(from, {
-          text: `❌ *No match data available!*`,
-        }, { quoted: msg });
-      }
+      const data      = await fetchData(url.toString());
+      const completed = data?.data?.filter(m => m.matchEnded).slice(0, 4) || [];
+      const upcoming  = data?.data?.filter(m => !m.matchStarted).slice(0, 3) || [];
 
-      // ── Get completed matches ───────────────────────────────────
-      const completed = data.data
-        .filter(m => m.matchEnded)
-        .slice(0, 4);
-
-      // ── Get upcoming matches ────────────────────────────────────
-      const upcoming = data.data
-        .filter(m => !m.matchStarted)
-        .slice(0, 3);
-
-      // ── Build completed section ─────────────────────────────────
       let completedSection = '';
       for (const match of completed) {
-        const t1     = match.teams?.[0] || 'Team 1';
-        const t2     = match.teams?.[1] || 'Team 2';
-        const status = match.status     || 'Result N/A';
-        const type   = match.matchType?.toUpperCase() || 'MATCH';
-        completedSection += `│ 🏆 *${t1} vs ${t2}* [${type}]\n│    ↳ ${status}\n│\n`;
+        completedSection += `│ 🏆 *${match.teams?.[0]} vs ${match.teams?.[1]}*\n│    ↳ ${match.status || 'Result N/A'}\n│\n`;
       }
 
-      // ── Build upcoming section ──────────────────────────────────
       let upcomingSection = '';
       for (const match of upcoming) {
-        const t1   = match.teams?.[0] || 'Team 1';
-        const t2   = match.teams?.[1] || 'Team 2';
-        const date = match.date
-          ? new Date(match.date).toLocaleDateString('en-PK')
-          : 'TBA';
-        const type = match.matchType?.toUpperCase() || 'MATCH';
-        upcomingSection += `│ 📅 *${t1} vs ${t2}* [${type}]\n│    ↳ Date: ${date}\n│\n`;
+        const date = match.date ? new Date(match.date).toLocaleDateString('en-PK') : 'TBA';
+        upcomingSection += `│ 📅 *${match.teams?.[0]} vs ${match.teams?.[1]}*\n│    ↳ ${date}\n│\n`;
       }
 
-      const infoMsg = `
-╭━━━『 🏏 *MATCH INFO & RESULTS* 』━━━╮
+      const infoMsg = `╭━━━『 🏏 *MATCH INFO & RESULTS* 』━━━╮
 
 👋 *Requested by:* +${senderNum}
 
@@ -121,18 +91,15 @@ ${completedSection || '│ No recent results\n│\n'}╰────────
 
 ╭─『 📅 *Upcoming Matches* 』
 │
-${upcomingSection || '│ No upcoming matches found\n│\n'}╰──────────────────────────
+${upcomingSection || '│ No upcoming matches\n│\n'}╰──────────────────────────
 
-╭─『 💡 *More Commands* 』
-│ \`${CONFIG.PREFIX}score\`      → Live scores
-│ \`${CONFIG.PREFIX}schedule\`   → Full schedule
-│ \`${CONFIG.PREFIX}scorecard\`  → Full scorecard
+╭─『 💡 *Commands* 』
+│ \`${CONFIG.PREFIX}score\`     → Live scores
+│ \`${CONFIG.PREFIX}schedule\`  → Full schedule
 ╰──────────────────────────
 
-_© ${year} ${OWNER.BOT_NAME}_
-_Developed by ${OWNER.FULL_NAME}_
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-`.trim();
+${ownerFooter()}
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯`.trim();
 
       await sock.sendMessage(from, { text: infoMsg }, { quoted: msg });
       if (typeof msg.react === 'function') await msg.react('✅');
@@ -142,7 +109,7 @@ _Developed by ${OWNER.FULL_NAME}_
       try {
         if (typeof msg.react === 'function') await msg.react('❌');
         await sock.sendMessage(from, {
-          text: `❌ *Failed to fetch match info!*\n⚠️ ${error.message}`,
+          text: `❌ *Match info failed!*\n⚠️ ${error.message}\n\n${ownerFooter()}`,
         }, { quoted: msg });
       } catch (_) {}
     }
