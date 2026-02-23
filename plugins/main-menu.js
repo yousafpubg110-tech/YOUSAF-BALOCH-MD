@@ -562,7 +562,7 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ╔══════════════════════════════════════╗
 ║    💎 *YOUSAF-BALOCH-MD FEATURES*    ║
 ╠══════════════════════════════════════╣
-║ ✅ 160+ Plugins Loaded               ║
+║ ✅ 200+ Plugins Loaded               ║
 ║ ✅ Auto View Status                  ║
 ║ ✅ Anti Delete Messages              ║
 ║ ✅ 3-Strike Warning System           ║
