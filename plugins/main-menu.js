@@ -1,489 +1,630 @@
-import fs from 'fs';
-import fetch from 'node-fetch';
-import moment from 'moment-timezone';
+/*
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃   YOUSAF-BALOCH-MD — Ultra Pro Max Menu    ┃
+┃        Created by MR YOUSAF BALOCH         ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+ 📱 WhatsApp : +923710636110
+ 📺 YouTube  : https://www.youtube.com/@Yousaf_Baloch_Tech
+ 🎵 TikTok   : https://tiktok.com/@loser_boy.110
+ 💻 GitHub   : https://github.com/musakhanbaloch03-sad
+ 🤖 Bot Repo : https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+ 📢 Channel  : https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+*/
 
+import fs      from 'fs';
+import moment  from 'moment-timezone';
+import { OWNER, CONFIG } from '../config.js';
+
+// ─── Time-based mode config ───────────────────────────────────────────────────
+function getTimeMode() {
+  const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
+
+  if (hour >= 5  && hour < 12) return {
+    label  : '🌅 صبح کا وقت',
+    emoji  : '🌅',
+    mode   : 'MORNING',
+    greet  : 'صبح بخیر! Good Morning!',
+    dua    : 'اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا',
+    border : '━',
+    color  : '🌤️',
+  };
+  if (hour >= 12 && hour < 16) return {
+    label  : '☀️ دوپہر کا وقت',
+    emoji  : '☀️',
+    mode   : 'AFTERNOON',
+    greet  : 'دوپہر بخیر! Good Afternoon!',
+    dua    : 'سُبْحَانَ اللهِ وَبِحَمْدِهِ',
+    border : '─',
+    color  : '☀️',
+  };
+  if (hour >= 16 && hour < 20) return {
+    label  : '🌆 شام کا وقت',
+    emoji  : '🌆',
+    mode   : 'EVENING',
+    greet  : 'شام بخیر! Good Evening!',
+    dua    : 'اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا',
+    border : '═',
+    color  : '🌇',
+  };
+  return {
+    label  : '🌙 رات کا وقت',
+    emoji  : '🌙',
+    mode   : 'NIGHT',
+    greet  : 'رات بخیر! Good Night!',
+    dua    : 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+    border : '◈',
+    color  : '🌌',
+  };
+}
+
+// ─── Handler ──────────────────────────────────────────────────────────────────
 let handler = async (m, { conn, usedPrefix, command, text }) => {
-  let user = global.db.data.users[m.sender];
-  let name = await conn.getName(m.sender);
-  let totalreg = Object.keys(global.db.data.users).length;
-  let rtotalreg = Object.values(global.db.data.users).filter(user => user.registered == true).length;
-  
-  let time = moment.tz('Asia/Karachi').format('HH:mm:ss');
-  let date = moment.tz('Asia/Karachi').format('DD/MM/YYYY');
-  let uptime = process.uptime();
-  let hours = Math.floor(uptime / 3600);
-  let minutes = Math.floor((uptime % 3600) / 60);
-  let seconds = Math.floor(uptime % 60);
-  
-  let menu = `
-╭━━━━━━━━━━━━━━━━━━━━━╮
-┃     *YOUSAF-BALOCH-MD*
-┃   _Premium WhatsApp Bot_
-╰━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *BOT INFO* 』━━━╮
-┃ 👤 *User:* ${name}
-┃ 👑 *Owner:* Muhammad Yousaf Baloch
-┃ 📞 *Contact:* +923710636110
-┃ 📅 *Date:* ${date}
-┃ ⏰ *Time:* ${time}
-┃ ⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
-┃ 👥 *Total Users:* ${totalreg}
-┃ ✅ *Registered:* ${rtotalreg}
-┃ ✨ *Version:* 1.0.0
-┃ 🌐 *Prefix:* [ ${usedPrefix} ]
-╰━━━━━━━━━━━━━━━━━━━━━╯
+  const user       = global.db?.data?.users?.[m.sender] || {};
+  const name       = await conn.getName(m.sender) || 'Friend';
+  const totalreg   = Object.keys(global.db?.data?.users || {}).length;
+  const rtotalreg  = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
 
-╭━━━『 *MAIN MENU* 』━━━╮
-┃ ${usedPrefix}menu
-┃ ${usedPrefix}help
-┃ ${usedPrefix}alive
-┃ ${usedPrefix}ping
-┃ ${usedPrefix}speed
-┃ ${usedPrefix}runtime
-┃ ${usedPrefix}owner
-┃ ${usedPrefix}script
-┃ ${usedPrefix}repo
-┃ ${usedPrefix}donate
-┃ ${usedPrefix}listmenu
-┃ ${usedPrefix}support
-╰━━━━━━━━━━━━━━━━━━━━━╯
+  const time    = moment.tz('Asia/Karachi').format('hh:mm:ss A');
+  const date    = moment.tz('Asia/Karachi').format('DD MMMM YYYY');
+  const day     = moment.tz('Asia/Karachi').format('dddd');
+  const uptime  = process.uptime();
+  const hours   = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
 
-╭━━━『 *AUTO FEATURES* 』━━━╮
-┃ ${usedPrefix}autoviewstatus <on/off>
-┃ *Example:* ${usedPrefix}autoviewstatus on
-┃ *Info:* Bot automatically views all statuses
-┃
-┃ ${usedPrefix}antidelete <on/off>
-┃ *Example:* ${usedPrefix}antidelete on
-┃ *Info:* Shows deleted messages
-┃
-┃ ${usedPrefix}autoreact <on/off>
-┃ ${usedPrefix}autoread <on/off>
-┃ ${usedPrefix}autotyping <on/off>
-┃ ${usedPrefix}autorecording <on/off>
-┃ ${usedPrefix}autobio <on/off>
-┃ ${usedPrefix}anticall <on/off>
-┃ ${usedPrefix}autoreply <on/off>
-┃ ${usedPrefix}autodownload <on/off>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+  const T    = getTimeMode();
+  const pfx  = usedPrefix;
 
-╭━━━『 *DOWNLOAD MENU* 』━━━╮
-┃ ${usedPrefix}ytmp3 <url>
-┃ *Example:* ${usedPrefix}ytmp3 youtube.com/watch?v=xxxxx
-┃
-┃ ${usedPrefix}ytmp4 <url>
-┃ *Example:* ${usedPrefix}ytmp4 youtube.com/watch?v=xxxxx
-┃
-┃ ${usedPrefix}ytaudio <url>
-┃ ${usedPrefix}ytvideo <url>
-┃ ${usedPrefix}ytdoc <url>
-┃ ${usedPrefix}play <song name>
-┃ *Example:* ${usedPrefix}play Faded by Alan Walker
-┃
-┃ ${usedPrefix}song <name>
-┃ ${usedPrefix}video <name>
-┃
-┃ ${usedPrefix}tiktok <url>
-┃ *Example:* ${usedPrefix}tiktok tiktok.com/@yousafbaloch/video/xxxxx
-┃
-┃ ${usedPrefix}tiktokaudio <url>
-┃ ${usedPrefix}tiktokslide <url>
-┃ ${usedPrefix}ttmp3 <url>
-┃ ${usedPrefix}ttmp4 <url>
-┃
-┃ ${usedPrefix}instagram <url>
-┃ *Example:* ${usedPrefix}instagram instagram.com/p/xxxxx
-┃
-┃ ${usedPrefix}igstory <username>
-┃ ${usedPrefix}igreel <url>
-┃ ${usedPrefix}igphoto <url>
-┃ ${usedPrefix}igvideo <url>
-┃
-┃ ${usedPrefix}facebook <url>
-┃ *Example:* ${usedPrefix}facebook facebook.com/xxxxx
-┃
-┃ ${usedPrefix}fbmp3 <url>
-┃ ${usedPrefix}fbmp4 <url>
-┃
-┃ ${usedPrefix}twitter <url>
-┃ ${usedPrefix}threads <url>
-┃ ${usedPrefix}pinterest <url>
-┃ ${usedPrefix}snapchat <url>
-┃ ${usedPrefix}linkedin <url>
-┃
-┃ ${usedPrefix}mediafire <url>
-┃ ${usedPrefix}gdrive <url>
-┃ ${usedPrefix}mega <url>
-┃ ${usedPrefix}terabox <url>
-┃
-┃ ${usedPrefix}spotify <url>
-┃ ${usedPrefix}spotifysearch <name>
-┃ ${usedPrefix}apk <app name>
-┃ *Example:* ${usedPrefix}apk WhatsApp
-┃
-┃ ${usedPrefix}modapk <app name>
-┃ ${usedPrefix}wallpaper <query>
-┃ ${usedPrefix}ringtone <name>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+  // ── Count plugins ─────────────────────────────────────────────────────────
+  let pluginCount = 160;
+  try {
+    pluginCount = fs.readdirSync('./plugins').filter(f => f.endsWith('.js')).length;
+  } catch (_) {}
 
-╭━━━『 *AI FEATURES* 』━━━╮
-┃ ${usedPrefix}chatgpt <text>
-┃ *Example:* ${usedPrefix}chatgpt What is AI?
-┃
-┃ ${usedPrefix}ai <text>
-┃ *Example:* ${usedPrefix}ai Tell me about Muhammad Yousaf Baloch
-┃
-┃ ${usedPrefix}gpt <text>
-┃ ${usedPrefix}openai <text>
-┃ ${usedPrefix}gpt4 <text>
-┃
-┃ ${usedPrefix}gemini <text>
-┃ ${usedPrefix}bard <text>
-┃ ${usedPrefix}palm <text>
-┃
-┃ ${usedPrefix}blackbox <text>
-┃ ${usedPrefix}meta <text>
-┃ ${usedPrefix}llama <text>
-┃
-┃ ${usedPrefix}dalle <prompt>
-┃ *Example:* ${usedPrefix}dalle A futuristic city
-┃
-┃ ${usedPrefix}imagine <prompt>
-┃ ${usedPrefix}aiimage <prompt>
-┃ ${usedPrefix}midjourney <prompt>
-┃
-┃ ${usedPrefix}bing <text>
-┃ ${usedPrefix}bingimage <prompt>
-┃
-┃ ${usedPrefix}aicode <language> <task>
-┃ *Example:* ${usedPrefix}aicode python calculator
-┃
-┃ ${usedPrefix}explain <code>
-┃ ${usedPrefix}debug <code>
-┃ ${usedPrefix}translate <lang> <text>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+  const menu = `
+╔══════════════════════════════════════╗
+║  ${T.color} *YOUSAF-BALOCH-MD* ${T.color}  ║
+║   ⚡ _Ultra Pro Max WhatsApp Bot_ ⚡   ║
+╚══════════════════════════════════════╝
 
-╭━━━『 *IMAGE EDITOR* 』━━━╮
-┃ ${usedPrefix}blur <reply image>
-┃ ${usedPrefix}beautiful <reply image>
-┃ ${usedPrefix}facepalm <reply image>
-┃ ${usedPrefix}rainbow <reply image>
-┃ ${usedPrefix}wanted <reply image>
-┃ ${usedPrefix}wasted <reply image>
-┃ ${usedPrefix}jail <reply image>
-┃ ${usedPrefix}triggered <reply image>
-┃ ${usedPrefix}sepia <reply image>
-┃ ${usedPrefix}invert <reply image>
-┃ ${usedPrefix}grayscale <reply image>
-┃ ${usedPrefix}pixelate <reply image>
-┃ ${usedPrefix}sharpen <reply image>
-┃ ${usedPrefix}contrast <reply image>
-┃ ${usedPrefix}brightness <reply image>
-┃ ${usedPrefix}rotate <reply image>
-┃ ${usedPrefix}flip <reply image>
-┃ ${usedPrefix}mirror <reply image>
-┃ ${usedPrefix}crop <reply image>
-┃ ${usedPrefix}resize <reply image>
-┃ ${usedPrefix}compress <reply image>
-┃
-┃ ${usedPrefix}rembg <reply image>
-┃ *Example:* Reply to image with ${usedPrefix}rembg
-┃
-┃ ${usedPrefix}enhance <reply image>
-┃ ${usedPrefix}hd <reply image>
-┃ ${usedPrefix}colorize <reply image>
-┃ ${usedPrefix}cartoon <reply image>
-┃ ${usedPrefix}sketch <reply image>
-┃ ${usedPrefix}pencil <reply image>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+${T.emoji} *${T.label}* — ${T.greet}
+🤲 _${T.dua}_
 
-╭━━━『 *STICKER MAKER* 』━━━╮
-┃ ${usedPrefix}sticker <reply image/video>
-┃ ${usedPrefix}s <reply image/video>
-┃ ${usedPrefix}stickergif <reply video>
-┃ ${usedPrefix}sgif <reply video>
-┃
-┃ ${usedPrefix}take <text> | <text>
-┃ *Example:* ${usedPrefix}take Yousaf | Baloch
-┃
-┃ ${usedPrefix}steal <reply sticker>
-┃ ${usedPrefix}toimage <reply sticker>
-┃ ${usedPrefix}tovideo <reply sticker>
-┃
-┃ ${usedPrefix}ttp <text>
-┃ *Example:* ${usedPrefix}ttp Muhammad Yousaf Baloch
-┃
-┃ ${usedPrefix}attp <text>
-┃ ${usedPrefix}attp2 <text>
-┃ ${usedPrefix}ttp2 <text>
-┃ ${usedPrefix}ttp3 <text>
-┃
-┃ ${usedPrefix}emojimix <emoji+emoji>
-┃ *Example:* ${usedPrefix}emojimix 😂+😍
-┃
-┃ ${usedPrefix}smeme <text>
-┃ ${usedPrefix}smeme2 <text>|<text>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 📊 *BOT INFORMATION* 』━━━━╮
+┃ 👤 *User :* ${name}
+┃ 👑 *Owner:* ${OWNER.FULL_NAME}
+┃ 📱 *WA   :* +${OWNER.NUMBER}
+┃ 🤖 *Bot  :* ${OWNER.BOT_NAME}
+┃ 📅 *Date :* ${date}
+┃ 📆 *Day  :* ${day}
+┃ ⏰ *Time :* ${time}
+┃ ⏱️ *Up   :* ${hours}h ${minutes}m ${seconds}s
+┃ 👥 *Users:* ${totalreg} (✅ ${rtotalreg} Reg)
+┃ 🔌 *Plugins:* ${pluginCount}+
+┃ 📟 *Prefix :* [ ${pfx} ]
+┃ 🌐 *Mode  :* ${T.mode}
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *SEARCH MENU* 』━━━╮
-┃ ${usedPrefix}google <query>
-┃ *Example:* ${usedPrefix}google Muhammad Yousaf Baloch
-┃
-┃ ${usedPrefix}googlesearch <query>
-┃ ${usedPrefix}gimage <query>
-┃ ${usedPrefix}googleimage <query>
-┃
-┃ ${usedPrefix}ytsearch <query>
-┃ *Example:* ${usedPrefix}ytsearch Coding tutorials
-┃
-┃ ${usedPrefix}yts <query>
-┃ ${usedPrefix}youtubesearch <query>
-┃
-┃ ${usedPrefix}lyrics <song name>
-┃ *Example:* ${usedPrefix}lyrics Believer
-┃
-┃ ${usedPrefix}lyric <song name>
-┃ ${usedPrefix}lirik <song name>
-┃
-┃ ${usedPrefix}weather <city>
-┃ *Example:* ${usedPrefix}weather Karachi
-┃
-┃ ${usedPrefix}news
-┃ ${usedPrefix}latestnews
-┃ ${usedPrefix}technews
-┃ ${usedPrefix}sportsnews
-┃
-┃ ${usedPrefix}wiki <query>
-┃ ${usedPrefix}wikipedia <query>
-┃
-┃ ${usedPrefix}npm <package>
-┃ ${usedPrefix}github <repo>
-┃
-┃ ${usedPrefix}movie <name>
-┃ ${usedPrefix}imdb <name>
-┃ ${usedPrefix}anime <name>
-┃ ${usedPrefix}manga <name>
-┃
-┃ ${usedPrefix}recipe <food>
-┃ ${usedPrefix}horoscope <sign>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🔗 *SOCIAL MEDIA* 』━━━━╮
+┃ 📢 *Channel :* wa.me/channel/0029Vb3Uzps6buMH2RvGef0j
+┃ 📺 *YouTube :* @Yousaf_Baloch_Tech
+┃ 🎵 *TikTok  :* @loser_boy.110
+┃ 💻 *GitHub  :* musakhanbaloch03-sad
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *GROUP MENU* 』━━━╮
-┃ ${usedPrefix}add <number>
-┃ *Example:* ${usedPrefix}add 923710636110
-┃
-┃ ${usedPrefix}kick <@user>
-┃ *Example:* ${usedPrefix}kick @923710636110
-┃
-┃ ${usedPrefix}promote <@user>
-┃ *Example:* ${usedPrefix}promote @923710636110
-┃
-┃ ${usedPrefix}demote <@user>
-┃ ${usedPrefix}admins
-┃ ${usedPrefix}groupinfo
-┃ ${usedPrefix}grouplink
-┃ ${usedPrefix}resetlink
-┃ ${usedPrefix}revoke
-┃
-┃ ${usedPrefix}tagall <text>
-┃ *Example:* ${usedPrefix}tagall Hello from Muhammad Yousaf Baloch
-┃
-┃ ${usedPrefix}hidetag <text>
-┃ ${usedPrefix}notify <text>
-┃ ${usedPrefix}totag <reply>
-┃
-┃ ${usedPrefix}group <open/close>
-┃ ${usedPrefix}grouptime <time>
-┃ ${usedPrefix}gcopen
-┃ ${usedPrefix}gcclose
-┃
-┃ ${usedPrefix}antilink <on/off>
-┃ ${usedPrefix}antilinkall <on/off>
-┃ ${usedPrefix}antitoxic <on/off>
-┃ ${usedPrefix}antibot <on/off>
-┃ ${usedPrefix}antispam <on/off>
-┃
-┃ ${usedPrefix}welcome <on/off>
-┃ ${usedPrefix}goodbye <on/off>
-┃ ${usedPrefix}setwelcome <text>
-┃ ${usedPrefix}setgoodbye <text>
-┃
-┃ ${usedPrefix}delete <reply message>
-┃ ${usedPrefix}setname <text>
-┃ ${usedPrefix}setdesc <text>
-┃ ${usedPrefix}setppgroup <reply image>
-┃
-┃ ${usedPrefix}mute <@user>
-┃ ${usedPrefix}unmute <@user>
-┃ ${usedPrefix}warn <@user>
-┃ ${usedPrefix}unwarn <@user>
-┃ ${usedPrefix}warnings <@user>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+━━━━━━━『 📋 *ALL MENUS* 』━━━━━━━
 
-╭━━━『 *OWNER MENU* 』━━━╮
-┃ ${usedPrefix}broadcast <text>
-┃ *Example:* ${usedPrefix}broadcast Update from Muhammad Yousaf Baloch
+╭━━━━『 🏠 *MAIN MENU* 』━━━━╮
+┃ ${pfx}menu          » Full Menu
+┃ ${pfx}help          » Commands List
+┃ ${pfx}alive         » Bot Status Check
+┃ ${pfx}ping          » Bot Speed Test
+┃ ${pfx}runtime       » Bot Uptime
+┃ ${pfx}owner         » Owner Info
+┃ ${pfx}info          » Bot Information
+┃ ${pfx}support       » Support Group
+┃ ${pfx}script        » Get Bot Script
+┃ ${pfx}repo          » GitHub Repo
+┃ ${pfx}contact       » Contact Owner
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 ⚙️ *AUTO FEATURES* 』━━━━╮
+┃ ${pfx}autoviewstatus <on/off>
+┃  _Auto view all statuses_
+┃ ${pfx}antidelete <on/off>
+┃  _Show deleted messages_
+┃ ${pfx}autoreact <on/off>
+┃  _Auto react to messages_
+┃ ${pfx}autoread <on/off>
+┃  _Auto read all messages_
+┃ ${pfx}autotyping <on/off>
+┃  _Show typing indicator_
+┃ ${pfx}autorecording <on/off>
+┃  _Show recording status_
+┃ ${pfx}autobio <on/off>
+┃  _Auto rotate bio/status_
+┃ ${pfx}anticall <on/off>
+┃  _Auto reject unknown calls_
+┃ ${pfx}autoreply <on/off>
+┃  _Auto reply when offline_
+┃ ${pfx}autodownload <on/off>
+┃  _Auto download media_
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 📥 *DOWNLOAD MENU* 』━━━━╮
+┃ ▸ 🎵 *YouTube*
+┃ ${pfx}ytmp3 <url>     » YouTube MP3
+┃ ${pfx}ytmp4 <url>     » YouTube MP4
+┃ ${pfx}ytaudio <url>   » YT Audio
+┃ ${pfx}ytvideo <url>   » YT Video
+┃ ${pfx}play <name>     » Search & Play
+┃ ${pfx}song <name>     » Search Song
+┃ ${pfx}video <name>    » Search Video
 ┃
-┃ ${usedPrefix}bcgc <text>
-┃ ${usedPrefix}bcall <text>
+┃ ▸ 🎵 *TikTok*
+┃ ${pfx}tiktok <url>    » TikTok Video
+┃ ${pfx}ttmp3 <url>     » TikTok Audio
+┃ ${pfx}ttmp4 <url>     » TikTok Video
+┃ ${pfx}tiktokslide <url> » TikTok Slides
 ┃
-┃ ${usedPrefix}ban <@user>
-┃ ${usedPrefix}unban <@user>
-┃ ${usedPrefix}banlist
+┃ ▸ 📸 *Instagram*
+┃ ${pfx}instagram <url> » IG Post
+┃ ${pfx}igreel <url>    » IG Reel
+┃ ${pfx}igstory <user>  » IG Story
+┃ ${pfx}igphoto <url>   » IG Photo
+┃ ${pfx}igvideo <url>   » IG Video
 ┃
-┃ ${usedPrefix}block <@user>
-┃ ${usedPrefix}unblock <@user>
-┃ ${usedPrefix}blocklist
+┃ ▸ 📘 *Facebook*
+┃ ${pfx}facebook <url>  » FB Video
+┃ ${pfx}fbmp3 <url>     » FB Audio
+┃ ${pfx}fbmp4 <url>     » FB Video
 ┃
-┃ ${usedPrefix}setpp <reply image>
-┃ ${usedPrefix}setbio <text>
-┃ ${usedPrefix}setname <text>
-┃ ${usedPrefix}setstatus <text>
+┃ ▸ 🐦 *Twitter/X*
+┃ ${pfx}twitter <url>   » Twitter Video
 ┃
-┃ ${usedPrefix}join <group link>
-┃ ${usedPrefix}leave
-┃ ${usedPrefix}leaveall
+┃ ▸ 📌 *Pinterest*
+┃ ${pfx}pinterest <url> » Pinterest Media
 ┃
-┃ ${usedPrefix}getplugin <name>
-┃ ${usedPrefix}getfile <name>
-┃ ${usedPrefix}savefile <name>
-┃ ${usedPrefix}deletefile <name>
+┃ ▸ 🎵 *SoundCloud*
+┃ ${pfx}soundcloud <url> » SoundCloud Audio
 ┃
-┃ ${usedPrefix}addprem <@user>
-┃ ${usedPrefix}delprem <@user>
-┃ ${usedPrefix}listprem
-╰━━━━━━━━━━━━━━━━━━━━━╯
+┃ ▸ 🔥 *Other Platforms*
+┃ ${pfx}mediafire <url> » MediaFire File
+┃ ${pfx}gdrive <url>    » Google Drive
+┃ ${pfx}mega <url>      » MEGA File
+┃ ${pfx}terabox <url>   » TeraBox File
+┃ ${pfx}spotify <url>   » Spotify Song
+┃
+┃ ▸ 📱 *APK Downloads*
+┃ ${pfx}apk <name>      » Download APK
+┃ ${pfx}modapk <name>   » Modded APK
+┃ ${pfx}playstore <name>» Play Store App
+┃
+┃ ▸ 🎬 *Movies & Shows*
+┃ ${pfx}movie <name>    » Movie Info+Link
+┃ ${pfx}drama <name>    » Drama Download
+┃ ${pfx}trailer <name>  » Movie Trailer
+┃
+┃ ▸ 🎵 *Islamic Audio*
+┃ ${pfx}naat <name>     » Naat Download
+┃ ${pfx}bayan <name>    » Bayan Download
+┃ ${pfx}islamicaudio <name> » Islamic Audio
+┃
+┃ ▸ 🖼️ *Images*
+┃ ${pfx}wallpaper <query> » HD Wallpaper
+┃ ${pfx}ringtone <name> » Ringtone
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *FUN MENU* 』━━━╮
-┃ ${usedPrefix}joke
-┃ ${usedPrefix}quotes
-┃ ${usedPrefix}quote
-┃ ${usedPrefix}motivate
-┃ ${usedPrefix}advice
-┃ ${usedPrefix}fact
-┃ ${usedPrefix}truth
-┃ ${usedPrefix}dare
-┃ ${usedPrefix}riddle
-┃ ${usedPrefix}trivia
-┃ ${usedPrefix}meme
-┃ ${usedPrefix}pickup
-┃ ${usedPrefix}flirt
-┃ ${usedPrefix}ship <@user> <@user>
-┃ ${usedPrefix}couple
-┃ ${usedPrefix}love <name>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🤖 *AI FEATURES* 』━━━━╮
+┃ ▸ 💬 *Chat AI*
+┃ ${pfx}ai <text>       » Gemini AI Chat
+┃ ${pfx}gemini <text>   » Gemini AI
+┃ ${pfx}chatgpt <text>  » ChatGPT Style
+┃ ${pfx}gpt <text>      » GPT Response
+┃
+┃ ▸ 🖼️ *AI Image*
+┃ ${pfx}imagine <prompt> » AI Art
+┃ ${pfx}aiimage <prompt> » Generate Image
+┃ ${pfx}dalle <prompt>  » DALL-E Style
+┃
+┃ ▸ 💻 *AI Code*
+┃ ${pfx}aicode <lang> <task> » Generate Code
+┃ ${pfx}explain <code> » Explain Code
+┃ ${pfx}debug <code>   » Debug Code
+┃
+┃ ▸ 🌍 *Translation*
+┃ ${pfx}translate <lang> <text>
+┃  _Example: ${pfx}translate urdu Hello_
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *CONVERTER MENU* 』━━━╮
-┃ ${usedPrefix}toimage <reply sticker>
-┃ ${usedPrefix}tomp3 <reply video>
-┃ ${usedPrefix}toaudio <reply video>
-┃ ${usedPrefix}tovideo <reply audio>
-┃ ${usedPrefix}toptt <reply audio>
-┃ ${usedPrefix}tourl <reply media>
-┃ ${usedPrefix}tinyurl <url>
-┃ ${usedPrefix}shorten <url>
-┃ ${usedPrefix}styletext <text>
-┃ ${usedPrefix}fancy <text>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🖼️ *IMAGE TOOLS* 』━━━━╮
+┃ ▸ ✨ *Enhance*
+┃ ${pfx}remini        » AI Photo Enhance
+┃ ${pfx}enhance       » HD Enhance
+┃ ${pfx}hd            » Make HD
+┃ ${pfx}sharpen       » Sharpen Image
+┃
+┃ ▸ 🎨 *Effects*
+┃ ${pfx}blur          » Blur Effect
+┃ ${pfx}sepia         » Sepia Effect
+┃ ${pfx}invert        » Invert Colors
+┃ ${pfx}grayscale     » Black & White
+┃ ${pfx}pixelate      » Pixel Effect
+┃ ${pfx}cartoon       » Cartoon Effect
+┃ ${pfx}sketch        » Pencil Sketch
+┃
+┃ ▸ ✂️ *Edit*
+┃ ${pfx}compress      » Compress Image
+┃ ${pfx}watermark <text> » Add Watermark
+┃ ${pfx}rembg         » Remove Background
+┃ ${pfx}crop          » Crop Image
+┃
+┃ ▸ 🎭 *Fun Effects*
+┃ ${pfx}wanted        » Wanted Poster
+┃ ${pfx}wasted        » Wasted Effect
+┃ ${pfx}jail          » Jail Effect
+┃ ${pfx}triggered     » Triggered GIF
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *DATABASE MENU* 』━━━╮
-┃ ${usedPrefix}setcmd <text>
-┃ ${usedPrefix}delcmd <text>
-┃ ${usedPrefix}listcmd
-┃ ${usedPrefix}lockcmd
-┃ ${usedPrefix}addmsg <text>
-┃ ${usedPrefix}delmsg <text>
-┃ ${usedPrefix}getmsg <text>
-┃ ${usedPrefix}listmsg
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🎭 *STICKER MENU* 』━━━━╮
+┃ ▸ 🖼️ *Make Sticker*
+┃ ${pfx}sticker       » Image to Sticker
+┃ ${pfx}s             » Quick Sticker
+┃ ${pfx}sgif          » Video to Sticker
+┃
+┃ ▸ 🔄 *Convert*
+┃ ${pfx}toimg         » Sticker to Image
+┃ ${pfx}steal         » Steal Sticker Info
+┃ ${pfx}take <top|bottom> » Add Text to Sticker
+┃
+┃ ▸ ✍️ *Text Sticker*
+┃ ${pfx}ttp <text>    » Text to Sticker
+┃ ${pfx}attp <text>   » Animated TTP
+┃
+┃ ▸ 😎 *Emoji*
+┃ ${pfx}emojimix <😂+😍> » Mix 2 Emojis
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *ISLAMIC MENU* 』━━━╮
-┃ ${usedPrefix}quran
-┃ ${usedPrefix}hadith
-┃ ${usedPrefix}ayat
-┃ ${usedPrefix}surah <number>
-┃ ${usedPrefix}prayertimes <city>
-┃ ${usedPrefix}asmaul
-┃ ${usedPrefix}kisahnabi
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🎨 *DESIGN TOOLS* 』━━━━╮
+┃ ${pfx}logo <name>   » 30 Logo Styles
+┃  _Example: ${pfx}logo Yousaf 5_
+┃ ${pfx}dp <name|tag> » 30 DP Bio Styles
+┃  _Example: ${pfx}dp Yousaf | King_
+┃ ${pfx}carbon <code> » Code Screenshot
+┃  _8 Themes: monokai dracula nord..._
+┃ ${pfx}meme <top|bottom> » Create Meme
+┃  _8 Templates available_
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *TOOLS MENU* 』━━━╮
-┃ ${usedPrefix}calculator <expression>
-┃ ${usedPrefix}calc <expression>
-┃ ${usedPrefix}qrcode <text>
-┃ ${usedPrefix}readqr <reply qr>
-┃ ${usedPrefix}whatmusic <reply audio>
-┃ ${usedPrefix}translate <lang> <text>
-┃ ${usedPrefix}tts <lang> <text>
-┃ ${usedPrefix}ocr <reply image>
-┃ ${usedPrefix}removebg <reply image>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🔧 *TOOLS MENU* 』━━━━╮
+┃ ▸ 🧮 *Calculator*
+┃ ${pfx}calc <expression>
+┃  _Example: ${pfx}calc sqrt(144)_
+┃  _Supports: sin cos tan log sqrt_
+┃
+┃ ▸ 🔄 *Converters*
+┃ ${pfx}convert <value> <unit>
+┃  _Example: ${pfx}convert 100 km_
+┃  _Units: km miles kg lb °C °F mph_
+┃ ${pfx}currency <amt> <FROM> <TO>
+┃  _Example: ${pfx}currency 100 USD PKR_
+┃
+┃ ▸ 🌤️ *Weather*
+┃ ${pfx}weather <city>
+┃  _Example: ${pfx}weather Lahore_
+┃
+┃ ▸ 📄 *File Tools*
+┃ ${pfx}pdf <title>    » Image to PDF
+┃ ${pfx}compress       » Compress Image
+┃ ${pfx}toaudio        » Video to Audio
+┃ ${pfx}togif <sec>    » Video to GIF
+┃ ${pfx}toimg          » Sticker to PNG
+┃
+┃ ▸ 🔍 *Scanner*
+┃ ${pfx}ocr            » Read Image Text
+┃  _Supports Urdu + English_
+┃ ${pfx}qr <text>      » Generate QR Code
+┃
+┃ ▸ 🔗 *Web Tools*
+┃ ${pfx}short <url>    » Shorten URL
+┃ ${pfx}screenshot <url> » Website SS
+┃
+┃ ▸ 🎙️ *Audio*
+┃ ${pfx}tts <lang> <text> » Text to Voice
+┃  _Langs: urdu english arabic hindi_
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *GAME MENU* 』━━━╮
-┃ ${usedPrefix}tictactoe <@user>
-┃ ${usedPrefix}math <mode>
-┃ ${usedPrefix}guess
-┃ ${usedPrefix}family100
-┃ ${usedPrefix}akinator
-┃ ${usedPrefix}slot
-┃ ${usedPrefix}suit <@user>
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🔍 *SEARCH MENU* 』━━━━╮
+┃ ${pfx}google <query>  » Google Search
+┃ ${pfx}wiki <query>    » Wikipedia
+┃ ${pfx}movie <name>    » Movie Info
+┃ ${pfx}imdb <name>     » IMDB Search
+┃ ${pfx}lyrics <song>   » Song Lyrics
+┃ ${pfx}weather <city>  » Weather Info
+┃ ${pfx}news            » Latest News
+┃ ${pfx}technews        » Tech News
+┃ ${pfx}sportsnews      » Sports News
+┃ ${pfx}ytsearch <query>» YouTube Search
+┃ ${pfx}github <repo>   » GitHub Info
+┃ ${pfx}npm <package>   » NPM Package
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *ECONOMY MENU* 』━━━╮
-┃ ${usedPrefix}daily
-┃ ${usedPrefix}weekly
-┃ ${usedPrefix}monthly
-┃ ${usedPrefix}claim
-┃ ${usedPrefix}balance
-┃ ${usedPrefix}bank
-┃ ${usedPrefix}transfer <@user> <amount>
-┃ ${usedPrefix}leaderboard
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 ☪️ *ISLAMIC MENU* 』━━━━╮
+┃ ▸ 📖 *Quran*
+┃ ${pfx}quran <surah:ayah> » Quran Ayat
+┃  _Example: ${pfx}quran 2:255 (Ayatul Kursi)_
+┃ ${pfx}ayat              » Random Ayat
+┃ ${pfx}tafsir <surah:ayah> » Tafsir
+┃ ${pfx}ayatstatus        » Ayat as Status
+┃
+┃ ▸ 📚 *Hadith*
+┃ ${pfx}hadith            » Random Hadith
+┃
+┃ ▸ 🕌 *Prayer Times*
+┃ ${pfx}prayertime <city> » Prayer Times
+┃  _Example: ${pfx}prayertime Lahore_
+┃ ${pfx}prayer            » Today's Times
+┃
+┃ ▸ 🌙 *Islamic Info*
+┃ ${pfx}hijri             » Hijri Date
+┃ ${pfx}dua               » Random Dua
+┃ ${pfx}asma              » Asma-ul-Husna
+┃ ${pfx}islamicnames      » Muslim Names
+┃ ${pfx}hajjguide         » Hajj Guide
+┃ ${pfx}zakatcalc <amt>   » Zakat Calculator
+┃ ${pfx}ramadan           » Ramadan Info
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━『 *ANIME MENU* 』━━━╮
-┃ ${usedPrefix}waifu
-┃ ${usedPrefix}neko
-┃ ${usedPrefix}loli
-┃ ${usedPrefix}husbu
-┃ ${usedPrefix}naruto
-┃ ${usedPrefix}onepiece
-┃ ${usedPrefix}attackontitan
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 🏏 *CRICKET & MATCH* 』━━━━╮
+┃ ▸ 🔴 *Live Scores*
+┃ ${pfx}score             » Live Score
+┃ ${pfx}livescore         » Live Matches
+┃ ${pfx}cricketlive       » Cricket Live
+┃
+┃ ▸ 📊 *Match Info*
+┃ ${pfx}matchinfo         » Match Details
+┃ ${pfx}schedule          » Match Schedule
+┃ ${pfx}commentary        » Live Commentary
+┃ ${pfx}toss              » Toss Result
+┃
+┃ ▸ 🏆 *Tournaments*
+┃ ${pfx}psl               » PSL 2025 Scores
+┃ ${pfx}ipl               » IPL 2025 Scores
+┃ ${pfx}pointstable       » Points Table
+┃
+┃ ▸ 👤 *Players*
+┃ ${pfx}playerstats <name>» Player Stats
+┃
+┃ ▸ ⚽ *Football*
+┃ ${pfx}football          » Football Score
+┃
+┃ ▸ 📰 *News*
+┃ ${pfx}matchnews         » Match News
+┃ ${pfx}sportsnews        » Sports News
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━━━━━━━━━━━━━━━━━━╮
-┃ 💻 *Developed By:* Muhammad Yousaf Baloch
-┃ 🌟 *Bot Name:* YOUSAF-BALOCH-MD
-┃ 📱 *WhatsApp:* +923710636110
-┃ 🔒 *Owner Cannot Be Changed*
-┃ 📊 *Total Commands:* 280+
-┃ ✅ *Auto View Status* ✓
-┃ ✅ *Anti Delete Messages* ✓
-╰━━━━━━━━━━━━━━━━━━━━━╯
+╭━━━━『 👥 *GROUP MENU* 』━━━━╮
+┃ ▸ 👤 *Members*
+┃ ${pfx}add <number>     » Add Member
+┃ ${pfx}kick <@user>     » Kick Member
+┃ ${pfx}promote <@user>  » Make Admin
+┃ ${pfx}demote <@user>   » Remove Admin
+┃ ${pfx}admins           » List Admins
+┃ ${pfx}members          » Tag All Members
+┃ ${pfx}tagall <text>    » Tag Everyone
+┃ ${pfx}hidetag <text>   » Silent Tag All
+┃
+┃ ▸ ⚠️ *Warning System*
+┃ ${pfx}warn <@user> <reason>
+┃  _3 Warnings = Auto Kick!_
+┃ ${pfx}unwarn <@user>   » Remove Warning
+┃ ${pfx}warnlist         » All Warnings
+┃
+┃ ▸ ⚙️ *Group Settings*
+┃ ${pfx}grouplink        » Get Group Link
+┃ ${pfx}invite           » Invite Link
+┃ ${pfx}groupsettings    » Group Settings
+┃ ${pfx}groupopen        » Open Group
+┃ ${pfx}groupclose       » Close Group
+┃ ${pfx}groupname <text> » Change Name
+┃ ${pfx}groupdesc <text> » Change Desc
+┃
+┃ ▸ 🛡️ *Protection*
+┃ ${pfx}antilink <on/off>» Anti Link
+┃ ${pfx}antiabuse <on/off>» Anti Abuse
+┃ ${pfx}antivv <on/off>  » Anti View Once
+┃ ${pfx}antispam <on/off>» Anti Spam
+┃ ${pfx}autosticker <on/off> » Auto Sticker
+┃
+┃ ▸ 👻 *Activity*
+┃ ${pfx}activity         » Top Active Members
+┃ ${pfx}ghost            » Find Ghost Members
+┃ ${pfx}bannedlist       » Banned Members
+┃
+┃ ▸ 📊 *Polls*
+┃ ${pfx}poll <q?op1|op2> » Create Poll
+┃ ${pfx}vote <number>    » Vote in Poll
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-${global.menuFooter}
+╭━━━━『 💰 *ECONOMY MENU* 』━━━━╮
+┃ ▸ 💳 *Wallet*
+┃ ${pfx}balance          » Check Balance
+┃ ${pfx}wallet           » Your Wallet
+┃ ${pfx}leaderboard      » Top 10 Rich
+┃
+┃ ▸ 💵 *Earn Coins*
+┃ ${pfx}daily            » Daily Reward
+┃  _200 coins + streak bonus_
+┃ ${pfx}work             » Work for Coins
+┃  _15 different jobs!_
+┃
+┃ ▸ 🏪 *Shop*
+┃ ${pfx}shop             » View Shop Items
+┃ ${pfx}buy <number>     » Buy Item
+┃ ${pfx}inventory        » Your Items
+┃  _10 Items: Lucky Charm Shield VIP..._
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-_© 2026 YOUSAF-BALOCH-MD_
-_Developed by Muhammad Yousaf Baloch_
+╭━━━━『 🎮 *GAMES MENU* 』━━━━╮
+┃ ${pfx}tictactoe <@user>» Tic Tac Toe
+┃  _Send 1-9 to place your mark_
+┃
+┃ ${pfx}math <easy/med/hard> » Math Game
+┃  _Easy:10c | Medium:25c | Hard:50c_
+┃
+┃ ${pfx}quiz <category>  » Quiz Game
+┃  _Categories: general pakistan_
+┃  _cricket islam_
+┃
+┃ ${pfx}dice             » Roll Dice
+┃ ${pfx}dice vs          » Dice Battle
+┃ ${pfx}dice 3d6         » Multi Dice
+┃
+┃ ${pfx}coin             » Coin Flip
+┃ ${pfx}coin heads       » Predict & Win
+┃ ${pfx}coin stats       » Your Stats
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 😄 *FUN MENU* 』━━━━╮
+┃ ${pfx}joke             » Random Joke
+┃ ${pfx}quote            » Motivational Quote
+┃ ${pfx}fact             » Random Fact
+┃ ${pfx}truth            » Truth Question
+┃ ${pfx}dare             » Dare Challenge
+┃ ${pfx}riddle           » Brain Teaser
+┃ ${pfx}meme             » Random Meme
+┃ ${pfx}ship <@u1> <@u2> » Love Meter
+┃ ${pfx}love <name>      » Love Percent
+┃ ${pfx}flirt <@user>    » Flirt Line
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 👑 *OWNER MENU* 』━━━━╮
+┃ ▸ 📢 *Broadcast*
+┃ ${pfx}broadcast <text> » All Chats
+┃ ${pfx}bc groups <text> » Groups Only
+┃ ${pfx}bc all <text>    » Everyone
+┃
+┃ ▸ 🚫 *Ban System*
+┃ ${pfx}ban <@user> <reason>
+┃ ${pfx}unban <@user>
+┃ ${pfx}banlist
+┃
+┃ ▸ 🔒 *Block System*
+┃ ${pfx}block <@user>
+┃ ${pfx}unblock <@user>
+┃ ${pfx}blocklist
+┃
+┃ ▸ 📞 *Contact*
+┃ ${pfx}contact <msg>    » Message Owner
+┃ ${pfx}inbox            » View Messages
+┃ ${pfx}reply <num> <msg>» Reply to User
+┃
+┃ ▸ ⚙️ *Bot Control*
+┃ ${pfx}restart          » Restart Bot
+┃ ${pfx}shutdown         » Stop Bot
+┃ ${pfx}status           » System Status
+┃ ${pfx}update check     » Check Updates
+┃ ${pfx}update apply     » Apply Update
+┃ ${pfx}backup           » Backup Files
+┃ ${pfx}backup info      » System Info
+┃
+┃ ▸ 🤖 *Bot Settings*
+┃ ${pfx}setpp            » Change Bot PP
+┃ ${pfx}join <link>      » Join Group
+┃ ${pfx}leave            » Leave Group
+┃ ${pfx}eval <code>      » Run JS Code
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 🔄 *CONVERTER MENU* 』━━━━╮
+┃ ${pfx}toaudio          » Video → MP3
+┃ ${pfx}togif <sec>      » Video → GIF
+┃ ${pfx}toimg            » Sticker → PNG
+┃ ${pfx}pdf <title>      » Image → PDF
+┃ ${pfx}tts <lang> <text>» Text → Voice
+┃ ${pfx}short <url>      » Long → Short URL
+┃ ${pfx}qr <text>        » Text → QR Code
+┃ ${pfx}convert <v> <unit>» Unit Convert
+┃ ${pfx}currency <a> <F> <T>» Currency
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━━『 📊 *STATS MENU* 』━━━━╮
+┃ ${pfx}ping             » Bot Ping
+┃ ${pfx}alive            » Bot Alive Check
+┃ ${pfx}runtime          » Bot Runtime
+┃ ${pfx}status           » Full System Info
+┃ ${pfx}balance          » Your Balance
+┃ ${pfx}leaderboard      » Top Players
+┃ ${pfx}activity         » Group Activity
+┃ ${pfx}warnlist         » Group Warnings
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╔══════════════════════════════════════╗
+║    💎 *YOUSAF-BALOCH-MD FEATURES*    ║
+╠══════════════════════════════════════╣
+║ ✅ 160+ Plugins Loaded               ║
+║ ✅ Auto View Status                  ║
+║ ✅ Anti Delete Messages              ║
+║ ✅ 3-Strike Warning System           ║
+║ ✅ Economy System (Coins & Shop)     ║
+║ ✅ Islamic Prayer Alerts             ║
+║ ✅ Live Cricket Scores               ║
+║ ✅ AI-Powered Chat & Images          ║
+║ ✅ 30 Logo + 30 DP Styles            ║
+║ ✅ Multi-Platform Downloads          ║
+║ ✅ Time-Based Menu Modes             ║
+║ ✅ Group Protection System           ║
+╠══════════════════════════════════════╣
+║  👑 *Owner:* MR YOUSAF BALOCH        ║
+║  📱 *WA:*    +923710636110           ║
+║  📢 *Channel:* @YousafBalochTech     ║
+║  📺 *YouTube:* @Yousaf_Baloch_Tech   ║
+║  🎵 *TikTok:*  @loser_boy.110        ║
+╠══════════════════════════════════════╣
+║  📟 *Total Commands:* 300+           ║
+║  🔒 *Owner Cannot Be Changed*        ║
+║  ⚡ *24/7 Online Support*            ║
+╚══════════════════════════════════════╝
+
+_© 2025-2026 ${OWNER.BOT_NAME}_
+_Developed by ${OWNER.FULL_NAME}_
 _All Rights Reserved_
-_Contact: +923710636110_
+_+${OWNER.NUMBER}_
 `;
 
-  await conn.sendMessage(m.chat, {
-    image: { url: global.thumb },
-    caption: menu,
-    footer: '© Muhammad Yousaf Baloch - Professional WhatsApp Bot Developer',
-    buttons: [
-      { buttonId: `${usedPrefix}owner`, buttonText: { displayText: '👑 Muhammad Yousaf Baloch' }, type: 1 },
-      { buttonId: `${usedPrefix}script`, buttonText: { displayText: '📜 Get Script' }, type: 1 },
-      { buttonId: `${usedPrefix}ping`, buttonText: { displayText: '⚡ Bot Speed' }, type: 1 }
-    ],
-    headerType: 4
-  }, { quoted: m });
+  // ── Send with thumbnail ───────────────────────────────────────────────────
+  try {
+    await conn.sendMessage(m.chat, {
+      image  : { url: global.thumb || 'https://i.ibb.co/your-thumb-url/thumb.jpg' },
+      caption: menu,
+      footer : `© ${OWNER.FULL_NAME} — ${OWNER.BOT_NAME}`,
+      buttons: [
+        {
+          buttonId  : `${pfx}owner`,
+          buttonText: { displayText: `👑 ${OWNER.FULL_NAME}` },
+          type      : 1,
+        },
+        {
+          buttonId  : `${pfx}script`,
+          buttonText: { displayText: '📜 Get Script' },
+          type      : 1,
+        },
+        {
+          buttonId  : `${pfx}ping`,
+          buttonText: { displayText: '⚡ Bot Speed' },
+          type      : 1,
+        },
+      ],
+      headerType: 4,
+    }, { quoted: m });
+  } catch (_) {
+    // Fallback: send without image
+    await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+  }
 };
 
-handler.help = ['menu', 'help', 'commands', 'allmenu'];
-handler.tags = ['main'];
-handler.command = /^(menu|help|commands|allmenu|list)$/i;
+handler.help    = ['menu', 'help', 'commands', 'allmenu', 'list'];
+handler.tags    = ['main'];
+handler.command = /^(menu|help|commands|allmenu|list|م|مینیو)$/i;
 
 export default handler;
