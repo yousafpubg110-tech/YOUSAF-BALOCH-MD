@@ -5,16 +5,15 @@
 <br>
 
 <div style="background: linear-gradient(135deg, #0000FF, #0033FF); padding: 25px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #00FFFF;">
-  
   <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; margin: 0;">
     ⚡ YOUSAF-BALOCH-MD ⚡
   </h1>
-  
 </div>
 
 <br>
 
-<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=6,11,20&height=150&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=50&fontColor=FFD700&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
+<!-- ✅ FIX: Changed type=slice to type=rect for full width visibility -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=120&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=50&fontColor=FFD700&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
@@ -47,13 +46,13 @@
 
 <br>
 
-## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="40"/> <span style="color: #FF00FF;">WELCOME TO YOUSAF-BALOCH-MD</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="40"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="40"/> WELCOME TO YOUSAF-BALOCH-MD <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="40"/>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
 <h3>
-  <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="30"/> 
-  <span style="color: #00F2FF;">Created By Muhammad Yousaf Baloch</span> 
+  <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="30"/>
+  Created By Muhammad Yousaf Baloch
   <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="30"/>
 </h3>
 
@@ -79,7 +78,7 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/212257467-871d32b7-e401-42e8-a166-fcfd7baa4c6b.gif" width="45"/> <span style="color: #FFFF00;">BOT FEATURES</span> <img src="https://user-images.githubusercontent.com/74038190/212257467-871d32b7-e401-42e8-a166-fcfd7baa4c6b.gif" width="45"/>
+## <img src="https://user-images.githubusercontent.com/74038190/212257467-871d32b7-e401-42e8-a166-fcfd7baa4c6b.gif" width="45"/> BOT FEATURES <img src="https://user-images.githubusercontent.com/74038190/212257467-871d32b7-e401-42e8-a166-fcfd7baa4c6b.gif" width="45"/>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
@@ -125,14 +124,34 @@
       <td><img src="https://img.shields.io/badge/✅_ACTIVE-FFFF00?style=for-the-badge"/></td>
     </tr>
     <tr style="background: #1a1a2e;">
-      <td><img src="https://img.shields.io/badge/🎵_MUSIC_TOOLS-9D4EDD?style=for-the-badge&logoColor=white"/></td>
-      <td><b>Music Search, Lyrics, Play, Queue Management</b></td>
-      <td><img src="https://img.shields.io/badge/✅_ACTIVE-9D4EDD?style=for-the-badge"/></td>
+      <td><img src="https://img.shields.io/badge/☪️_ISLAMIC_TOOLS-006400?style=for-the-badge&logoColor=white"/></td>
+      <td><b>Quran, Hadith, Prayer Times, Dua, Hijri, Asma-ul-Husna</b></td>
+      <td><img src="https://img.shields.io/badge/✅_ACTIVE-006400?style=for-the-badge"/></td>
     </tr>
     <tr style="background: #16213e;">
+      <td><img src="https://img.shields.io/badge/🏏_CRICKET_LIVE-FF6600?style=for-the-badge&logoColor=white"/></td>
+      <td><b>Live Score, PSL, IPL, Commentary, Schedule, Stats</b></td>
+      <td><img src="https://img.shields.io/badge/✅_ACTIVE-FF6600?style=for-the-badge"/></td>
+    </tr>
+    <tr style="background: #1a1a2e;">
+      <td><img src="https://img.shields.io/badge/💰_ECONOMY-FFD700?style=for-the-badge&logoColor=black"/></td>
+      <td><b>Daily Reward, Work, Shop, Leaderboard, Balance</b></td>
+      <td><img src="https://img.shields.io/badge/✅_ACTIVE-FFD700?style=for-the-badge"/></td>
+    </tr>
+    <tr style="background: #16213e;">
+      <td><img src="https://img.shields.io/badge/🎵_MUSIC_TOOLS-9D4EDD?style=for-the-badge&logoColor=white"/></td>
+      <td><b>Music Search, Lyrics, Play, Naat, Bayan Download</b></td>
+      <td><img src="https://img.shields.io/badge/✅_ACTIVE-9D4EDD?style=for-the-badge"/></td>
+    </tr>
+    <tr style="background: #1a1a2e;">
       <td><img src="https://img.shields.io/badge/🔍_SEARCH_ENGINE-06D6A0?style=for-the-badge&logoColor=white"/></td>
       <td><b>Google, YouTube, Wikipedia, Image Search, News</b></td>
       <td><img src="https://img.shields.io/badge/✅_ACTIVE-06D6A0?style=for-the-badge"/></td>
+    </tr>
+    <tr style="background: #16213e;">
+      <td><img src="https://img.shields.io/badge/🛡️_GROUP_PROTECT-DC143C?style=for-the-badge&logoColor=white"/></td>
+      <td><b>Anti-Abuse, Anti-VV, Anti-Spam, Warn System, Ghost Detect</b></td>
+      <td><img src="https://img.shields.io/badge/✅_ACTIVE-DC143C?style=for-the-badge"/></td>
     </tr>
   </tbody>
 </table>
@@ -141,9 +160,10 @@
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
+<!-- ✅ FIX: Changed 280+ to 500+ -->
 <h2>
   <img src="https://user-images.githubusercontent.com/74038190/212257454-16e3712e-945a-4ca2-b238-408ad0bf87e6.gif" width="35"/>
-  <span style="color: #00FF00;">📈 280+ PREMIUM COMMANDS AVAILABLE! 📈</span>
+  📈 500+ PREMIUM COMMANDS AVAILABLE! 📈
   <img src="https://user-images.githubusercontent.com/74038190/212257454-16e3712e-945a-4ca2-b238-408ad0bf87e6.gif" width="35"/>
 </h2>
 
@@ -157,17 +177,16 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/> <span style="color: #00F2FF;">DEVELOPER - MUHAMMAD YOUSAF BALOCH</span> <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/> DEVELOPER - MUHAMMAD YOUSAF BALOCH <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/>
 
 <br>
 
-<!-- ✅ FIX: Working sigma/alpha avatar image -->
 <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="180" style="border-radius: 50%; border: 5px solid #FFD700; box-shadow: 0 0 40px #FFD700;"/>
 
 <br><br>
 
-<!-- ✅ FIX: Walking/scrolling animation for developer name -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&size=28&duration=1500&pause=500&color=FFD700&background=0A1F4400&center=true&vCenter=true&repeat=true&width=700&lines=👨‍💻+MUHAMMAD+YOUSAF+BALOCH;🚀+PREMIUM+BOT+DEVELOPER;⚡+WHATSAPP+AUTOMATION+EXPERT;💎+YOUSAF-BALOCH-MD+CREATOR;🔥+PROFESSIONAL+CODER" alt="Developer Name Animation" />
+<!-- ✅ FIX: Developer Name Animation - using direct img tag with proper alt -->
+![Developer Name Animation](https://readme-typing-svg.demolab.com?font=Orbitron&size=28&duration=1500&pause=500&color=FFD700&background=0A1F4400&center=true&vCenter=true&repeat=true&width=700&lines=👨‍💻+MUHAMMAD+YOUSAF+BALOCH;🚀+PREMIUM+BOT+DEVELOPER;⚡+WHATSAPP+AUTOMATION+EXPERT;💎+YOUSAF-BALOCH-MD+CREATOR;🔥+PROFESSIONAL+CODER)
 
 <br><br>
 
@@ -196,7 +215,7 @@
 
 <br>
 
-## <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="50"/> <span style="color: #FF0000;">SOCIAL MEDIA LINKS</span> <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="50"/> SOCIAL MEDIA LINKS <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="50"/>
 
 <br>
 
@@ -211,7 +230,7 @@
       <br>
       <sub><b>🎬 Subscribe to YouTube Channel</b></sub>
       <br>
-      <p style="color: #FFFFFF; font-size: 14px;">Detailed video tutorials available on my official channel!</p>
+      <p>Detailed video tutorials available on my official channel!</p>
       <br>
       <a href="https://www.youtube.com/@Yousaf_Baloch_Tech?sub_confirmation=1">
         <img src="https://img.shields.io/badge/SUBSCRIBE_NOW-FF0000?style=for-the-badge&logo=youtube&logoColor=white" height="45"/>
@@ -228,7 +247,7 @@
       <br>
       <sub><b>📢 Join WhatsApp Channel</b></sub>
       <br>
-      <p style="color: #FFFFFF; font-size: 14px;">Official updates and bot announcements!</p>
+      <p>Official updates and bot announcements!</p>
     </td>
   </tr>
   <tr>
@@ -254,7 +273,7 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif" width="60"/> <span style="color: #FFD700;">DEPLOY YOUR BOT</span> <img src="https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif" width="60"/>
+## <img src="https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif" width="60"/> DEPLOY YOUR BOT <img src="https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif" width="60"/>
 
 <img src="https://user-images.githubusercontent.com/74038190/212257465-7ce8d493-cac5-494e-982a-5a9deb852c4b.gif" width="150">
 
@@ -293,7 +312,6 @@
       <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="80">
     </td>
   </tr>
-  <!-- ✅ FIX: Added VPS and Replit deploy buttons -->
   <tr>
     <td align="center">
       <a href="https://replit.com/github/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
@@ -318,7 +336,7 @@
 
 <br>
 
-## <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="50"/> <span style="color: #00FF00;">GET PAIRING CODE</span> <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="50"/> GET PAIRING CODE <img src="https://user-images.githubusercontent.com/74038190/216122065-2f028bae-25d6-4a3c-bc9f-175394ed5011.png" width="50"/>
 
 <br>
 
@@ -332,7 +350,7 @@
 
 <br>
 
-### <span style="color: #FFD700;">⚡ QUICK STEPS TO GET YOUR SESSION ID:</span>
+### ⚡ QUICK STEPS TO GET YOUR SESSION ID:
 
 1️⃣ Click the button above  
 2️⃣ Enter your WhatsApp number  
@@ -351,7 +369,7 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="50"/> <span style="color: #00F2FF;">GITHUB STATISTICS</span> <img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="50"/> GITHUB STATISTICS <img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="50"/>
 
 <br>
 
@@ -373,7 +391,7 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/216120974-24a76b31-7f39-41f1-a38f-b3c1377cc612.png" width="50"/> <span style="color: #FF00FF;">WHY CHOOSE YOUSAF-BALOCH-MD?</span> <img src="https://user-images.githubusercontent.com/74038190/216120974-24a76b31-7f39-41f1-a38f-b3c1377cc612.png" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216120974-24a76b31-7f39-41f1-a38f-b3c1377cc612.png" width="50"/> WHY CHOOSE YOUSAF-BALOCH-MD? <img src="https://user-images.githubusercontent.com/74038190/216120974-24a76b31-7f39-41f1-a38f-b3c1377cc612.png" width="50"/>
 
 <br>
 
@@ -382,19 +400,19 @@
     <td align="center" width="300">
       <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="80">
       <br><br>
-      <h3 style="color: #00FF00;">🛡️ 100% Safe & Secure</h3>
+      <h3>🛡️ 100% Safe & Secure</h3>
       <p>No Ban Guarantee - Tested on 1000+ Accounts</p>
     </td>
     <td align="center" width="300">
       <img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="80">
       <br><br>
-      <h3 style="color: #FFD700;">⚡ Lightning Fast</h3>
+      <h3>⚡ Lightning Fast</h3>
       <p>Optimized Code - Instant Response Time</p>
     </td>
     <td align="center" width="300">
       <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="80">
       <br><br>
-      <h3 style="color: #00FFFF;">🔄 Regular Updates</h3>
+      <h3>🔄 Regular Updates</h3>
       <p>New Features Added Weekly</p>
     </td>
   </tr>
@@ -402,19 +420,19 @@
     <td align="center">
       <img src="https://user-images.githubusercontent.com/74038190/235294019-40007353-6219-4ec5-b661-b3c35136dd0b.gif" width="80">
       <br><br>
-      <h3 style="color: #FF00FF;">💬 24/7 Support</h3>
+      <h3>💬 24/7 Support</h3>
       <p>Active Developer Support on WhatsApp</p>
     </td>
     <td align="center">
       <img src="https://user-images.githubusercontent.com/74038190/235294010-ec412ef5-e3da-4efa-b1d4-0ab4d4638755.gif" width="80">
       <br><br>
-      <h3 style="color: #FF0000;">🎯 Easy to Use</h3>
+      <h3>🎯 Easy to Use</h3>
       <p>Simple Setup - No Coding Knowledge Required</p>
     </td>
     <td align="center">
       <img src="https://user-images.githubusercontent.com/74038190/235294016-6556559a-ed58-4ca6-a4c9-c307cbe0b6b7.gif" width="80">
       <br><br>
-      <h3 style="color: #FFFF00;">🌐 Multi-Device</h3>
+      <h3>🌐 Multi-Device</h3>
       <p>Works on Android, iOS, Windows, Mac, Linux</p>
     </td>
   </tr>
@@ -430,16 +448,16 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/> <span style="color: #00FF00;">INSTALLATION GUIDE</span> <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/> INSTALLATION GUIDE <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/>
 
 </div>
 
-### <span style="color: #FFD700;">📱 METHOD 1: TERMUX (Android)</span>
+### 📱 METHOD 1: TERMUX (Android)
 
 ```bash
 # Update and Install Dependencies
 pkg update && pkg upgrade -y
-pkg install git nodejs -y
+pkg install git nodejs ffmpeg -y
 
 # Clone Repository
 git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
@@ -452,22 +470,24 @@ npm install
 npm start
 ```
 
-### <span style="color: #00FFFF;">💻 METHOD 2: VPS/RDP (Linux/Windows)</span>
+### 💻 METHOD 2: VPS/RDP (Linux/Windows)
 
 ```bash
 # Install Node.js and Git
-apt update && apt install nodejs git -y
+apt update && apt install nodejs git ffmpeg -y
 
 # Clone and Setup
 git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
 cd YOUSAF-BALOCH-MD
 npm install
 
-# Run Bot
-npm start
+# Run with PM2 (recommended)
+npm install -g pm2
+pm2 start index.js --name YOUSAF-BALOCH-MD
+pm2 save
 ```
 
-### <span style="color: #FF00FF;">☁️ METHOD 3: CLOUD HOSTING (Recommended)</span>
+### ☁️ METHOD 3: CLOUD HOSTING (Recommended)
 
 Click on any deploy button above ⬆️ for instant deployment!
 
@@ -481,7 +501,7 @@ Click on any deploy button above ⬆️ for instant deployment!
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> <span style="color: #FF0000;">SUPPORT & CONTRIBUTION</span> <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> SUPPORT & CONTRIBUTION <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
 
 <table align="center">
   <tr>
@@ -503,7 +523,7 @@ Click on any deploy button above ⬆️ for instant deployment!
   </tr>
 </table>
 
-<h3 style="color: #00FFFF;">💝 Support This Project:</h3>
+<h3>💝 Support This Project:</h3>
 <p>If you like this project, please give it a ⭐ star on GitHub!</p>
 
 <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
@@ -518,7 +538,7 @@ Click on any deploy button above ⬆️ for instant deployment!
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> <span style="color: #FFFF00;">LICENSE & CREDITS</span> <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/> LICENSE & CREDITS <img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50"/>
 
 <img src="https://img.shields.io/badge/LICENSE-MIT-brightgreen?style=for-the-badge" height="40"/>
 
@@ -527,7 +547,7 @@ This project is licensed under the <b>MIT License</b><br>
 Feel free to use, modify, and distribute this bot!
 </p>
 
-<h3 style="color: #00FF00;">👨‍💻 Special Credits:</h3>
+<h3>👨‍💻 Special Credits:</h3>
 
 <table align="center">
   <tr>
@@ -550,13 +570,20 @@ Feel free to use, modify, and distribute this bot!
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=150&text=🕌%20بِسْمِ%20اللَّهِ%20الرَّحْمَٰنِ%20الرَّحِيمِ%20🕌&fontSize=35&fontColor=FFD700&fontAlign=50&fontAlignY=50" width="100%"/>
+<!-- ✅ FIX: Bismillah banner - type=rect for full width -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=120&text=🕌%20بِسْمِ%20اللَّهِ%20الرَّحْمَٰنِ%20الرَّحِيمِ%20🕌&fontSize=35&fontColor=FFD700&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="600">
 
-<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=1,2,3,4,5,6,7&height=120&text=✨%20ALLAH%20IS%20GREAT%20✨&fontSize=45&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
+<!-- ✅ FIX: Allah is Great - type=rect + darker gradient so WHITE text is fully visible -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=1,2,3,4,5,6&height=120&text=✨%20ALLAH%20IS%20GREAT%20✨&fontSize=48&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
-<img src="https://capsule-render.vercel.app/api?type=slice&color=gradient&customColorList=10,11,12,13,14,15&height=120&text=💚%20I%20LOVE%20PROPHET%20MUHAMMAD%20(ﷺ)%20💚&fontSize=38&fontColor=FFFFFF&animation=twinkling&rotate=0&fontAlignY=50" width="100%"/>
+<br>
+
+<!-- ✅ FIX: I Love Prophet Muhammad - type=rect + dark green gradient so text fully visible -->
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:006400,50:008000,100:006400&height=120&text=💚%20I%20LOVE%20PROPHET%20MUHAMMAD%20(ﷺ)%20💚&fontSize=36&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
+<br>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
@@ -568,7 +595,7 @@ Feel free to use, modify, and distribute this bot!
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
-<p style="color: #00FFFF; font-size: 24px; text-shadow: 0 0 20px #00FFFF; font-weight: bold;">
+<p style="color: #00FFFF; font-size: 24px; font-weight: bold;">
 🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
 </p>
 
