@@ -1,7 +1,9 @@
 name: yousaf-baloch-md
+
 services:
   - name: yousaf-baloch-md
-    type: web
+    # ✅ FIX: worker نہ کہ web — WhatsApp bot ہے website نہیں
+    type: worker
     git:
       branch: main
     docker:
@@ -17,9 +19,65 @@ services:
       - key: PREFIX
         value: "."
       - key: MODE
-        value: "public"
+        value: public
+      - key: APP_NAME
+        value: YOUSAF-BALOCH-MD
+      - key: TIMEZONE
+        value: Asia/Karachi
+      - key: LANGUAGE
+        value: en
+      - key: AUTO_READ
+        value: "false"
+      - key: AUTO_READ_STATUS
+        value: "true"
+      - key: AUTO_LIKE_STATUS
+        value: "true"
+      - key: AUTO_REACT
+        value: "false"
+      - key: ANTI_LINK
+        value: "false"
+      - key: ANTI_BAD
+        value: "false"
+      - key: ANTI_SPAM
+        value: "false"
+      - key: ANTI_CALL
+        value: "false"
+      - key: ANTI_VIEW_ONCE
+        value: "false"
+      - key: WELCOME
+        value: "false"
+      - key: GOODBYE
+        value: "false"
+      - key: MAX_WARN
+        value: "3"
+      - key: GEMINI_API_KEY
+        secret: GEMINI_API_KEY
+      - key: OPENWEATHER_KEY
+        secret: OPENWEATHER_KEY
+      - key: CRICKET_API_KEY
+        secret: CRICKET_API_KEY
+      - key: OMDB_API_KEY
+        secret: OMDB_API_KEY
+      - key: EXCHANGE_API_KEY
+        secret: EXCHANGE_API_KEY
+      - key: PIXABAY_KEY
+        value: "44996331-cd5ee38a4e4da3d32df5d0e7e"
+      - key: DEFAULT_CITY
+        value: Lahore
+      - key: DEFAULT_COUNTRY
+        value: Pakistan
+      - key: RAMADAN_AUTO_MSG
+        value: "true"
+      - key: START_BALANCE
+        value: "500"
+      - key: DAILY_REWARD
+        value: "200"
+      - key: ECONOMY_CURRENCY
+        value: Coins
+      - key: MONGODB_URI
+        secret: MONGODB_URI
     healthChecks:
-      - path: /
+      - path: /health
         port: 3000
     scaling:
       min: 1
