@@ -23,7 +23,6 @@ export const OWNER = Object.freeze({
   YEAR:      '2026',
   COUNTRY:   'Pakistan',
 
-  // ✅ FIX: TikTok link corrected
   YOUTUBE:  'https://www.youtube.com/@Yousaf_Baloch_Tech',
   TIKTOK:   'https://tiktok.com/@loser_boy.110',
   CHANNEL:  'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
@@ -63,6 +62,13 @@ export const CONFIG = {
   GOODBYE:  process.env.GOODBYE  === 'true',
   MAX_WARN: parseInt(process.env.MAX_WARN) || 3,
 
+  // ✅ DATABASE — MongoDB optional, JSON fallback auto
+  // If MONGODB_URI is empty or not set → uses local JSON database
+  // If MONGODB_URI is set → uses MongoDB
+  MONGODB_URI: process.env.MONGODB_URI || '',
+  DB_TYPE:     process.env.MONGODB_URI ? 'mongodb' : 'json',
+  DB_PATH:     process.env.DB_PATH || './database',
+
   // Deployment
   HEROKU_APP_NAME: process.env.HEROKU_APP_NAME || '',
   KEEP_ALIVE_URL:  process.env.KEEP_ALIVE_URL  || '',
@@ -90,8 +96,62 @@ export const SYSTEM = Object.freeze({
 });
 
 // ═══════════════════════════════════════════════════════════════════
-//  [SECTION 4]  ✅ NEW — ownerFooter() FUNCTION
-//  Used by all 160 plugins at the bottom of messages
+//  [SECTION 4]  ✅ DATABASE INITIALIZER
+//  Auto-selects MongoDB or JSON based on MONGODB_URI
+// ═══════════════════════════════════════════════════════════════════
+
+export async function initDatabase() {
+  if (CONFIG.DB_TYPE === 'mongodb' && CONFIG.MONGODB_URI) {
+    try {
+      const mongoose = await import('mongoose');
+      await mongoose.default.connect(CONFIG.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+      });
+      console.log('[DB] ✅ MongoDB connected successfully!');
+      return 'mongodb';
+    } catch (err) {
+      // ✅ If MongoDB fails → auto fallback to JSON
+      console.warn('[DB] ⚠️  MongoDB failed! Falling back to JSON database...');
+      console.warn('[DB] Reason: ' + err.message);
+      return initJsonDatabase();
+    }
+  } else {
+    return initJsonDatabase();
+  }
+}
+
+function initJsonDatabase() {
+  try {
+    const { existsSync, mkdirSync, writeFileSync } = require('fs');
+    const path = require('path');
+
+    const dbDir  = SYSTEM.DB_DIR;
+    const dbFile = path.join(dbDir, 'database.json');
+
+    if (!existsSync(dbDir)) mkdirSync(dbDir, { recursive: true });
+
+    if (!existsSync(dbFile)) {
+      writeFileSync(dbFile, JSON.stringify({
+        users  : {},
+        groups : {},
+        economy: {},
+        banned : [],
+        created: new Date().toISOString(),
+        owner  : OWNER.FULL_NAME,
+        bot    : OWNER.BOT_NAME,
+      }, null, 2));
+    }
+
+    console.log('[DB] ✅ JSON database ready at: ' + dbFile);
+    return 'json';
+  } catch (err) {
+    console.error('[DB] ❌ JSON database error: ' + err.message);
+    return 'json';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 5]  ✅ ownerFooter() FUNCTION
 // ═══════════════════════════════════════════════════════════════════
 
 export function ownerFooter() {
@@ -108,8 +168,7 @@ _⚡ ${OWNER.BOT_NAME} v${OWNER.VERSION}_`;
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  [SECTION 5]  ✅ NEW — isOwner() HELPER
-//  Use in any plugin: if (!isOwner(sender)) return
+//  [SECTION 6]  ✅ isOwner() HELPER
 // ═══════════════════════════════════════════════════════════════════
 
 export function isOwner(sender) {
@@ -117,7 +176,8 @@ export function isOwner(sender) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  STARTUP VALIDATOR
+//  [SECTION 7]  STARTUP VALIDATOR
+//  ✅ MongoDB NOT required — only SESSION_ID needed
 // ═══════════════════════════════════════════════════════════════════
 
 export function validateConfig() {
@@ -133,11 +193,16 @@ export function validateConfig() {
   }
 
   if (!CONFIG.SESSION_ID) {
-    warnings.push('SESSION_ID not set. Use YOUSAF-PAIRING-V1 to generate one.');
+    warnings.push('SESSION_ID not set. Get one from YOUSAF-PAIRING-V1.');
+  }
+
+  // ✅ MongoDB warning only — NOT an error — bot runs without it
+  if (!CONFIG.MONGODB_URI) {
+    warnings.push('MONGODB_URI not set. Using local JSON database — this is fine!');
   }
 
   warnings.forEach(w => console.warn(`[CONFIG WARN] ⚠️  ${w}`));
   return errors;
 }
 
-export default { OWNER, CONFIG, SYSTEM, ownerFooter, isOwner, validateConfig };
+export default { OWNER, CONFIG, SYSTEM, initDatabase, ownerFooter, isOwner, validateConfig };
