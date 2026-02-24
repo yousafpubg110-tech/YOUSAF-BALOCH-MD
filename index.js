@@ -17,24 +17,27 @@ import {
   makeInMemoryStore,
   proto,
 } from '@whiskeysockets/baileys';
-import { Boom }                    from '@hapi/boom';
-import pino                        from 'pino';
-import chalk                       from 'chalk';
-import figlet                      from 'figlet';
-import gradient                    from 'gradient-string';
+import { Boom }                                        from '@hapi/boom';
+import pino                                            from 'pino';
+import chalk                                           from 'chalk';
+import figlet                                          from 'figlet';
+import gradient                                        from 'gradient-string';
 import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
-import { join, dirname }           from 'path';
-import { fileURLToPath }           from 'url';
-import { createRequire }           from 'module';
+import { join, dirname }                               from 'path';
+import { fileURLToPath }                               from 'url';
+import { createRequire }                               from 'module';
 
-// ✅ FIX: Import config properly
-import { OWNER, CONFIG, SYSTEM, validateConfig, ownerFooter, isOwner as checkOwner } from './config.js';
+import {
+  OWNER,
+  CONFIG,
+  SYSTEM,
+  validateConfig,
+  initDatabase,
+  isOwner as checkOwner,
+} from './config.js';
 
-// ✅ FIX: Import cron jobs
 import { startCronJobs, registerCronGroup } from './lib/cron.js';
-
-// ✅ FIX: Import middleware
-import { runMiddleware } from './lib/middleware.js';
+import { runMiddleware }                    from './lib/middleware.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
@@ -46,8 +49,7 @@ const logger = pino({ level: 'silent' });
 const store = makeInMemoryStore({ logger });
 
 // ── Plugin Storage ───────────────────────────────────────────────────
-// ✅ FIX: Store handlers properly — matches our plugin export format
-const plugins = new Map(); // commandName → handler function
+const plugins = new Map();
 
 // ── Ensure directories exist ─────────────────────────────────────────
 [SYSTEM.SESSION_DIR, SYSTEM.TEMP_DIR, SYSTEM.PLUGINS_DIR, SYSTEM.DB_DIR, SYSTEM.LOGS_DIR].forEach(dir => {
@@ -60,10 +62,6 @@ const plugins = new Map(); // commandName → handler function
 
 // ═══════════════════════════════════════════════════════════════════
 //  🔌 PLUGIN LOADER SYSTEM
-//  ✅ FIX: Now supports our plugin export format:
-//    handler.command = /^(cmd1|cmd2)$/i
-//    handler.handler = async (m, { conn, ... }) => {}
-//    export default handler
 // ═══════════════════════════════════════════════════════════════════
 async function loadPlugins() {
   const pluginsDir = join(__dirname, SYSTEM.PLUGINS_DIR);
@@ -101,26 +99,17 @@ async function loadPlugins() {
         continue;
       }
 
-      // ✅ FIX: Support both formats:
-      // Format 1: handler.command = /^(cmd)$/i  (our new format)
-      // Format 2: handler.command = ['cmd1','cmd2'] (array format)
-      // Format 3: handler.command = 'cmd' (string format)
-
       let commandNames = [];
 
       if (handler.command instanceof RegExp) {
-        // Extract names from regex like /^(menu|help)$/i
         const regexStr = handler.command.source
           .replace('^(', '').replace(')$', '')
           .split('|');
         commandNames = regexStr.map(c => c.trim().toLowerCase());
-
       } else if (Array.isArray(handler.command)) {
         commandNames = handler.command.map(c => c.toLowerCase());
-
       } else if (typeof handler.command === 'string') {
         commandNames = [handler.command.toLowerCase()];
-
       } else if (Array.isArray(handler.help)) {
         commandNames = handler.help.map(c => c.toLowerCase());
       }
@@ -170,7 +159,7 @@ async function restoreSessionFromId(sessionPath) {
 // ═══════════════════════════════════════════════════════════════════
 //  🎨 ULTRA-PREMIUM TERMINAL UI
 // ═══════════════════════════════════════════════════════════════════
-function printBanner() {
+function printBanner(dbType = 'json') {
   console.clear();
 
   const fire    = gradient(['#FF0000', '#FF4500', '#FF8C00', '#FFD700']);
@@ -210,6 +199,14 @@ function printBanner() {
   console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
   console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
   console.log(label('  🕐  TIMEZONE  : ') + value(CONFIG.TIMEZONE));
+
+  // ✅ NEW: Show database type in banner
+  console.log(label('  🗄️  DATABASE   : ') + (
+    dbType === 'mongodb'
+      ? green('✅ MongoDB Connected')
+      : chalk.hex('#FFD700').bold('📁 JSON Local Database')
+  ));
+
   console.log(cyber(line) + '\n');
 }
 
@@ -232,12 +229,32 @@ const LOG = {
 //  🔌 BOT CONNECTION CORE
 // ═══════════════════════════════════════════════════════════════════
 async function startBot() {
-  printBanner();
+
+  // ✅ NEW: Init database FIRST — MongoDB or JSON auto fallback
+  // Bot will NEVER crash if MongoDB is missing
+  let dbType = 'json';
+  try {
+    dbType = await initDatabase();
+  } catch (dbErr) {
+    LOG.warn('Database init error — using JSON fallback: ' + dbErr.message);
+    dbType = 'json';
+  }
+
+  // ✅ Now print banner with DB status
+  printBanner(dbType);
 
   const configErrors = validateConfig();
   if (configErrors.length > 0) {
     configErrors.forEach(err => LOG.error(err));
     process.exit(1);
+  }
+
+  // ✅ Log database status
+  if (dbType === 'mongodb') {
+    LOG.success('Database: MongoDB connected!');
+  } else {
+    LOG.info('Database: Using local JSON database (database/database.json)');
+    LOG.info('To use MongoDB, set MONGODB_URI in your environment variables.');
   }
 
   await loadPlugins();
@@ -275,7 +292,6 @@ async function startBot() {
 
   store?.bind(sock.ev);
 
-  // ✅ FIX: Start cron jobs after connection
   sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
 
     if (connection === 'connecting') {
@@ -288,7 +304,6 @@ async function startBot() {
       LOG.success(`Logged in as: ${sock.user?.name || sock.user?.id}`);
       LOG.divider();
 
-      // ✅ FIX: Start cron jobs after bot is connected
       try {
         startCronJobs(sock);
         LOG.success('Cron jobs started — Prayer times, Ramadan alerts active!');
@@ -296,7 +311,6 @@ async function startBot() {
         LOG.warn('Cron jobs failed to start: ' + cronErr.message);
       }
 
-      // Send startup notification to owner
       try {
         const startupMsg =
 `╔══════════════════════════════════╗
@@ -309,6 +323,7 @@ async function startBot() {
 👑 *Owner:* ${OWNER.FULL_NAME}
 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
+🗄️ *Database:* ${dbType === 'mongodb' ? 'MongoDB ✅' : 'JSON Local 📁'}
 📅 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
 🔌 *Plugins:* ${plugins.size} commands loaded
 
@@ -346,7 +361,6 @@ async function startBot() {
 
   sock.ev.on('creds.update', saveCreds);
 
-  // ✅ FIX: Register groups for cron broadcasts
   sock.ev.on('groups.update', async (updates) => {
     for (const update of updates) {
       if (update.id) registerCronGroup(update.id);
@@ -372,7 +386,6 @@ async function startBot() {
 
 // ═══════════════════════════════════════════════════════════════════
 //  💬 MESSAGE HANDLER
-//  ✅ FIX: Full middleware integration + proper plugin calling
 // ═══════════════════════════════════════════════════════════════════
 async function handleMessage(sock, rawMsg) {
   const from    = rawMsg.key.remoteJid;
@@ -392,8 +405,6 @@ async function handleMessage(sock, rawMsg) {
     '';
 
   if (CONFIG.MODE === 'private' && !ownerCheck) return;
-
-  // ✅ FIX: Register group for cron broadcasts
   if (isGroup) registerCronGroup(from);
 
   const hasPrefix = body.startsWith(CONFIG.PREFIX);
@@ -406,8 +417,6 @@ async function handleMessage(sock, rawMsg) {
 
   LOG.msg(sender?.split('@')[0] || 'unknown', command);
 
-  // ── Build context object matching plugin expectations ──────────────
-  // ✅ FIX: All plugins expect (m, { conn, usedPrefix, command, text, args })
   const ctx = {
     conn       : sock,
     usedPrefix : CONFIG.PREFIX,
@@ -421,28 +430,17 @@ async function handleMessage(sock, rawMsg) {
     plugins,
   };
 
-  // ── Run middleware (ban/spam/rate limit checks) ────────────────────
   let groupMetadata = null;
   try {
     if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null);
   } catch (_) {}
 
-  // ── Built-in commands ──────────────────────────────────────────────
-  if (command === 'owner') {
-    await cmdOwner(sock, from);
-    return;
-  }
+  if (command === 'owner') { await cmdOwner(sock, from); return; }
+  if (command === 'alive' || command === 'ping') { await cmdAlive(sock, from); return; }
 
-  if (command === 'alive' || command === 'ping') {
-    await cmdAlive(sock, from);
-    return;
-  }
-
-  // ── Plugin routing ─────────────────────────────────────────────────
   if (plugins.has(command)) {
     const handler = plugins.get(command);
 
-    // ✅ FIX: Run middleware before plugin
     const mwResult = await runMiddleware({
       sender,
       from,
@@ -465,8 +463,6 @@ async function handleMessage(sock, rawMsg) {
     }
 
     try {
-      // ✅ FIX: Call plugin in the format it expects
-      // Our plugins use: handler(m, { conn, usedPrefix, command, text })
       if (typeof handler === 'function') {
         await handler(rawMsg, ctx);
       } else if (typeof handler.handler === 'function') {
@@ -474,7 +470,6 @@ async function handleMessage(sock, rawMsg) {
       } else if (typeof handler.run === 'function') {
         await handler.run(rawMsg, ctx);
       }
-
     } catch (pluginErr) {
       LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
       await sock.sendMessage(from, {
@@ -494,7 +489,6 @@ async function cmdOwner(sock, from) {
 ╚══════════════════════════════════════╝
 
 🌟 *Developer: ${OWNER.FULL_NAME}*
-
 📱 *WhatsApp:* wa.me/${OWNER.NUMBER}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
