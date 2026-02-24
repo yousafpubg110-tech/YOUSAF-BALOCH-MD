@@ -18,10 +18,13 @@ auth_info_baileys/
 session.json
 creds.json
 
-# Database files
+# Database files — JSON + MongoDB
 database/
+data/
 *.db
 *.sqlite
+*.backup
+*.tmp
 
 # Logs
 logs/
@@ -47,7 +50,6 @@ desktop.ini
 # Temporary files
 tmp/
 temp/
-*.tmp
 *.cache
 
 # Media — downloaded files
