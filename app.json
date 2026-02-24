@@ -153,8 +153,13 @@
       "value": "Coins",
       "required": false
     },
+    "DB_PATH": {
+      "description": "🗃️ Local JSON database path — used when MongoDB is not set | YOUSAF-BALOCH-MD",
+      "value": "./database",
+      "required": false
+    },
     "MONGODB_URI": {
-      "description": "🗄️ MongoDB connection string (optional — JSON used by default) | YOUSAF-BALOCH-MD",
+      "description": "🗄️ MongoDB URI (OPTIONAL) — Leave empty to use local JSON database automatically. Bot runs fine without this! | YOUSAF-BALOCH-MD",
       "value": "",
       "required": false
     },
