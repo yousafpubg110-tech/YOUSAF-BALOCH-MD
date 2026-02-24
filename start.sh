@@ -2,6 +2,7 @@
 # ╔══════════════════════════════════════════════════════════════════╗
 # ║   YOUSAF-BALOCH-MD — Universal Start Script                     ║
 # ║   Created by: Muhammad Yousaf Baloch                            ║
+# ║   WhatsApp: +923710636110                                        ║
 # ╚══════════════════════════════════════════════════════════════════╝
 
 set -e
@@ -9,9 +10,10 @@ set -e
 echo ""
 echo "  ⚡ YOUSAF-BALOCH-MD — Starting Bot..."
 echo "  👑 Created by: Muhammad Yousaf Baloch"
+echo "  📱 WhatsApp: +923710636110"
 echo ""
 
-# Check Node.js version
+# ── Check Node.js version ────────────────────────────────────────────
 NODE_VER=$(node -v | cut -c2- | cut -d. -f1)
 if [ "$NODE_VER" -lt 18 ]; then
   echo "  ❌ ERROR: Node.js 18+ required. You have $(node -v)"
@@ -21,13 +23,14 @@ fi
 
 echo "  ✅ Node.js version: $(node -v)"
 
-# Install dependencies if node_modules missing
+# ── Install dependencies if missing ─────────────────────────────────
 if [ ! -d "node_modules" ]; then
   echo "  📦 Installing dependencies..."
   npm install --no-audit --no-fund --legacy-peer-deps
+  echo "  ✅ Dependencies installed!"
 fi
 
-# Check SESSION_ID
+# ── Check SESSION_ID ─────────────────────────────────────────────────
 if [ -z "$SESSION_ID" ] && [ ! -f ".env" ]; then
   echo ""
   echo "  ⚠️  WARNING: SESSION_ID not found!"
@@ -36,17 +39,24 @@ if [ -z "$SESSION_ID" ] && [ ! -f ".env" ]; then
   echo ""
 fi
 
-# Create required directories
-mkdir -p sessions/auth temp plugins
+# ✅ FIX: Directories match config.js exactly
+# SESSION_DIR = './session'
+# TEMP_DIR    = './temp'
+# PLUGINS_DIR = './plugins'
+# DB_DIR      = './database'
+# LOGS_DIR    = './logs'
+mkdir -p session temp plugins database logs lib
 
+echo "  ✅ Directories ready!"
 echo "  🚀 Launching YOUSAF-BALOCH-MD..."
 echo ""
 
-# Start bot with auto-restart
+# ── Auto-restart loop ────────────────────────────────────────────────
 while true; do
   node index.js || {
     echo ""
-    echo "  ⚠️  Bot crashed. Restarting in 5 seconds..."
+    echo "  ⚠️  Bot crashed! Restarting in 5 seconds..."
+    echo "  👑 YOUSAF-BALOCH-MD by Muhammad Yousaf Baloch"
     sleep 5
   }
 done
