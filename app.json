@@ -154,23 +154,23 @@
       "required": false
     },
     "DB_PATH": {
-      "description": "🗃️ Local JSON database path — used when MongoDB is not set | YOUSAF-BALOCH-MD",
+      "description": "🗃️ Local JSON database path | YOUSAF-BALOCH-MD",
       "value": "./database",
       "required": false
     },
     "MONGODB_URI": {
-      "description": "🗄️ MongoDB URI (OPTIONAL) — Leave empty to use local JSON database automatically. Bot runs fine without this! | YOUSAF-BALOCH-MD",
+      "description": "🗄️ MongoDB URI — OPTIONAL! Leave empty, bot runs fine without it! | YOUSAF-BALOCH-MD",
       "value": "",
       "required": false
     },
     "HEROKU_APP_NAME": {
-      "description": "☁️ Heroku app name for keep-alive | YOUSAF-BALOCH-MD",
+      "description": "☁️ Your Heroku app name e.g. khan110 | YOUSAF-BALOCH-MD",
       "value": "",
       "required": false
     }
   },
   "formation": {
-    "worker": {
+    "web": {
       "quantity": 1,
       "size": "basic"
     }
@@ -180,5 +180,5 @@
       "url": "heroku/nodejs"
     }
   ],
-  "stack": "heroku-22"
+  "stack": "heroku-24"
 }
