@@ -2,8 +2,6 @@
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║         YOUSAF-BALOCH-MD — MAIN BOT ENGINE                      ║
  * ║         Created by: Muhammad Yousaf Baloch                      ║
- * ║         WhatsApp: +923710636110                                  ║
- * ║         GitHub: https://github.com/musakhanbaloch03-sad         ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 
@@ -14,7 +12,6 @@ import {
   fetchLatestBaileysVersion,
   Browsers,
   makeCacheableSignalKeyStore,
-  makeInMemoryStore,
   proto,
 } from '@whiskeysockets/baileys';
 import { Boom }                                        from '@hapi/boom';
@@ -26,6 +23,7 @@ import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { join, dirname }                               from 'path';
 import { fileURLToPath }                               from 'url';
 import { createRequire }                               from 'module';
+import express                                         from 'express';
 
 import {
   OWNER,
@@ -42,11 +40,17 @@ import { runMiddleware }                    from './lib/middleware.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
 
+// ── FIX: Express server for Heroku PORT binding ──────────────────────
+const app  = express();
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('YOUSAF-BALOCH-MD is running! ✅'));
+app.listen(PORT, () => console.log(`✅ Express server running on port ${PORT}`));
+
 // ── Silent Baileys Logger ────────────────────────────────────────────
 const logger = pino({ level: 'silent' });
 
-// ── In-memory store ──────────────────────────────────────────────────
-const store = makeInMemoryStore({ logger });
+// ── FIX: Custom message cache (makeInMemoryStore ہٹا دیا) ───────────
+const messageCache = new Map();
 
 // ── Plugin Storage ───────────────────────────────────────────────────
 const plugins = new Map();
@@ -157,7 +161,7 @@ async function restoreSessionFromId(sessionPath) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  🎨 ULTRA-PREMIUM TERMINAL UI
+//  🎨 TERMINAL BANNER
 // ═══════════════════════════════════════════════════════════════════
 function printBanner(dbType = 'json') {
   console.clear();
@@ -199,8 +203,6 @@ function printBanner(dbType = 'json') {
   console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
   console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
   console.log(label('  🕐  TIMEZONE  : ') + value(CONFIG.TIMEZONE));
-
-  // ✅ NEW: Show database type in banner
   console.log(label('  🗄️  DATABASE   : ') + (
     dbType === 'mongodb'
       ? green('✅ MongoDB Connected')
@@ -230,8 +232,6 @@ const LOG = {
 // ═══════════════════════════════════════════════════════════════════
 async function startBot() {
 
-  // ✅ NEW: Init database FIRST — MongoDB or JSON auto fallback
-  // Bot will NEVER crash if MongoDB is missing
   let dbType = 'json';
   try {
     dbType = await initDatabase();
@@ -240,7 +240,6 @@ async function startBot() {
     dbType = 'json';
   }
 
-  // ✅ Now print banner with DB status
   printBanner(dbType);
 
   const configErrors = validateConfig();
@@ -249,12 +248,10 @@ async function startBot() {
     process.exit(1);
   }
 
-  // ✅ Log database status
   if (dbType === 'mongodb') {
     LOG.success('Database: MongoDB connected!');
   } else {
-    LOG.info('Database: Using local JSON database (database/database.json)');
-    LOG.info('To use MongoDB, set MONGODB_URI in your environment variables.');
+    LOG.info('Database: Using local JSON database');
   }
 
   await loadPlugins();
@@ -281,16 +278,12 @@ async function startBot() {
     markOnlineOnConnect           : true,
     generateHighQualityLinkPreview: true,
     syncFullHistory               : false,
-    getMessage                    : async (key) => {
-      if (store) {
-        const msg = await store.loadMessage(key.remoteJid, key.id);
-        return msg?.message || undefined;
-      }
-      return proto.Message.fromObject({});
+    // FIX: messageCache use کریں
+    getMessage: async (key) => {
+      const cached = messageCache.get(`${key.remoteJid}_${key.id}`);
+      return cached || proto.Message.fromObject({});
     },
   });
-
-  store?.bind(sock.ev);
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
 
@@ -306,7 +299,7 @@ async function startBot() {
 
       try {
         startCronJobs(sock);
-        LOG.success('Cron jobs started — Prayer times, Ramadan alerts active!');
+        LOG.success('Cron jobs started!');
       } catch (cronErr) {
         LOG.warn('Cron jobs failed to start: ' + cronErr.message);
       }
@@ -367,11 +360,21 @@ async function startBot() {
     }
   });
 
+  // FIX: messages cache میں save کریں
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return;
 
     for (const msg of messages) {
       if (!msg.message) continue;
+
+      // Cache میں save کریں
+      if (msg.key?.remoteJid && msg.key?.id) {
+        messageCache.set(`${msg.key.remoteJid}_${msg.key.id}`, msg.message);
+        if (messageCache.size > 500) {
+          const firstKey = messageCache.keys().next().value;
+          messageCache.delete(firstKey);
+        }
+      }
 
       try {
         await handleMessage(sock, msg);
