@@ -64,9 +64,9 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
   // ✅ FIX: conn.getName replaced with working alternative
   const name = conn.contacts?.[m.sender]?.name ||
-               conn.contacts?.[m.sender]?.notify ||
-               m.sender.split('@')[0] ||
-               'Friend';
+             conn.contacts?.[m.sender]?.notify ||
+             m.sender?.split('@')[0] ||
+             'Friend';
 
   const totalreg   = Object.keys(global.db?.data?.users || {}).length;
   const rtotalreg  = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
