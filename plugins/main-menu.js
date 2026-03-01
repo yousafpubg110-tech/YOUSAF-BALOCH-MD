@@ -20,38 +20,38 @@ function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
 
   if (hour >= 5  && hour < 12) return {
-    label  : '🌅 صبح کا وقت',
+    label  : '🌅 Morning Time',
     emoji  : '🌅',
     mode   : 'MORNING',
-    greet  : 'صبح بخیر! Good Morning!',
-    dua    : 'اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا',
+    greet  : 'Good Morning!',
+    dua    : 'Allahumma bika asbahna wa bika amsayna',
     border : '━',
     color  : '🌤️',
   };
   if (hour >= 12 && hour < 16) return {
-    label  : '☀️ دوپہر کا وقت',
+    label  : '☀️ Afternoon Time',
     emoji  : '☀️',
     mode   : 'AFTERNOON',
-    greet  : 'دوپہر بخیر! Good Afternoon!',
-    dua    : 'سُبْحَانَ اللهِ وَبِحَمْدِهِ',
+    greet  : 'Good Afternoon!',
+    dua    : 'Subhan Allahi wa bihamdihi',
     border : '─',
     color  : '☀️',
   };
   if (hour >= 16 && hour < 20) return {
-    label  : '🌆 شام کا وقت',
+    label  : '🌆 Evening Time',
     emoji  : '🌆',
     mode   : 'EVENING',
-    greet  : 'شام بخیر! Good Evening!',
-    dua    : 'اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا',
+    greet  : 'Good Evening!',
+    dua    : 'Allahumma bika amsayna wa bika asbahna',
     border : '═',
     color  : '🌇',
   };
   return {
-    label  : '🌙 رات کا وقت',
+    label  : '🌙 Night Time',
     emoji  : '🌙',
     mode   : 'NIGHT',
-    greet  : 'رات بخیر! Good Night!',
-    dua    : 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+    greet  : 'Good Night!',
+    dua    : 'Bismika Allahumma amutu wa ahya',
     border : '◈',
     color  : '🌌',
   };
@@ -61,7 +61,13 @@ function getTimeMode() {
 let handler = async (m, { conn, usedPrefix, command, text }) => {
 
   const user       = global.db?.data?.users?.[m.sender] || {};
-  const name       = await conn.getName(m.sender) || 'Friend';
+
+  // ✅ FIX: conn.getName replaced with working alternative
+  const name = conn.contacts?.[m.sender]?.name ||
+               conn.contacts?.[m.sender]?.notify ||
+               m.sender.split('@')[0] ||
+               'Friend';
+
   const totalreg   = Object.keys(global.db?.data?.users || {}).length;
   const rtotalreg  = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
 
@@ -306,7 +312,7 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ┃ ▸ 🔄 *Converters*
 ┃ ${pfx}convert <value> <unit>
 ┃  _Example: ${pfx}convert 100 km_
-┃  _Units: km miles kg lb °C °F mph_
+┃  _Units: km miles kg lb C F mph_
 ┃ ${pfx}currency <amt> <FROM> <TO>
 ┃  _Example: ${pfx}currency 100 USD PKR_
 ┃
@@ -537,13 +543,13 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 🔄 *CONVERTER MENU* 』━━━━╮
-┃ ${pfx}toaudio          » Video → MP3
-┃ ${pfx}togif <sec>      » Video → GIF
-┃ ${pfx}toimg            » Sticker → PNG
-┃ ${pfx}pdf <title>      » Image → PDF
-┃ ${pfx}tts <lang> <text>» Text → Voice
-┃ ${pfx}short <url>      » Long → Short URL
-┃ ${pfx}qr <text>        » Text → QR Code
+┃ ${pfx}toaudio          » Video to MP3
+┃ ${pfx}togif <sec>      » Video to GIF
+┃ ${pfx}toimg            » Sticker to PNG
+┃ ${pfx}pdf <title>      » Image to PDF
+┃ ${pfx}tts <lang> <text>» Text to Voice
+┃ ${pfx}short <url>      » Long to Short URL
+┃ ${pfx}qr <text>        » Text to QR Code
 ┃ ${pfx}convert <v> <unit>» Unit Convert
 ┃ ${pfx}currency <a> <F> <T>» Currency
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
@@ -625,6 +631,6 @@ _+${OWNER.NUMBER}_
 
 handler.help    = ['menu', 'help', 'commands', 'allmenu', 'list'];
 handler.tags    = ['main'];
-handler.command = /^(menu|help|commands|allmenu|list|م|مینیو)$/i;
+handler.command = /^(menu|help|commands|allmenu|list)$/i;
 
 export default handler;
