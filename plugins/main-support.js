@@ -23,32 +23,25 @@ function getFAQ() {
   ];
 }
 
-// ─── Plugin Export ───────────────────────────────────────────────────────────
-export default {
-  command    : ['support', 'help', 'assist', 'contact'],
-  name       : 'support',
-  category   : 'Info',
-  description: 'Show support links, FAQ and contact info',
-  usage      : '.support',
-  cooldown   : 10,
+// ─── Handler ─────────────────────────────────────────────────────────────────
+let handler = async (m, { conn }) => {
+  try {
 
-  handler: async ({ sock, msg, from, sender }) => {
-    try {
+    // ✅ FIX: conn + m format (bot system ke mutabiq)
+    await conn.sendMessage(m.chat, { react: { text: '🆘', key: m.key } });
 
-      // ✅ FIX: react via sock.sendMessage instead of msg.react()
-      await sock.sendMessage(from, { react: { text: '🆘', key: msg.key } });
+    const sender    = m.sender || m.key?.participant || m.key?.remoteJid || '';
+    const senderNum = sender.split('@')[0] || 'User';
+    const year      = OWNER.YEAR || new Date().getFullYear();
+    const faqList   = getFAQ();
 
-      const senderNum = sender?.split('@')[0] || 'User';
-      const year      = OWNER.YEAR || new Date().getFullYear();
-      const faqList   = getFAQ();
+    // ── Build FAQ section ─────────────────────────────────────────
+    const faqSection = faqList.map((item, i) =>
+      `│ *${i + 1}. ${item.q}*\n│    ↳ ${item.a}`
+    ).join('\n│\n');
 
-      // ── Build FAQ section ───────────────────────────────────────
-      const faqSection = faqList.map((item, i) =>
-        `│ *${i + 1}. ${item.q}*\n│    ↳ ${item.a}`
-      ).join('\n│\n');
-
-      // ── Build support message ───────────────────────────────────
-      const supportMsg = `
+    // ── Build support message ─────────────────────────────────────
+    const supportMsg = `
 ╭━━━『 🆘 *SUPPORT & HELP* 』━━━╮
 
 👋 *Hello +${senderNum}!*
@@ -103,32 +96,30 @@ _Developed by ${OWNER.FULL_NAME}_
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 `.trim();
 
-      // ── Send support message ────────────────────────────────────
-      await sock.sendMessage(from, {
-        text: supportMsg,
-      }, { quoted: msg });
+    // ── Send support message ──────────────────────────────────────
+    await conn.sendMessage(m.chat, { text: supportMsg }, { quoted: m });
 
-      // ── Send channel link separately ────────────────────────────
-      await sock.sendMessage(from, {
-        text: `📢 *Join our WhatsApp Channel for instant support:*\n${OWNER.CHANNEL}`,
-      }, { quoted: msg });
+    // ── Send channel link separately ──────────────────────────────
+    await conn.sendMessage(m.chat, {
+      text: `📢 *Join our WhatsApp Channel for instant support:*\n${OWNER.CHANNEL}`,
+    }, { quoted: m });
 
-      // ✅ FIX: react via sock.sendMessage instead of msg.react()
-      await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
+    // ✅ FIX: react done
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
-    } catch (error) {
-      console.error('[SUPPORT ERROR]:', error.message);
-      try {
-        // ✅ FIX: react via sock.sendMessage instead of msg.react()
-        await sock.sendMessage(from, { react: { text: '❌', key: msg.key } });
-        if (typeof msg.reply === 'function') {
-          await msg.reply('❌ Support command error: ' + error.message);
-        } else {
-          await sock.sendMessage(from, {
-            text: '❌ Support command error: ' + error.message,
-          }, { quoted: msg });
-        }
-      } catch (_) {}
-    }
-  },
+  } catch (error) {
+    console.error('[SUPPORT ERROR]:', error.message);
+    try {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+      await conn.sendMessage(m.chat, {
+        text: '❌ Support command error: ' + error.message,
+      }, { quoted: m });
+    } catch (_) {}
+  }
 };
+
+handler.help    = ['support', 'help', 'assist', 'contact'];
+handler.tags    = ['info'];
+handler.command = /^(support|assist|contact)$/i;
+
+export default handler;
