@@ -60,14 +60,17 @@ function getTimeMode() {
 // ─── Handler ──────────────────────────────────────────────────────────────────
 let handler = async (m, { conn, usedPrefix, command, text }) => {
 
-  const user       = global.db?.data?.users?.[m.sender] || {};
+  // ✅ FIX: Safety check — m.chat یا m.sender undefined ہو تو stop
+  if (!m || !m.chat || !m.key) return;
 
-  // ✅ FIX: conn.getName replaced with working alternative
+  const user = global.db?.data?.users?.[m.sender] || {};
+
+  // ✅ FIX: Safe sender + name
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
-const name = conn.contacts?.[sender]?.name ||
-             conn.contacts?.[sender]?.notify ||
-             sender?.split('@')[0] ||
-             'Friend';
+  const name   = conn.contacts?.[sender]?.name ||
+                 conn.contacts?.[sender]?.notify ||
+                 (sender ? sender.split('@')[0] : 'Friend') ||
+                 'Friend';
 
   const totalreg   = Object.keys(global.db?.data?.users || {}).length;
   const rtotalreg  = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
