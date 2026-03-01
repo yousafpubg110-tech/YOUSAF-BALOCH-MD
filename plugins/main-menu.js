@@ -63,9 +63,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   const user       = global.db?.data?.users?.[m.sender] || {};
 
   // ✅ FIX: conn.getName replaced with working alternative
-  const name = conn.contacts?.[m.sender]?.name ||
-             conn.contacts?.[m.sender]?.notify ||
-             m.sender?.split('@')[0] ||
+  const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
+const name = conn.contacts?.[sender]?.name ||
+             conn.contacts?.[sender]?.notify ||
+             sender?.split('@')[0] ||
              'Friend';
 
   const totalreg   = Object.keys(global.db?.data?.users || {}).length;
