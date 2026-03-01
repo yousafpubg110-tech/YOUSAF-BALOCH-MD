@@ -1,8 +1,7 @@
 /*
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 ┃   YOUSAF-BALOCH-MD — Ultra Pro Max Menu    ┃
-┃        Created by MR YOUSAF BALOCH         ┃
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+┃        Created by MR YOUSAF BALOCH         ┰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
  📱 WhatsApp : +923710636110
  📺 YouTube  : https://www.youtube.com/@Yousaf_Baloch_Tech
  🎵 TikTok   : https://tiktok.com/@loser_boy.110
@@ -63,17 +62,19 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   // ✅ FIX: Safety check — m.chat یا m.sender undefined ہو تو stop
   if (!m || !m.chat || !m.key) return;
 
+  // ← CHANGED: Safe global.db access with fallback
   const user = global.db?.data?.users?.[m.sender] || {};
 
-  // ✅ FIX: Safe sender + name
+  // ← CHANGED: Safe sender + name extraction without conn.contacts
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
-  const name   = conn.contacts?.[sender]?.name ||
-                 conn.contacts?.[sender]?.notify ||
-                 (sender ? sender.split('@')[0] : 'Friend') ||
-                 'Friend';
+  
+  // ← CHANGED: Get name from m.pushName (Baileys provides this) or fallback to sender number
+  const name = m.pushName || 
+               (sender ? sender.split('@')[0] : 'Friend');
 
-  const totalreg   = Object.keys(global.db?.data?.users || {}).length;
-  const rtotalreg  = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
+  // ← CHANGED: Safe user count with fallback
+  const totalreg   = global.db?.data?.users ? Object.keys(global.db.data.users).length : 0;
+  const rtotalreg  = global.db?.data?.users ? Object.values(global.db.data.users).filter(u => u.registered).length : 0;
 
   const time    = moment.tz('Asia/Karachi').format('hh:mm:ss A');
   const date    = moment.tz('Asia/Karachi').format('DD MMMM YYYY');
@@ -604,28 +605,10 @@ _+${OWNER.NUMBER}_
 
   // ── Send with thumbnail ───────────────────────────────────────────────────
   try {
+    // ← CHANGED: Removed buttons (not supported in Baileys v6+), use simple image + caption
     await conn.sendMessage(m.chat, {
       image  : { url: global.thumb || 'https://i.ibb.co/your-thumb-url/thumb.jpg' },
       caption: menu,
-      footer : `© ${OWNER.FULL_NAME} — ${OWNER.BOT_NAME}`,
-      buttons: [
-        {
-          buttonId  : `${pfx}owner`,
-          buttonText: { displayText: `👑 ${OWNER.FULL_NAME}` },
-          type      : 1,
-        },
-        {
-          buttonId  : `${pfx}script`,
-          buttonText: { displayText: '📜 Get Script' },
-          type      : 1,
-        },
-        {
-          buttonId  : `${pfx}ping`,
-          buttonText: { displayText: '⚡ Bot Speed' },
-          type      : 1,
-        },
-      ],
-      headerType: 4,
     }, { quoted: m });
   } catch (_) {
     // Fallback: send without image
@@ -638,3 +621,4 @@ handler.tags    = ['main'];
 handler.command = /^(menu|help|commands|allmenu|list)$/i;
 
 export default handler;
+   
