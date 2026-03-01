@@ -35,8 +35,8 @@ export default {
   handler: async ({ sock, msg, from, sender }) => {
     try {
 
-      // ── React: loading ──────────────────────────────────────────
-      if (typeof msg.react === 'function') await msg.react('🆘');
+      // ✅ FIX: react via sock.sendMessage instead of msg.react()
+      await sock.sendMessage(from, { react: { text: '🆘', key: msg.key } });
 
       const senderNum = sender?.split('@')[0] || 'User';
       const year      = OWNER.YEAR || new Date().getFullYear();
@@ -113,13 +113,14 @@ _Developed by ${OWNER.FULL_NAME}_
         text: `📢 *Join our WhatsApp Channel for instant support:*\n${OWNER.CHANNEL}`,
       }, { quoted: msg });
 
-      // ── React: done ─────────────────────────────────────────────
-      if (typeof msg.react === 'function') await msg.react('✅');
+      // ✅ FIX: react via sock.sendMessage instead of msg.react()
+      await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
 
     } catch (error) {
       console.error('[SUPPORT ERROR]:', error.message);
       try {
-        if (typeof msg.react === 'function') await msg.react('❌');
+        // ✅ FIX: react via sock.sendMessage instead of msg.react()
+        await sock.sendMessage(from, { react: { text: '❌', key: msg.key } });
         if (typeof msg.reply === 'function') {
           await msg.reply('❌ Support command error: ' + error.message);
         } else {
