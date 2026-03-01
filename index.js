@@ -37,6 +37,9 @@ import {
 import { startCronJobs, registerCronGroup } from './lib/cron.js';
 import { runMiddleware }                    from './lib/middleware.js';
 
+// ✅ FIX: serialize import add کیا
+import { serialize }                        from './lib/serialize.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
 
@@ -278,7 +281,6 @@ async function startBot() {
     markOnlineOnConnect           : true,
     generateHighQualityLinkPreview: true,
     syncFullHistory               : false,
-    // FIX: messageCache use کریں
     getMessage: async (key) => {
       const cached = messageCache.get(`${key.remoteJid}_${key.id}`);
       return cached || proto.Message.fromObject({});
@@ -360,14 +362,12 @@ async function startBot() {
     }
   });
 
-  // FIX: messages cache میں save کریں
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return;
 
     for (const msg of messages) {
       if (!msg.message) continue;
 
-      // Cache میں save کریں
       if (msg.key?.remoteJid && msg.key?.id) {
         messageCache.set(`${msg.key.remoteJid}_${msg.key.id}`, msg.message);
         if (messageCache.size > 500) {
@@ -420,6 +420,10 @@ async function handleMessage(sock, rawMsg) {
 
   LOG.msg(sender?.split('@')[0] || 'unknown', command);
 
+  // ✅ FIX: serialize rawMsg so m.reply, m.sender, m.react all work
+  const m = serialize(sock, rawMsg);
+  if (!m) return;
+
   const ctx = {
     conn       : sock,
     usedPrefix : CONFIG.PREFIX,
@@ -429,7 +433,7 @@ async function handleMessage(sock, rawMsg) {
     isOwner    : ownerCheck,
     isGroup,
     from,
-    sender,
+    sender     : m.sender,
     plugins,
   };
 
@@ -466,12 +470,13 @@ async function handleMessage(sock, rawMsg) {
     }
 
     try {
+      // ✅ FIX: rawMsg کی جگہ m بھیجیں تاکہ m.reply کام کرے
       if (typeof handler === 'function') {
-        await handler(rawMsg, ctx);
+        await handler(m, ctx);
       } else if (typeof handler.handler === 'function') {
-        await handler.handler(rawMsg, ctx);
+        await handler.handler(m, ctx);
       } else if (typeof handler.run === 'function') {
-        await handler.run(rawMsg, ctx);
+        await handler.run(m, ctx);
       }
     } catch (pluginErr) {
       LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
