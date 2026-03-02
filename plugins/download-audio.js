@@ -55,12 +55,12 @@ ${SYSTEM.SHORT_WATERMARK}`);
         videoInfo = search;
       }
 
-      const title   = videoInfo.title        || 'Unknown';
-      const artist  = videoInfo.author?.name  || 'Unknown';
-      const duration= videoInfo.timestamp    || '?';
-      const views   = formatNumber(videoInfo.views || 0);
-      const ago     = videoInfo.ago          || '';
-      const thumb   = videoInfo.thumbnail    || videoInfo.image || '';
+      const title    = videoInfo.title        || 'Unknown';
+      const artist   = videoInfo.author?.name || 'Unknown';
+      const duration = videoInfo.timestamp    || '?';
+      const views    = formatNumber(videoInfo.views || 0);
+      const ago      = videoInfo.ago          || '';
+      const thumb    = videoInfo.thumbnail    || videoInfo.image || '';
 
       const caption = `╭━━━『 🎵 *YOUTUBE AUDIO* 』━━━╮
 
@@ -84,35 +84,40 @@ ${SYSTEM.SHORT_WATERMARK}`;
 
       await msg.react('⬇️');
 
-      // ✅ FIX: cobalt.tools API — Heroku پر کام کرتی ہے
+      // ✅ cobalt.tools API — fixed
       const cobaltRes = await axios.post('https://api.cobalt.tools/', {
-        url         : videoUrl,
-        downloadMode: 'audio',
-        audioFormat : 'mp3',
-        audioBitrate: '128',
+        url          : videoUrl,
+        downloadMode : 'audio',
+        audioFormat  : 'mp3',
+        audioBitrate : '128',
+        filenameStyle: 'basic',
       }, {
         headers: {
           'Accept'      : 'application/json',
           'Content-Type': 'application/json',
+          'User-Agent'  : 'Mozilla/5.0',
         },
         timeout: 30000,
       });
 
-      if (!cobaltRes.data?.url) {
+      const downloadUrl = cobaltRes.data?.url || cobaltRes.data?.audio;
+      if (!downloadUrl) {
         await msg.react('❌');
         return await msg.reply('❌ Audio download ناکام! دوبارہ try کریں۔');
       }
 
-      const audioRes = await axios.get(cobaltRes.data.url, {
+      // ✅ Direct audio download — URL نہیں، سیدھا audio
+      const audioRes = await axios.get(downloadUrl, {
         responseType: 'arraybuffer',
         timeout     : 60000,
+        headers     : { 'User-Agent': 'Mozilla/5.0' },
       });
 
       const audioBuffer = Buffer.from(audioRes.data);
 
       if (!audioBuffer || audioBuffer.length === 0) {
         await msg.react('❌');
-        return await msg.reply('❌ Audio download ناکام! دوبارہ try کریں۔');
+        return await msg.reply('❌ Audio download ناکام!');
       }
 
       let thumbnailBuffer = Buffer.from('');
@@ -123,9 +128,10 @@ ${SYSTEM.SHORT_WATERMARK}`;
         } catch (_) {}
       }
 
+      // ✅ سیدھا audio بھیجیں
       await sock.sendMessage(from, {
         audio   : audioBuffer,
-        mimetype: 'audio/mp4',
+        mimetype: 'audio/mpeg',
         ptt     : false,
         contextInfo: {
           externalAdReply: {
