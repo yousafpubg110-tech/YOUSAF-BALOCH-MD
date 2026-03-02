@@ -36,14 +36,12 @@ import {
 
 import { startCronJobs, registerCronGroup } from './lib/cron.js';
 import { runMiddleware }                    from './lib/middleware.js';
-
-// ✅ FIX: serialize import add کیا
 import { serialize }                        from './lib/serialize.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
 
-// ── FIX: Express server for Heroku PORT binding ──────────────────────
+// ── Express server for Heroku ───────────────────────────────────────
 const app  = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('YOUSAF-BALOCH-MD is running! ✅'));
@@ -52,7 +50,7 @@ app.listen(PORT, () => console.log(`✅ Express server running on port ${PORT}`)
 // ── Silent Baileys Logger ────────────────────────────────────────────
 const logger = pino({ level: 'silent' });
 
-// ── FIX: Custom message cache (makeInMemoryStore ہٹا دیا) ───────────
+// ── Message Cache ────────────────────────────────────────────────────
 const messageCache = new Map();
 
 // ── Plugin Storage ───────────────────────────────────────────────────
@@ -98,27 +96,46 @@ async function loadPlugins() {
     try {
       const pluginPath = join(pluginsDir, file);
       const mod        = await import(`file://${pluginPath}`);
-      const handler    = mod.default;
+      const plugin     = mod.default;
 
-      if (!handler) {
+      if (!plugin) {
         LOG.warn(`No default export in ${file}`);
         failed++;
         continue;
       }
 
+      // ← CHANGED: Support multiple plugin formats
       let commandNames = [];
+      let handler = plugin;
 
-      if (handler.command instanceof RegExp) {
-        const regexStr = handler.command.source
-          .replace('^(', '').replace(')$', '')
-          .split('|');
-        commandNames = regexStr.map(c => c.trim().toLowerCase());
-      } else if (Array.isArray(handler.command)) {
-        commandNames = handler.command.map(c => c.toLowerCase());
-      } else if (typeof handler.command === 'string') {
-        commandNames = [handler.command.toLowerCase()];
-      } else if (Array.isArray(handler.help)) {
-        commandNames = handler.help.map(c => c.toLowerCase());
+      // Format 1: Object with command property (like video.js)
+      if (plugin.command) {
+        if (plugin.command instanceof RegExp) {
+          const regexStr = plugin.command.source.replace('^(', '').replace(')$', '').split('|');
+          commandNames = regexStr.map(c => c.trim().toLowerCase());
+        } else if (Array.isArray(plugin.command)) {
+          commandNames = plugin.command.map(c => c.toLowerCase());
+        } else if (typeof plugin.command === 'string') {
+          commandNames = [plugin.command.toLowerCase()];
+        }
+        
+        // Store the entire plugin object, not just handler
+        handler = plugin;
+      }
+      // Format 2: Object with help property
+      else if (Array.isArray(plugin.help)) {
+        commandNames = plugin.help.map(c => c.toLowerCase());
+      }
+      // Format 3: Direct function (legacy)
+      else if (typeof plugin === 'function') {
+        // Try to get command from function properties
+        if (plugin.command) {
+          if (Array.isArray(plugin.command)) {
+            commandNames = plugin.command.map(c => c.toLowerCase());
+          } else {
+            commandNames = [plugin.command.toLowerCase()];
+          }
+        }
       }
 
       if (commandNames.length === 0) {
@@ -142,7 +159,7 @@ async function loadPlugins() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  🔑 SESSION RESTORATION FROM SESSION_ID
+//  🔑 SESSION RESTORATION
 // ═══════════════════════════════════════════════════════════════════
 async function restoreSessionFromId(sessionPath) {
   if (!CONFIG.SESSION_ID) return false;
@@ -201,7 +218,7 @@ function printBanner(dbType = 'json') {
 
   console.log('\n' + cyber(line));
   console.log(neon('  ⚙️  CONFIGURATION:'));
-  console.log(label('  🔑  SESSION   : ') + (CONFIG.SESSION_ID ? green('✅ Set') : chalk.hex('#FFD700').bold('⚠️  Not Set — Use Pairing')));
+  console.log(label('  🔑  SESSION   : ') + (CONFIG.SESSION_ID ? green('✅ Set') : chalk.hex('#FFD700').bold('⚠️  Not Set')));
   console.log(label('  🔧  PREFIX    : ') + accent(CONFIG.PREFIX));
   console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
   console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
@@ -210,12 +227,12 @@ function printBanner(dbType = 'json') {
     dbType === 'mongodb'
       ? green('✅ MongoDB Connected')
       : chalk.hex('#FFD700').bold('📁 JSON Local Database')
-  ));
+  )));
 
   console.log(cyber(line) + '\n');
 }
 
-// ── Premium Log Helpers ──────────────────────────────────────────────
+// ── Log Helpers ─────────────────────────────────────────────────────
 const LOG = {
   success: (msg) => console.log(chalk.hex('#39FF14').bold('  ✅  ') + chalk.hex('#FFFFFF')(msg)),
   error:   (msg) => console.log(chalk.hex('#FF1744').bold('  ❌  ') + chalk.hex('#FF6B6B')(msg)),
@@ -249,12 +266,6 @@ async function startBot() {
   if (configErrors.length > 0) {
     configErrors.forEach(err => LOG.error(err));
     process.exit(1);
-  }
-
-  if (dbType === 'mongodb') {
-    LOG.success('Database: MongoDB connected!');
-  } else {
-    LOG.info('Database: Using local JSON database');
   }
 
   await loadPlugins();
@@ -325,10 +336,7 @@ async function startBot() {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎵 ${OWNER.TIKTOK}
 🎬 ${OWNER.YOUTUBE}
-📢 ${OWNER.CHANNEL}
-💻 ${OWNER.GITHUB}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}* ⚡`;
 
         await sock.sendMessage(OWNER.JID, { text: startupMsg });
@@ -420,69 +428,160 @@ async function handleMessage(sock, rawMsg) {
 
   LOG.msg(sender?.split('@')[0] || 'unknown', command);
 
-  // ✅ FIX: serialize rawMsg so m.reply, m.sender, m.react all work
+  // Serialize message
   const m = serialize(sock, rawMsg);
   if (!m) return;
 
-  const ctx = {
-    conn       : sock,
-    usedPrefix : CONFIG.PREFIX,
-    command,
-    args,
-    text       : args.join(' '),
-    isOwner    : ownerCheck,
-    isGroup,
-    from,
-    sender     : m.sender,
-    plugins,
-  };
+  // Built-in commands
+  if (command === 'owner') { await cmdOwner(sock, from); return; }
+  if (command === 'alive' || command === 'ping') { await cmdAlive(sock, from); return; }
 
+  // Check if plugin exists
+  if (!plugins.has(command)) {
+    // Command not found - silently ignore or send help
+    return;
+  }
+
+  const plugin = plugins.get(command);
+  
+  // Get plugin metadata
+  let handler = plugin;
+  let cooldown = 3;
+  let ownerOnly = false;
+  let adminOnly = false;
+  let groupOnly = false;
+  let privateOnly = false;
+  let botAdmin = false;
+
+  // Extract metadata if plugin is object
+  if (plugin && typeof plugin === 'object') {
+    cooldown = plugin.cooldown || 3;
+    ownerOnly = plugin.ownerOnly || false;
+    adminOnly = plugin.adminOnly || false;
+    groupOnly = plugin.groupOnly || false;
+    privateOnly = plugin.privateOnly || false;
+    botAdmin = plugin.botAdmin || false;
+  }
+
+  // Run middleware
   let groupMetadata = null;
   try {
     if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null);
   } catch (_) {}
 
-  if (command === 'owner') { await cmdOwner(sock, from); return; }
-  if (command === 'alive' || command === 'ping') { await cmdAlive(sock, from); return; }
+  const mwResult = await runMiddleware({
+    sender,
+    from,
+    command,
+    cooldown,
+    ownerOnly,
+    adminOnly,
+    groupOnlyCmd: groupOnly,
+    privateOnlyCmd: privateOnly,
+    botAdminRequired: botAdmin,
+    groupMetadata,
+    botId: sock.user?.id,
+  });
 
-  if (plugins.has(command)) {
-    const handler = plugins.get(command);
+  if (!mwResult.pass) {
+    await sock.sendMessage(from, {
+      text: `❌ ${mwResult.reason}${SYSTEM.SHORT_WATERMARK}`,
+    }, { quoted: rawMsg });
+    return;
+  }
 
-    const mwResult = await runMiddleware({
-      sender,
-      from,
-      command,
-      cooldown        : handler.cooldown    || 3,
-      ownerOnly       : handler.ownerOnly   || false,
-      adminOnly       : handler.adminOnly   || false,
-      groupOnlyCmd    : handler.groupOnly   || false,
-      privateOnlyCmd  : handler.privateOnly || false,
-      botAdminRequired: handler.botAdmin    || false,
-      groupMetadata,
-      botId           : sock.user?.id,
-    });
-
-    if (!mwResult.pass) {
-      await sock.sendMessage(from, {
-        text: `❌ ${mwResult.reason}${SYSTEM.SHORT_WATERMARK}`,
-      }, { quoted: rawMsg });
-      return;
+  // ← CHANGED: Universal Plugin Executor
+  try {
+    let result;
+    
+    // DEBUG logging (remove after testing)
+    console.log(`[DEBUG] Executing command: ${command}`);
+    console.log(`[DEBUG] Plugin type:`, typeof plugin);
+    console.log(`[DEBUG] Has handler method:`, plugin && typeof plugin.handler === 'function');
+    console.log(`[DEBUG] Is function:`, typeof plugin === 'function');
+    
+    // Format 1: Object with handler method (like video.js)
+    // { command: ['video'], handler: async ({ sock, msg, ... }) => {} }
+    if (plugin && typeof plugin.handler === 'function') {
+      console.log(`[DEBUG] Format 1: Object with handler method`);
+      
+      const context = {
+        sock: sock,
+        msg: m,
+        from: from,
+        args: args,
+        text: args.join(' '),
+        command: command,
+        isOwner: ownerCheck,
+        isGroup: isGroup,
+        sender: m.sender,
+        conn: sock,
+        usedPrefix: CONFIG.PREFIX
+      };
+      
+      result = await plugin.handler(context);
     }
-
+    // Format 2: Direct function export (legacy)
+    // async function(m, { conn, args }) {}
+    else if (typeof plugin === 'function') {
+      console.log(`[DEBUG] Format 2: Direct function`);
+      
+      const context = {
+        conn: sock,
+        usedPrefix: CONFIG.PREFIX,
+        command: command,
+        args: args,
+        text: args.join(' '),
+        isOwner: ownerCheck,
+        isGroup: isGroup,
+        from: from,
+        sender: m.sender,
+        plugins: plugins
+      };
+      
+      result = await plugin(m, context);
+    }
+    // Format 3: Object with run method
+    else if (plugin && typeof plugin.run === 'function') {
+      console.log(`[DEBUG] Format 3: Object with run method`);
+      
+      const context = {
+        conn: sock,
+        usedPrefix: CONFIG.PREFIX,
+        command: command,
+        args: args,
+        text: args.join(' '),
+        isOwner: ownerCheck,
+        isGroup: isGroup,
+        from: from,
+        sender: m.sender
+      };
+      
+      result = await plugin.run(m, context);
+    }
+    // Format 4: Object with exec method
+    else if (plugin && typeof plugin.exec === 'function') {
+      console.log(`[DEBUG] Format 4: Object with exec method`);
+      result = await plugin.exec(m, { conn: sock, args, text: args.join(' ') });
+    }
+    else {
+      console.error(`[DEBUG] Unknown plugin format for ${command}`);
+      throw new Error('Unknown plugin format');
+    }
+    
+    console.log(`[DEBUG] Command ${command} executed successfully`);
+    
+  } catch (pluginErr) {
+    console.error(`[DEBUG] Plugin error [${command}]:`, pluginErr);
+    LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
+    
+    // Send error to user
     try {
-      // ✅ FIX: rawMsg کی جگہ m بھیجیں تاکہ m.reply کام کرے
-      if (typeof handler === 'function') {
-        await handler(m, ctx);
-      } else if (typeof handler.handler === 'function') {
-        await handler.handler(m, ctx);
-      } else if (typeof handler.run === 'function') {
-        await handler.run(m, ctx);
-      }
-    } catch (pluginErr) {
-      LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
       await sock.sendMessage(from, {
         text: `❌ Error in *${command}*\n_${pluginErr.message}_${SYSTEM.SHORT_WATERMARK}`,
       }, { quoted: rawMsg });
+    } catch (sendErr) {
+      console.error(`[DEBUG] Failed to send error message:`, sendErr);
     }
   }
 }
