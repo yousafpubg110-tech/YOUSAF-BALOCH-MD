@@ -12,10 +12,10 @@ import { OWNER, CONFIG } from '../config.js';
 
 function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
-  if (hour >= 5  && hour < 12) return { label: '🌅 Morning Time',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',   color: '🌤️' };
-  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon Time', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',                color: '☀️' };
-  if (hour >= 16 && hour < 20) return { label: '🌆 Evening Time',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',   color: '🌇' };
-  return                               { label: '🌙 Night Time',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',          color: '🌌' };
+  if (hour >= 5  && hour < 12) return { label: '🌅 Morning',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',   color: '🟡' };
+  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',                color: '🔴' };
+  if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',   color: '🟠' };
+  return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',          color: '🔵' };
 }
 
 let handler = async (m, { conn, usedPrefix }) => {
@@ -25,8 +25,8 @@ let handler = async (m, { conn, usedPrefix }) => {
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
   const name   = conn.contacts?.[sender]?.name ||
                  conn.contacts?.[sender]?.notify ||
-                 (sender ? sender.split('@')[0] : 'Friend') ||
-                 'Friend';
+                 (sender ? sender.split('@')[0] : 'User') ||
+                 'User';
 
   const totalreg  = Object.keys(global.db?.data?.users || {}).length;
   const rtotalreg = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
@@ -42,342 +42,394 @@ let handler = async (m, { conn, usedPrefix }) => {
   const T   = getTimeMode();
   const pfx = usedPrefix || CONFIG.PREFIX;
 
-  let pluginCount = 160;
+  let pluginCount = 173;
   try { pluginCount = fs.readdirSync('./plugins').filter(f => f.endsWith('.js')).length; } catch (_) {}
 
-  // ── Menu text ─────────────────────────────────────────────────
+  // ── Professional Menu Design (English Only) ──────────────────
   const menu = `
-╔══════════════════════════════════════╗
-║  ${T.color} *YOUSAF-BALOCH-MD* ${T.color}  ║
-║   ⚡ _Ultra Pro Max WhatsApp Bot_ ⚡   ║
-╚══════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════╗
+║     🚀 *YOUSAF-BALOCH-MD* ─ *Ultra Pro Max* 🚀              ║
+║           ✨ *Best WhatsApp Bot Ever* ✨                      ║
+║              👑 *By MR YOUSAF BALOCH* 👑                      ║
+╚══════════════════════════════════════════════════════════════╝
 
-${T.emoji} *${T.label}* — ${T.greet}
-🤲 _${T.dua}_
+╭━『 ⏰ *TIME MODE* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${T.emoji} *${T.label}* — ${T.greet}
+┃  🤲 *${T.dua}*
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 📊 *BOT INFORMATION* 』━━━━╮
-┃ 👤 *User :* ${name}
-┃ 👑 *Owner:* ${OWNER.FULL_NAME}
-┃ 📱 *WA   :* +${OWNER.NUMBER}
-┃ 🤖 *Bot  :* ${OWNER.BOT_NAME}
-┃ 📅 *Date :* ${date}
-┃ 📆 *Day  :* ${day}
-┃ ⏰ *Time :* ${time}
-┃ ⏱️ *Up   :* ${hours}h ${minutes}m ${seconds}s
-┃ 👥 *Users:* ${totalreg} (✅ ${rtotalreg} Reg)
-┃ 🔌 *Plugins:* ${pluginCount}+
-┃ 📟 *Prefix :* [ ${pfx} ]
-┃ 🌐 *Mode  :* ${T.mode}
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 📊 *BOT INFORMATION* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  👤 *User*     : ${name}
+┃  👑 *Owner*    : ${OWNER.FULL_NAME}
+┃  📱 *Number*   : +${OWNER.NUMBER}
+┃  🤖 *Bot Name* : ${OWNER.BOT_NAME}
+┃  📅 *Date*     : ${date}
+┃  📆 *Day*      : ${day}
+┃  ⏰ *Time*     : ${time}
+┃  ⏱️ *Uptime*   : ${hours}h ${minutes}m ${seconds}s
+┃  👥 *Users*    : ${totalreg} (✅ ${rtotalreg} Registered)
+┃  🔌 *Plugins*  : ${pluginCount}+ Active
+┃  📟 *Prefix*   : [ ${pfx} ]
+┃  🌐 *Mode*     : ${T.mode}
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 🔗 *SOCIAL MEDIA* 』━━━━╮
-┃ 📢 *Channel :* wa.me/channel/0029Vb3Uzps6buMH2RvGef0j
-┃ 📺 *YouTube :* @Yousaf_Baloch_Tech
-┃ 🎵 *TikTok  :* @loser_boy.110
-┃ 💻 *GitHub  :* musakhanbaloch03-sad
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 🔗 *SOCIAL MEDIA* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  📢 *Channel*   : @YousafBalochTech
+┃  📺 *YouTube*   : @Yousaf_Baloch_Tech
+┃  🎵 *TikTok*    : @loser_boy.110
+┃  💻 *GitHub*    : musakhanbaloch03-sad
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-━━━━━━━『 📋 *ALL MENUS* 』━━━━━━━
+━━━━━━━━━━『 📋 *COMPLETE MENUS* 』━━━━━━━━━━
 
-╭━━━━『 🏠 *MAIN MENU* 』━━━━╮
-┃ ${pfx}menu       » Full Menu
-┃ ${pfx}alive      » Bot Status
-┃ ${pfx}ping       » Speed Test
-┃ ${pfx}runtime    » Uptime
-┃ ${pfx}owner      » Owner Info
-┃ ${pfx}support    » Support Group
-┃ ${pfx}script     » Get Bot Script
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 🏠 *MAIN MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}menu      » Full Menu Display
+┃  ${pfx}alive     » Bot Status Check
+┃  ${pfx}ping      » Speed Test
+┃  ${pfx}runtime   » Bot Uptime
+┃  ${pfx}owner     » Owner Information
+┃  ${pfx}support   » Support Group
+┃  ${pfx}script    » Get Bot Script
+┃  ${pfx}settings  » Bot Settings
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 ⚙️ *AUTO FEATURES* 』━━━━╮
-┃ ${pfx}autoviewstatus <on/off>
-┃  _Auto view all statuses_
-┃ ${pfx}antidelete <on/off>
-┃  _Show deleted messages_
-┃ ${pfx}autoreact <on/off>
-┃  _Auto react to messages_
-┃ ${pfx}autoread <on/off>
-┃  _Auto read messages_
-┃ ${pfx}autotyping <on/off>
-┃  _Show typing indicator_
-┃ ${pfx}autorecording <on/off>
-┃  _Show recording status_
-┃ ${pfx}autobio <on/off>
-┃  _Auto rotate bio_
-┃ ${pfx}anticall <on/off>
-┃  _Auto reject calls_
-┃ ${pfx}autoreply <on/off>
-┃  _Auto reply offline_
-┃ ${pfx}autodownload <on/off>
-┃  _Auto download media_
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 ⚙️ *AUTO FEATURES* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}autoviewstatus <on/off>  » Auto View Status
+┃  ${pfx}antidelete <on/off>      » Anti Delete Messages
+┃  ${pfx}autoreact <on/off>       » Auto React
+┃  ${pfx}autoread <on/off>        » Auto Read
+┃  ${pfx}autotyping <on/off>      » Typing Indicator
+┃  ${pfx}autorecording <on/off>   » Recording Status
+┃  ${pfx}autobio <on/off>         » Auto Bio Rotate
+┃  ${pfx}anticall <on/off>        » Auto Reject Calls
+┃  ${pfx}autoreply <on/off>       » Auto Reply
+┃  ${pfx}autodownload <on/off>    » Auto Download
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 📥 *DOWNLOAD MENU* 』━━━━╮
-┃ ▸ 🎵 *YouTube*
-┃ ${pfx}ytmp3 <url>    » YouTube MP3
-┃ ${pfx}ytmp4 <url>    » YouTube MP4
-┃ ${pfx}play <name>    » Search & Play
-┃ ${pfx}song <name>    » Search Song
-┃ ${pfx}video <name>   » Search Video
+╭━『 🤖 *AI FEATURES* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  *Chat AI*
+┃  ${pfx}ai <text>          » Gemini AI Chat
+┃  ${pfx}chatgpt <text>     » ChatGPT Response
+┃  ${pfx}gpt <text>         » GPT Response
+┃  ${pfx}gpt4 <text>        » GPT-4 AI
+┃  ${pfx}bing <text>        » Bing AI
+┃  ${pfx}blackbox <text>    » Blackbox AI
+┃  ${pfx}mixtral <text>     » Mixtral AI
+┃  ${pfx}deepseek <text>    » DeepSeek AI
+┃  ${pfx}copilot <text>     » Microsoft Copilot
+┃  ${pfx}claude <text>      » Claude AI
+┃  ${pfx}perplexity <text>  » Perplexity AI
+┃  ${pfx}meta <text>        » Meta AI
+┃  ${pfx}bard <text>        » Google Bard
 ┃
-┃ ▸ 🎵 *TikTok*
-┃ ${pfx}tiktok <url>   » TikTok Video
-┃ ${pfx}ttmp3 <url>    » TikTok Audio
+┃  *Specialized AI*
+┃  ${pfx}doctor <symptom>   » AI Doctor
+┃  ${pfx}lawyer <case>      » AI Lawyer
+┃  ${pfx}homework <subject> » Homework Help
+┃  ${pfx}khuwab <dream>     » Dream Interpretation
+┃  ${pfx}resume <job>       » Resume Builder
+┃  ${pfx}romanurdu <text>   » Roman Urdu AI
+┃  ${pfx}sentiment <text>   » Sentiment Analysis
 ┃
-┃ ▸ 📸 *Instagram*
-┃ ${pfx}instagram <url>» IG Post
-┃ ${pfx}igreel <url>   » IG Reel
+┃  *AI Image*
+┃  ${pfx}imagine <prompt>   » Generate AI Art
+┃  ${pfx}aiimage <prompt>   » Generate Image
+┃  ${pfx}dalle <prompt>     » DALL-E Image
+┃  ${pfx}upscale <image>    » 8K Upscaler
 ┃
-┃ ▸ 📘 *Facebook*
-┃ ${pfx}facebook <url> » FB Video
+┃  *AI Code*
+┃  ${pfx}aicode <lang> <task> » Generate Code
+┃  ${pfx}explain <code>     » Explain Code
+┃  ${pfx}debug <code>       » Debug Code
 ┃
-┃ ▸ 🐦 *Twitter/X*
-┃ ${pfx}twitter <url>  » Twitter Video
-┃
-┃ ▸ 🎵 *SoundCloud*
-┃ ${pfx}soundcloud <url>» SC Audio
-┃
-┃ ▸ 📱 *APK Downloads*
-┃ ${pfx}apk <name>     » Download APK
-┃ ${pfx}modapk <name>  » Modded APK
-┃ ${pfx}playstore <n>  » Play Store
-┃
-┃ ▸ 🎬 *Movies & Shows*
-┃ ${pfx}movie <name>   » Movie Info
-┃ ${pfx}drama <name>   » Drama DL
-┃ ${pfx}trailer <name> » Movie Trailer
-┃
-┃ ▸ 🎵 *Islamic Audio*
-┃ ${pfx}naat <name>    » Naat DL
-┃ ${pfx}bayan <name>   » Bayan DL
-┃
-┃ ▸ 🖼️ *Images*
-┃ ${pfx}wallpaper <q>  » HD Wallpaper
-┃ ${pfx}ringtone <n>   » Ringtone
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+┃  *Translation*
+┃  ${pfx}translate <lang> <text> » Translate Text
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 🤖 *AI FEATURES* 』━━━━╮
-┃ ▸ 💬 *Chat AI*
-┃ ${pfx}ai <text>      » Gemini AI
-┃ ${pfx}chatgpt <text> » ChatGPT
-┃ ${pfx}gpt <text>     » GPT Response
+╭━『 📥 *DOWNLOAD MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  *YouTube*
+┃  ${pfx}ytmp3 <url>     » YouTube MP3
+┃  ${pfx}ytmp4 <url>     » YouTube MP4
+┃  ${pfx}play <name>     » Search & Play
+┃  ${pfx}song <name>     » Search Song
+┃  ${pfx}video <name>    » Search Video
 ┃
-┃ ▸ 🖼️ *AI Image*
-┃ ${pfx}imagine <prompt>» AI Art
-┃ ${pfx}aiimage <prompt>» Generate Img
+┃  *TikTok*
+┃  ${pfx}tiktok <url>    » TikTok Video
+┃  ${pfx}ttmp3 <url>     » TikTok Audio
 ┃
-┃ ▸ 💻 *AI Code*
-┃ ${pfx}aicode <lang> <task>
-┃ ${pfx}explain <code> » Explain Code
-┃ ${pfx}debug <code>   » Debug Code
+┃  *Instagram*
+┃  ${pfx}instagram <url> » IG Post
+┃  ${pfx}igreel <url>    » IG Reel
 ┃
-┃ ▸ 🌍 *Translation*
-┃ ${pfx}translate <lang> <text>
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🖼️ *IMAGE TOOLS* 』━━━━╮
-┃ ${pfx}remini        » AI Enhance
-┃ ${pfx}enhance       » HD Enhance
-┃ ${pfx}blur          » Blur Effect
-┃ ${pfx}sepia         » Sepia Effect
-┃ ${pfx}invert        » Invert Colors
-┃ ${pfx}grayscale     » Black & White
-┃ ${pfx}cartoon       » Cartoon Effect
-┃ ${pfx}sketch        » Pencil Sketch
-┃ ${pfx}watermark <t> » Add Watermark
-┃ ${pfx}rembg         » Remove BG
-┃ ${pfx}wanted        » Wanted Poster
-┃ ${pfx}wasted        » Wasted Effect
-┃ ${pfx}jail          » Jail Effect
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🎭 *STICKER MENU* 』━━━━╮
-┃ ${pfx}sticker       » Image → Sticker
-┃ ${pfx}s             » Quick Sticker
-┃ ${pfx}sgif          » Video → Sticker
-┃ ${pfx}toimg         » Sticker → Image
-┃ ${pfx}ttp <text>    » Text → Sticker
-┃ ${pfx}attp <text>   » Animated TTP
-┃ ${pfx}emojimix <🤣+😍>» Mix Emojis
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🎨 *DESIGN TOOLS* 』━━━━╮
-┃ ${pfx}logo <name>   » 30 Logo Styles
-┃  _Example: ${pfx}logo Yousaf 5_
-┃ ${pfx}dp <name|tag> » 30 DP Styles
-┃  _Example: ${pfx}dp Yousaf | King_
-┃ ${pfx}carbon <code> » Code Screenshot
-┃ ${pfx}meme <t|b>    » Create Meme
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🔧 *TOOLS MENU* 』━━━━╮
-┃ ${pfx}calc <expr>   » Calculator
-┃ ${pfx}convert <v> <unit>» Convert
-┃ ${pfx}currency <a> <F> <T>» Currency
-┃ ${pfx}weather <city>» Weather
-┃ ${pfx}pdf <title>   » Image → PDF
-┃ ${pfx}ocr           » Read Image Text
-┃ ${pfx}qr <text>     » QR Code
-┃ ${pfx}short <url>   » Short URL
-┃ ${pfx}screenshot <url>» Website SS
-┃ ${pfx}tts <lang> <text>» Text → Voice
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🔍 *SEARCH MENU* 』━━━━╮
-┃ ${pfx}google <query>» Google Search
-┃ ${pfx}wiki <query>  » Wikipedia
-┃ ${pfx}movie <name>  » Movie Info
-┃ ${pfx}lyrics <song> » Song Lyrics
-┃ ${pfx}news          » Latest News
-┃ ${pfx}technews      » Tech News
-┃ ${pfx}sportsnews    » Sports News
-┃ ${pfx}github <repo> » GitHub Info
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 ☪️ *ISLAMIC MENU* 』━━━━╮
-┃ ▸ 📖 *Quran*
-┃ ${pfx}quran <surah:ayah>» Quran Ayat
-┃  _Example: ${pfx}quran 2:255_
-┃ ${pfx}ayat           » Random Ayat
-┃ ${pfx}tafsir <s:a>   » Tafsir
+┃  *Facebook*
+┃  ${pfx}facebook <url>  » FB Video
 ┃
-┃ ▸ 📚 *Hadith*
-┃ ${pfx}hadith         » Random Hadith
+┃  *Twitter/X*
+┃  ${pfx}twitter <url>   » Twitter Video
 ┃
-┃ ▸ 🕌 *Prayer Times*
-┃ ${pfx}prayertime <city>» Prayer Times
-┃ ${pfx}prayer         » Today's Times
+┃  *SoundCloud*
+┃  ${pfx}soundcloud <url> » SC Audio
 ┃
-┃ ▸ 🌙 *Islamic Info*
-┃ ${pfx}hijri          » Hijri Date
-┃ ${pfx}dua            » Random Dua
-┃ ${pfx}asma           » Asma-ul-Husna
-┃ ${pfx}islamicnames   » Muslim Names
-┃ ${pfx}zakatcalc <amt>» Zakat Calc
-┃ ${pfx}ramadan        » Ramadan Info
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 🏏 *CRICKET & MATCH* 』━━━━╮
-┃ ▸ 🔴 *Live Scores*
-┃ ${pfx}score          » Live Score
-┃ ${pfx}livescore      » Live Matches
-┃ ${pfx}cricketlive    » Cricket Live
+┃  *Audio Downloads*
+┃  ${pfx}audio <url>      » Download Audio
+┃  ${pfx}songdl <name>    » Download Song
 ┃
-┃ ▸ 📊 *Match Info*
-┃ ${pfx}matchinfo      » Match Details
-┃ ${pfx}schedule       » Match Schedule
-┃ ${pfx}commentary     » Live Commentary
-┃ ${pfx}toss           » Toss Result
+┃  *APK Downloads*
+┃  ${pfx}apk <name>       » Download APK
+┃  ${pfx}modapk <name>    » Modded APK
+┃  ${pfx}playstore <name> » Play Store App
 ┃
-┃ ▸ 🏆 *Tournaments*
-┃ ${pfx}psl            » PSL 2025
-┃ ${pfx}ipl            » IPL 2025
-┃ ${pfx}pointstable    » Points Table
+┃  *Movies & Shows*
+┃  ${pfx}movie <name>     » Movie Info/Download
+┃  ${pfx}drama <name>     » Drama Download
+┃  ${pfx}trailer <name>   » Movie Trailer
 ┃
-┃ ▸ ⚽ *Football*
-┃ ${pfx}football       » Football Score
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-╭━━━━『 👥 *GROUP MENU* 』━━━━╮
-┃ ▸ 👤 *Members*
-┃ ${pfx}add <number>   » Add Member
-┃ ${pfx}kick <@user>   » Kick Member
-┃ ${pfx}promote <@user>» Make Admin
-┃ ${pfx}demote <@user> » Remove Admin
-┃ ${pfx}tagall <text>  » Tag Everyone
-┃ ${pfx}hidetag <text> » Silent Tag
+┃  *Islamic Audio*
+┃  ${pfx}naat <name>      » Naat Download
+┃  ${pfx}bayan <name>     » Bayan Download
 ┃
-┃ ▸ ⚠️ *Warning System*
-┃ ${pfx}warn <@user>   » Warn Member
-┃  _3 Warnings = Auto Kick!_
-┃ ${pfx}unwarn <@user> » Remove Warn
+┃  *Images*
+┃  ${pfx}wallpaper <q>    » HD Wallpaper
+┃  ${pfx}ringtone <name>  » Ringtone
+┃  ${pfx}snapshot <url>   » Website Snapshot
+┃  ${pfx}threads <url>    » Threads Download
 ┃
-┃ ▸ ⚙️ *Group Settings*
-┃ ${pfx}groupopen      » Open Group
-┃ ${pfx}groupclose     » Close Group
-┃ ${pfx}groupname <t>  » Change Name
-┃ ${pfx}groupdesc <t>  » Change Desc
+┃  *Cloud Downloads*
+┃  ${pfx}gdrive <url>     » Google Drive
+┃  ${pfx}mediafire <url>  » MediaFire
+┃  ${pfx}pinterest <url>  » Pinterest
+┃  ${pfx}islamic <query>  » Islamic Content
+┃  ${pfx}download <url>   » Universal Downloader
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 🖼️ *IMAGE TOOLS* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}remini        » AI Image Enhancer
+┃  ${pfx}enhance       » HD Quality
+┃  ${pfx}blur          » Blur Effect
+┃  ${pfx}sepia         » Sepia Effect
+┃  ${pfx}invert        » Invert Colors
+┃  ${pfx}grayscale     » Black & White
+┃  ${pfx}cartoon       » Cartoon Effect
+┃  ${pfx}sketch        » Pencil Sketch
+┃  ${pfx}watermark <t> » Add Watermark
+┃  ${pfx}rembg         » Remove Background
+┃  ${pfx}wanted        » Wanted Poster
+┃  ${pfx}wasted        » Wasted Effect
+┃  ${pfx}jail          » Jail Effect
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 🎭 *STICKER MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}sticker       » Image → Sticker
+┃  ${pfx}s             » Quick Sticker
+┃  ${pfx}sgif          » Video → Sticker
+┃  ${pfx}toimg         » Sticker → Image
+┃  ${pfx}ttp <text>    » Text → Sticker
+┃  ${pfx}attp <text>   » Animated TTP
+┃  ${pfx}emojimix <🤣+😍> » Mix Emojis
+┃  ${pfx}take <pack>   » Take Sticker
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 🎨 *DESIGN TOOLS* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}logo <name>   » 30+ Logo Styles
+┃  ${pfx}dp <name>     » 30+ DP Styles
+┃  ${pfx}carbon <code> » Code Screenshot
+┃  ${pfx}meme <t|b>    » Create Meme
+┃  ${pfx}logomaker     » Custom Logo
+┃  ${pfx}dpmaker       » Custom DP
+┃  ${pfx}capcut        » CapCut Template
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 🔧 *TOOLS MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}calc <expr>   » Calculator
+┃  ${pfx}convert <v> <unit> » Unit Converter
+┃  ${pfx}currency <a> <F> <T> » Currency Converter
+┃  ${pfx}weather <city> » Weather Info
+┃  ${pfx}pdf <title>   » Image → PDF
+┃  ${pfx}ocr           » Read Image Text
+┃  ${pfx}qr <text>     » Generate QR Code
+┃  ${pfx}short <url>   » Shorten URL
+┃  ${pfx}screenshot <url> » Website Screenshot
+┃  ${pfx}tts <lang> <text> » Text to Speech
+┃  ${pfx}compressor    » Compress Media
+┃  ${pfx}videoaud <cmd> » Video/Audio Tools
+┃  ${pfx}videogif      » Video to GIF
+┃  ${pfx}inshot        » InShot Templates
+┃  ${pfx}tools         » Utility Tools
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 🔍 *SEARCH MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}google <query>  » Google Search
+┃  ${pfx}wiki <query>    » Wikipedia
+┃  ${pfx}movie <name>    » Movie Info
+┃  ${pfx}lyrics <song>   » Song Lyrics
+┃  ${pfx}news            » Latest News
+┃  ${pfx}technews        » Tech News
+┃  ${pfx}sportsnews      » Sports News
+┃  ${pfx}github <repo>   » GitHub Info
+┃  ${pfx}ytstalk <user>  » YouTube Stats
+┃  ${pfx}tiktokstalk <user> » TikTok Stats
+┃  ${pfx}xstalk <user>   » X (Twitter) Stats
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━『 ☪️ *ISLAMIC MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  *Quran*
+┃  ${pfx}quran <surah:ayah> » Quran Ayat
+┃  ${pfx}ayat           » Random Ayat
+┃  ${pfx}tafsir <s:a>   » Tafsir Ibn Kathir
 ┃
-┃ ▸ 🛡️ *Protection*
-┃ ${pfx}antilink <on/off>» Anti Link
-┃ ${pfx}antivv <on/off>  » Anti VV
-┃ ${pfx}antispam <on/off>» Anti Spam
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+┃  *Hadith*
+┃  ${pfx}hadith         » Random Hadith
+┃
+┃  *Prayer Times*
+┃  ${pfx}prayertime <city> » Prayer Times
+┃  ${pfx}prayer         » Today's Prayer
+┃
+┃  *Islamic Info*
+┃  ${pfx}hijri          » Hijri Date
+┃  ${pfx}dua            » Random Dua
+┃  ${pfx}asma           » Asma-ul-Husna
+┃  ${pfx}islamicnames   » Muslim Names
+┃  ${pfx}zakatcalc <amt> » Zakat Calculator
+┃  ${pfx}ramadan        » Ramadan Info
+┃  ${pfx}hajj           » Hajj Guide
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 💰 *ECONOMY MENU* 』━━━━╮
-┃ ${pfx}balance        » Check Balance
-┃ ${pfx}daily          » Daily Reward
-┃  _200 coins + streak bonus_
-┃ ${pfx}work           » Work for Coins
-┃ ${pfx}shop           » View Shop
-┃ ${pfx}buy <number>   » Buy Item
-┃ ${pfx}leaderboard    » Top 10 Rich
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 🏏 *CRICKET & MATCH* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  *Live Scores*
+┃  ${pfx}score          » Live Score
+┃  ${pfx}livescore      » Live Matches
+┃  ${pfx}cricketlive    » Cricket Live
+┃  ${pfx}cricketfull    » Full Scorecard
+┃
+┃  *Match Info*
+┃  ${pfx}matchinfo      » Match Details
+┃  ${pfx}schedule       » Match Schedule
+┃  ${pfx}commentary     » Live Commentary
+┃  ${pfx}toss           » Toss Result
+┃  ${pfx}ipinfo         » IP Details
+┃  ${pfx}playerstats    » Player Stats
+┃
+┃  *Tournaments*
+┃  ${pfx}psl            » PSL 2025
+┃  ${pfx}ipl            » IPL 2025
+┃  ${pfx}pointstable    » Points Table
+┃
+┃  *Football*
+┃  ${pfx}football       » Football Score
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 🎮 *GAMES MENU* 』━━━━╮
-┃ ${pfx}tictactoe <@user>» Tic Tac Toe
-┃ ${pfx}quiz <category>  » Quiz Game
-┃  _general pakistan cricket islam_
-┃ ${pfx}dice             » Roll Dice
-┃ ${pfx}coin             » Coin Flip
-┃ ${pfx}math <easy/hard> » Math Game
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 👥 *GROUP MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  *Member Management*
+┃  ${pfx}add <number>    » Add Member
+┃  ${pfx}kick <@user>    » Kick Member
+┃  ${pfx}promote <@user> » Make Admin
+┃  ${pfx}demote <@user>  » Remove Admin
+┃  ${pfx}tagall <text>   » Tag Everyone
+┃  ${pfx}hidetag <text>  » Silent Tag
+┃  ${pfx}invite          » Get Group Invite
+┃  ${pfx}link            » Group Link
+┃  ${pfx}members         » Member List
+┃  ${pfx}admins          » Admin List
+┃
+┃  *Warning System*
+┃  ${pfx}warn <@user>    » Warn Member
+┃  ${pfx}unwarn <@user>  » Remove Warn
+┃  ${pfx}warnlist        » Warn List
+┃  ${pfx}bannedlist      » Banned List
+┃
+┃  *Group Settings*
+┃  ${pfx}groupopen       » Open Group
+┃  ${pfx}groupclose      » Close Group
+┃  ${pfx}groupname <text> » Change Name
+┃  ${pfx}groupdesc <text> » Change Desc
+┃  ${pfx}groupactivity   » Group Activity
+┃  ${pfx}groupleave      » Leave Group
+┃
+┃  *Protection*
+┃  ${pfx}antilink <on/off>  » Anti Link
+┃  ${pfx}antivv <on/off>    » Anti View Once
+┃  ${pfx}antispam <on/off>  » Anti Spam
+┃  ${pfx}antighost <on/off> » Anti Ghost Members
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 😄 *FUN MENU* 』━━━━╮
-┃ ${pfx}joke           » Random Joke
-┃ ${pfx}quote          » Motivational
-┃ ${pfx}fact           » Random Fact
-┃ ${pfx}truth          » Truth Question
-┃ ${pfx}dare           » Dare Challenge
-┃ ${pfx}meme           » Random Meme
-┃ ${pfx}ship <@u1> <@u2>» Love Meter
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 💰 *ECONOMY MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}balance        » Check Balance
+┃  ${pfx}daily          » Daily Reward
+┃  ${pfx}work           » Work for Coins
+┃  ${pfx}shop           » View Shop
+┃  ${pfx}buy <item>     » Buy Item
+┃  ${pfx}leaderboard    » Top 10 Rich
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭━━━━『 👑 *OWNER MENU* 』━━━━╮
-┃ ${pfx}broadcast <text>» Broadcast
-┃ ${pfx}ban <@user>     » Ban User
-┃ ${pfx}unban <@user>   » Unban User
-┃ ${pfx}block <@user>   » Block
-┃ ${pfx}unblock <@user> » Unblock
-┃ ${pfx}restart         » Restart Bot
-┃ ${pfx}shutdown        » Stop Bot
-┃ ${pfx}eval <code>     » Run JS Code
-┃ ${pfx}join <link>     » Join Group
-┃ ${pfx}leave           » Leave Group
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭━『 🎮 *GAMES MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}tictactoe <@user> » Tic Tac Toe
+┃  ${pfx}quiz <category>   » Quiz Game
+┃  ${pfx}dice              » Roll Dice
+┃  ${pfx}coin              » Coin Flip
+┃  ${pfx}math <easy/hard>  » Math Game
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╔══════════════════════════════════════╗
-║    💎 *YOUSAF-BALOCH-MD FEATURES*    ║
-╠══════════════════════════════════════╣
-║ ✅ 200+ Plugins Loaded               ║
-║ ✅ Auto View Status                  ║
-║ ✅ Anti Delete Messages              ║
-║ ✅ 3-Strike Warning System           ║
-║ ✅ Economy System (Coins & Shop)     ║
-║ ✅ Islamic Prayer Alerts             ║
-║ ✅ Live Cricket & PSL Scores         ║
-║ ✅ AI-Powered Chat & Images          ║
-║ ✅ 30 Logo + 30 DP Styles            ║
-║ ✅ Multi-Platform Downloads          ║
-║ ✅ Time-Based Menu Modes             ║
-║ ✅ Group Protection System           ║
-╠══════════════════════════════════════╣
-║  👑 *Owner:* MR YOUSAF BALOCH        ║
-║  📱 *WA:*    +923710636110           ║
-║  📢 *Channel:* @YousafBalochTech     ║
-║  📺 *YouTube:* @Yousaf_Baloch_Tech   ║
-║  🎵 *TikTok:*  @loser_boy.110        ║
-╠══════════════════════════════════════╣
-║  📟 *Total Commands:* 500+           ║
-║  🔒 *Owner Cannot Be Changed*        ║
-║  ⚡ *24/7 Online Support*            ║
-╚══════════════════════════════════════╝
+╭━『 😄 *FUN MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}joke           » Random Joke
+┃  ${pfx}quote          » Motivational Quote
+┃  ${pfx}fact           » Random Fact
+┃  ${pfx}truth          » Truth Question
+┃  ${pfx}dare           » Dare Challenge
+┃  ${pfx}meme           » Random Meme
+┃  ${pfx}ship <@u1> <@u2> » Love Meter
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-_© 2025-2026 ${OWNER.BOT_NAME}_
-_Developed by ${OWNER.FULL_NAME}_
-_All Rights Reserved ⚡_`.trim();
+╭━『 👑 *OWNER MENU* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃  ${pfx}broadcast <text>  » Broadcast Message
+┃  ${pfx}ban <@user>       » Ban User
+┃  ${pfx}unban <@user>     » Unban User
+┃  ${pfx}block <@user>     » Block User
+┃  ${pfx}unblock <@user>   » Unblock User
+┃  ${pfx}restart           » Restart Bot
+┃  ${pfx}shutdown          » Shutdown Bot
+┃  ${pfx}eval <code>       » Execute Code
+┃  ${pfx}join <link>       » Join Group
+┃  ${pfx}leavegc           » Leave Group
+┃  ${pfx}backup            » Backup Database
+┃  ${pfx}update            » Update Bot
+┃  ${pfx}setpp             » Set Profile Pic
+┃  ${pfx}contact <number>  » Contact Owner
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-  // ── 1.  ─────────────────────────────────────
+╔══════════════════════════════════════════════════════════════╗
+║              💎 *BOT FEATURES* 💎                            ║
+╠══════════════════════════════════════════════════════════════╣
+║  ✅ 173+ Active Plugins                                      ║
+║  ✅ Auto View Status                                         ║
+║  ✅ Anti Delete Messages                                     ║
+║  ✅ 3-Strike Warning System                                  ║
+║  ✅ Economy System (Coins & Shop)                            ║
+║  ✅ Islamic Prayer Alerts                                    ║
+║  ✅ Live Cricket & PSL Scores                                ║
+║  ✅ AI-Powered Chat & Images                                 ║
+║  ✅ 30+ Logo & DP Styles                                     ║
+║  ✅ Multi-Platform Downloads                                 ║
+║  ✅ Time-Based Menu Modes                                    ║
+║  ✅ Group Protection System                                  ║
+║  ✅ 50+ AI Models                                            ║
+╠══════════════════════════════════════════════════════════════╣
+║  👑 *Owner:* MR YOUSAF BALOCH                                ║
+║  📱 *WA:*    +923710636110                                   ║
+║  📺 *YouTube:* @Yousaf_Baloch_Tech                           ║
+║  🎵 *TikTok:*  @loser_boy.110                                ║
+║  💻 *GitHub:* musakhanbaloch03-sad                           ║
+╠══════════════════════════════════════════════════════════════╣
+║  📟 *Total Commands:* 200+                                   ║
+║  🔒 *Owner Cannot Be Changed*                                ║
+║  ⚡ *24/7 Online Support*                                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+_✨ © 2025-2026 ${OWNER.BOT_NAME} ✨_
+_⚡ Developed by ${OWNER.FULL_NAME} ⚡_
+_🌟 All Rights Reserved 🌟_`.trim();
+
+  // ── Send Menu with Image ────────────────────────────────────
   try {
     const thumbPath  = path.resolve('./assets/menu-thumb.png');
     const thumbBuf   = fs.readFileSync(thumbPath);
@@ -385,10 +437,9 @@ _All Rights Reserved ⚡_`.trim();
     await conn.sendMessage(m.chat, {
       image  : thumbBuf,
       caption: menu,
-      // ✅  پر کلک = YouTube channel  
       contextInfo: {
         externalAdReply: {
-          title      : `${OWNER.BOT_NAME} — Professional WhatsApp Bot`,
+          title      : `🚀 ${OWNER.BOT_NAME} — Ultra Pro Max Bot 🚀`,
           body       : `👑 ${OWNER.FULL_NAME} | 📺 @Yousaf_Baloch_Tech`,
           thumbnail  : thumbBuf,
           mediaType  : 2,
@@ -399,17 +450,16 @@ _All Rights Reserved ⚡_`.trim();
       },
     }, { quoted: m });
   } catch (_) {
-    // Fallback:      text
     await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
   }
 
-  // ── 2. WhatsApp Channel بٹن ───────────────────────────────────
+  // ── WhatsApp Channel Button ──────────────────────────────────
   await conn.sendMessage(m.chat, {
-    text   : `📢 *Join Our WhatsApp Channel!*\n\n_Bot updates, new features & support_\n\n👇 *Click below to join:*\n${OWNER.CHANNEL}`,
+    text   : `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃     📢 *${OWNER.BOT_NAME} OFFICIAL*     ┃\n┃         ✨ *CHANNEL* ✨         ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n👆 *Click the button below to join* 👆`,
     contextInfo: {
       externalAdReply: {
-        title    : `📢 ${OWNER.BOT_NAME} — Official Channel`,
-        body     : 'Join for updates & support!',
+        title    : `📢 Join ${OWNER.BOT_NAME} Channel`,
+        body     : 'Click here to join WhatsApp Channel',
         thumbnail: (() => { try { return fs.readFileSync('./assets/menu-thumb.png'); } catch { return Buffer.from(''); } })(),
         mediaType: 1,
         mediaUrl : OWNER.CHANNEL,
@@ -418,7 +468,7 @@ _All Rights Reserved ⚡_`.trim();
     },
   }, { quoted: m });
 
-  // ── 3. Voice note —      ──────────────────
+  // ── Voice Note ───────────────────────────────────────────────
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     const voiceBuf  = fs.readFileSync(voicePath);
@@ -426,7 +476,7 @@ _All Rights Reserved ⚡_`.trim();
     await conn.sendMessage(m.chat, {
       audio   : voiceBuf,
       mimetype: 'audio/mp4',
-      ptt     : true,   // ← voice note format
+      ptt     : true,
     }, { quoted: m });
   } catch (e) {
     console.error('[MENU VOICE ERROR]:', e.message);
