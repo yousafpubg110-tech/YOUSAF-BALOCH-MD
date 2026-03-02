@@ -342,13 +342,13 @@ _© 2025-2026 ${OWNER.BOT_NAME}_
 _Developed by ${OWNER.FULL_NAME}_
 _All Rights Reserved ⚡_`.trim();
 
-  // ── 1. تصویر پڑھیں ───────────────────────────────────────────
+  // ── 1. ───────────────────────────────────────────
   let thumbBuf = null;
   try {
     thumbBuf = fs.readFileSync(path.resolve('./assets/menu-thumb.png'));
   } catch (_) {}
 
-  // ── 2. تصویر + مینیو بھیجیں ──────────────────────────────────
+  // ── 2.  ──────────────────────────────────
   if (thumbBuf) {
     try {
       await conn.sendMessage(m.chat, {
@@ -389,7 +389,7 @@ _All Rights Reserved ⚡_`.trim();
     },
   }, { quoted: m });
 
-  // ── 4. Voice Note — بالکل آخر میں ────────────────────────────
+  // ── 4. Voice Note —  ────────────────────────────
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     const voiceBuf  = fs.readFileSync(voicePath);
