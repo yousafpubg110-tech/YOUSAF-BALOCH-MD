@@ -5,7 +5,6 @@
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
-import ytdl from '@distube/ytdl-core';
 import yts  from 'yt-search';
 import axios from 'axios';
 import { OWNER, SYSTEM } from '../config.js';
@@ -43,12 +42,12 @@ ${SYSTEM.SHORT_WATERMARK}`);
 
       const videoInfo = search.videos[0];
       const videoUrl  = videoInfo.url;
-      const title     = videoInfo.title       || 'Unknown';
-      const artist    = videoInfo.author?.name || 'Unknown';
-      const duration  = videoInfo.timestamp   || '?';
+      const title     = videoInfo.title        || 'Unknown';
+      const artist    = videoInfo.author?.name  || 'Unknown';
+      const duration  = videoInfo.timestamp    || '?';
       const views     = formatNumber(videoInfo.views || 0);
-      const ago       = videoInfo.ago         || '';
-      const thumb     = videoInfo.thumbnail   || videoInfo.image || '';
+      const ago       = videoInfo.ago          || '';
+      const thumb     = videoInfo.thumbnail    || videoInfo.image || '';
 
       const caption = `╭━━━『 🎵 *YOUTUBE PLAY* 』━━━╮
 
@@ -62,48 +61,47 @@ ${SYSTEM.SHORT_WATERMARK}`);
 ⏳ *Downloading audio...*
 ${SYSTEM.SHORT_WATERMARK}`;
 
-      // ── Send thumbnail + info ─────────────────────────────
       if (thumb) {
         try {
-          await sock.sendMessage(from, {
-            image  : { url: thumb },
-            caption,
-          }, { quoted: msg });
-        } catch (_) {
-          await msg.reply(caption);
-        }
+          await sock.sendMessage(from, { image: { url: thumb }, caption }, { quoted: msg });
+        } catch (_) { await msg.reply(caption); }
       } else {
         await msg.reply(caption);
       }
 
       await msg.react('⬇️');
 
-      // ── Download audio via @distube/ytdl-core ─────────────
-      const info    = await ytdl.getInfo(videoUrl);
-      const formats = ytdl.filterFormats(info.formats, 'audioonly');
-      const format  = formats.sort((a, b) => (b.audioBitrate || 0) - (a.audioBitrate || 0))[0];
-
-      if (!format) {
-        await msg.react('❌');
-        return await msg.reply('❌ کوئی audio format نہیں ملا!');
-      }
-
-      const chunks = [];
-      await new Promise((resolve, reject) => {
-        const stream = ytdl(videoUrl, { format });
-        stream.on('data',  chunk => chunks.push(chunk));
-        stream.on('end',   resolve);
-        stream.on('error', reject);
+      // ✅ FIX: cobalt.tools API — Heroku پر کام کرتی ہے
+      const cobaltRes = await axios.post('https://api.cobalt.tools/', {
+        url         : videoUrl,
+        downloadMode: 'audio',
+        audioFormat : 'mp3',
+        audioBitrate: '128',
+      }, {
+        headers: {
+          'Accept'      : 'application/json',
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000,
       });
 
-      const audioBuffer = Buffer.concat(chunks);
+      if (!cobaltRes.data?.url) {
+        await msg.react('❌');
+        return await msg.reply('❌ Audio download ناکام! دوبارہ try کریں۔');
+      }
+
+      const audioRes = await axios.get(cobaltRes.data.url, {
+        responseType: 'arraybuffer',
+        timeout     : 60000,
+      });
+
+      const audioBuffer = Buffer.from(audioRes.data);
 
       if (!audioBuffer || audioBuffer.length === 0) {
         await msg.react('❌');
         return await msg.reply('❌ Audio download ناکام! دوبارہ try کریں۔');
       }
 
-      // ── Thumbnail buffer ──────────────────────────────────
       let thumbnailBuffer = Buffer.from('');
       if (thumb) {
         try {
@@ -112,11 +110,10 @@ ${SYSTEM.SHORT_WATERMARK}`;
         } catch (_) {}
       }
 
-      // ── Send audio ────────────────────────────────────────
       await sock.sendMessage(from, {
-        audio  : audioBuffer,
+        audio   : audioBuffer,
         mimetype: 'audio/mp4',
-        ptt    : false,
+        ptt     : false,
         contextInfo: {
           externalAdReply: {
             title    : title,
