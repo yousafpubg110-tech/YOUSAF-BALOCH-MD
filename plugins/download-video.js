@@ -8,6 +8,11 @@
 import yts  from 'yt-search';
 import axios from 'axios';
 import { OWNER, SYSTEM } from '../config.js';
+import { exec } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
+const execAsync = promisify(exec);
 
 export default {
   command : ['video', 'ytv', 'ytvideo', 'ytmp4'],
@@ -20,9 +25,9 @@ export default {
   handler: async ({ sock, msg, from, args }) => {
     try {
       if (!args || args.length === 0) {
-        return await msg.reply(`❌ *YouTube URL یا search query دیں!*
+        return await msg.reply(`❌ *Please provide a YouTube URL or search query!*
 
-*مثال:*
+*Examples:*
 .video https://youtu.be/xxxxx
 .video Despacito
 .ytmp4 Avengers trailer
@@ -36,15 +41,18 @@ ${SYSTEM.SHORT_WATERMARK}`);
       let videoUrl;
       let videoInfo;
 
+      // Check if input is URL or search query
       if (!isValidYouTubeUrl(query)) {
+        // Search for video
         const search = await yts(query);
         if (!search.videos.length) {
           await msg.react('❌');
-          return await msg.reply('❌ کوئی video نہیں ملی! دوسرے keywords try کریں۔');
+          return await msg.reply('❌ No video found! Try different keywords.');
         }
         videoInfo = search.videos[0];
         videoUrl  = videoInfo.url;
       } else {
+        // Direct URL
         videoUrl = query;
         const videoId = extractVideoId(query);
         if (!videoId) {
@@ -62,6 +70,7 @@ ${SYSTEM.SHORT_WATERMARK}`);
       const ago      = videoInfo.ago           || '';
       const thumb    = videoInfo.thumbnail     || videoInfo.image || '';
 
+      // Send info message with thumbnail
       const caption = `╭━━━『 🎥 *YOUTUBE VIDEO* 』━━━╮
 
 📌 *Title:* ${title}
@@ -84,41 +93,112 @@ ${SYSTEM.SHORT_WATERMARK}`;
 
       await msg.react('⬇️');
 
-      // ✅ cobalt.tools API — video download fixed
-      const cobaltRes = await axios.post('https://api.cobalt.tools/', {
-        url          : videoUrl,
-        downloadMode : 'auto',
-        videoQuality : '720',
-        filenameStyle: 'basic',
-      }, {
-        headers: {
-          'Accept'      : 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent'  : 'Mozilla/5.0',
-        },
-        timeout: 30000,
-      });
+      // Try multiple download methods
+      let videoBuffer = null;
+      let downloadUrl = null;
+      let errors = [];
 
-      const downloadUrl = cobaltRes.data?.url || cobaltRes.data?.video;
-      if (!downloadUrl) {
-        await msg.react('❌');
-        return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
+      // METHOD 1: cobalt.tools API
+      try {
+        const cobaltRes = await axios.post('https://api.cobalt.tools/', {
+          url          : videoUrl,
+          downloadMode : 'auto',
+          videoQuality : '720',
+          filenameStyle: 'basic',
+        }, {
+          headers: {
+            'Accept'      : 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent'  : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+          timeout: 30000,
+        });
+
+        downloadUrl = cobaltRes.data?.url;
+        if (downloadUrl) {
+          const videoRes = await axios.get(downloadUrl, {
+            responseType: 'arraybuffer',
+            timeout     : 120000,
+            headers     : { 'User-Agent': 'Mozilla/5.0' },
+          });
+          videoBuffer = Buffer.from(videoRes.data);
+        }
+      } catch (e) {
+        errors.push(`Cobalt API: ${e.message}`);
       }
 
-      // ✅ Direct video download
-      const videoRes = await axios.get(downloadUrl, {
-        responseType: 'arraybuffer',
-        timeout     : 120000,
-        headers     : { 'User-Agent': 'Mozilla/5.0' },
-      });
+      // METHOD 2: yt-dlp (if installed)
+      if (!videoBuffer) {
+        try {
+          const tempFile = path.join('/tmp', `video_${Date.now()}.mp4`);
+          await execAsync(`yt-dlp -f "best[height<=720]" -o "${tempFile}" "${videoUrl}"`);
+          
+          if (fs.existsSync(tempFile)) {
+            videoBuffer = fs.readFileSync(tempFile);
+            fs.unlinkSync(tempFile);
+          }
+        } catch (e) {
+          errors.push(`yt-dlp: ${e.message}`);
+        }
+      }
 
-      const videoBuffer = Buffer.from(videoRes.data);
+      // METHOD 3: piped.video API
+      if (!videoBuffer) {
+        try {
+          const videoId = extractVideoId(videoUrl);
+          const pipedRes = await axios.get(`https://piped.video/api/v1/streams/${videoId}`);
+          
+          if (pipedRes.data && pipedRes.data.videoStreams) {
+            const stream = pipedRes.data.videoStreams.find(s => s.quality === '720p') || 
+                          pipedRes.data.videoStreams[0];
+            
+            if (stream && stream.url) {
+              const videoRes = await axios.get(stream.url, {
+                responseType: 'arraybuffer',
+                timeout     : 120000,
+              });
+              videoBuffer = Buffer.from(videoRes.data);
+            }
+          }
+        } catch (e) {
+          errors.push(`Piped API: ${e.message}`);
+        }
+      }
 
+      // METHOD 4: y2mate (fallback)
+      if (!videoBuffer) {
+        try {
+          const y2mateRes = await axios.get(`https://y2mate.guru/api/convert`, {
+            params: {
+              url: videoUrl,
+              format: 'mp4',
+              quality: '720'
+            }
+          });
+          
+          if (y2mateRes.data && y2mateRes.data.downloadUrl) {
+            const videoRes = await axios.get(y2mateRes.data.downloadUrl, {
+              responseType: 'arraybuffer',
+              timeout: 120000,
+            });
+            videoBuffer = Buffer.from(videoRes.data);
+          }
+        } catch (e) {
+          errors.push(`Y2Mate: ${e.message}`);
+        }
+      }
+
+      // Check if any method worked
       if (!videoBuffer || videoBuffer.length === 0) {
         await msg.react('❌');
-        return await msg.reply('❌ Video download ناکام!');
+        const errorMsg = errors.length > 0 
+          ? errors.join('\n• ') 
+          : 'Unknown error';
+          
+        return await msg.reply(`❌ *Video download failed!*\n\n• ${errorMsg}\n\nTry again later or use different video.\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
+      // Get thumbnail buffer
       let thumbnailBuffer = Buffer.from('');
       if (thumb) {
         try {
@@ -127,17 +207,18 @@ ${SYSTEM.SHORT_WATERMARK}`;
         } catch (_) {}
       }
 
-      // ✅ سیدھا video بھیجیں
+      // Send video
       await sock.sendMessage(from, {
         video   : videoBuffer,
         mimetype: 'video/mp4',
-        caption : `🎥 *${title}*\n\n📺 ${channel}\n⏱️ ${duration}\n\n${SYSTEM.SHORT_WATERMARK}`,
+        caption : `🎥 *${title}*\n\n📺 ${channel}\n⏱️ ${duration}\n👁️ ${views} views\n\n${SYSTEM.SHORT_WATERMARK}`,
         contextInfo: {
           externalAdReply: {
-            title    : title,
+            title    : title.substring(0, 30),
             body     : `🎥 YouTube Video • ${OWNER.BOT_NAME}`,
             thumbnail: thumbnailBuffer,
             sourceUrl: videoUrl,
+            mediaType: 1,
           },
         },
       }, { quoted: msg });
@@ -148,7 +229,7 @@ ${SYSTEM.SHORT_WATERMARK}`;
       console.error('Video download error:', error.message);
       try {
         await msg.react('❌');
-        await msg.reply(`❌ *Video download error:*\n_${error.message}_\n\n${SYSTEM.SHORT_WATERMARK}`);
+        await msg.reply(`❌ *Video download error:*\n_${error.message}_\n\nPlease try again later.\n\n${SYSTEM.SHORT_WATERMARK}`);
       } catch (_) {}
     }
   },
@@ -174,4 +255,4 @@ function formatNumber(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
   return num.toString();
-}
+          }
