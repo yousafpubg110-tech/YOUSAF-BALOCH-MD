@@ -3,34 +3,27 @@
 ┃  YOUSAF-BALOCH-MD YouTube Search & DL  ┃
 ┃        Created by MR YOUSAF BALOCH     ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-📱 WhatsApp: +923710636110
-📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 TikTok: https://tiktok.com/@loser_boy.110
-💻 GitHub: https://github.com/musakhanbaloch03-sad
-🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import ytdl from '@distube/ytdl-core';
+import yts  from 'yt-search';
 import axios from 'axios';
-import yts from 'yt-search';
-import { sanitizeUrl } from '../lib/utils.js';
 import { OWNER, SYSTEM } from '../config.js';
 
 export default {
-  command: ['yt', 'youtube', 'ytsearch'],
-  name: 'youtube',
+  command : ['yt', 'youtube', 'ytsearch'],
+  name    : 'youtube',
   category: 'Downloader',
   description: 'Search YouTube and download audio',
-  usage: '.yt <search query or youtube url>',
+  usage   : '.yt <search query or youtube url>',
   cooldown: 10,
 
   handler: async ({ sock, msg, from, args }) => {
     try {
       if (!args || args.length === 0) {
-        return await msg.reply(`❌ Please provide a search query or YouTube URL!
+        return await msg.reply(`❌ *Search query یا YouTube URL دیں!*
 
-*Example:*
+*مثال:*
 .yt Despacito
 .yt https://youtu.be/xxxxx
 .youtube Shape of You
@@ -44,7 +37,9 @@ ${SYSTEM.SHORT_WATERMARK}`);
       let videoInfo;
       let videoUrl;
 
+      // ── Search or direct URL ──────────────────────────────
       if (isValidYouTubeUrl(query)) {
+        videoUrl = query;
         const videoId = extractVideoId(query);
         if (!videoId) {
           await msg.react('❌');
@@ -52,45 +47,49 @@ ${SYSTEM.SHORT_WATERMARK}`);
         }
         const search = await yts({ videoId });
         videoInfo = search;
-        videoUrl = query;
       } else {
         const search = await yts(query);
         if (!search.videos.length) {
           await msg.react('❌');
-          return await msg.reply('❌ No results found! Try different keywords.');
+          return await msg.reply('❌ کوئی نتیجہ نہیں ملا! دوسرے keywords try کریں۔');
         }
         videoInfo = search.videos[0];
-        videoUrl = videoInfo.url;
+        videoUrl  = videoInfo.url;
       }
 
       if (!videoInfo) {
         await msg.react('❌');
-        return await msg.reply('❌ Could not get video info!');
+        return await msg.reply('❌ Video info نہیں مل سکی!');
       }
 
-      const infoText = `╭━━━『 *YOUTUBE* 』━━━╮
+      const title   = videoInfo.title       || 'Unknown';
+      const channel = videoInfo.author?.name || 'Unknown';
+      const duration= videoInfo.timestamp   || '?';
+      const views   = formatNumber(videoInfo.views || 0);
+      const ago     = videoInfo.ago         || '';
+      const thumb   = videoInfo.thumbnail   || videoInfo.image || '';
 
-📺 *Title:* ${videoInfo.title}
-⏱️ *Duration:* ${videoInfo.timestamp}
-👁️ *Views:* ${formatNumber(videoInfo.views)}
-📅 *Uploaded:* ${videoInfo.ago}
-📢 *Channel:* ${videoInfo.author?.name || 'Unknown'}
+      const infoText = `╭━━━『 📺 *YOUTUBE* 』━━━╮
+
+📺 *Title:* ${title}
+⏱️ *Duration:* ${duration}
+👁️ *Views:* ${views}
+📅 *Uploaded:* ${ago}
+📢 *Channel:* ${channel}
 🔗 *Link:* ${videoUrl}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
-
 ⏳ *Downloading audio...*
-
 ${SYSTEM.SHORT_WATERMARK}`;
 
-      if (videoInfo.thumbnail) {
-        const safeThumbnail = sanitizeUrl(videoInfo.thumbnail);
-        if (safeThumbnail) {
+      // ── Send thumbnail + info ─────────────────────────────
+      if (thumb) {
+        try {
           await sock.sendMessage(from, {
-            image: { url: safeThumbnail },
+            image  : { url: thumb },
             caption: infoText,
           }, { quoted: msg });
-        } else {
+        } catch (_) {
           await msg.reply(infoText);
         }
       } else {
@@ -99,71 +98,64 @@ ${SYSTEM.SHORT_WATERMARK}`;
 
       await msg.react('⬇️');
 
-      // FIX: ytdl-core removed — blocked by YouTube, replaced with API
-      // FIX: sanitizeUrl on API URL — CodeQL High error fix
-      const rawApiUrl = `https://api.nexoracle.com/downloader/ytmp3?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
-      const safeApiUrl = sanitizeUrl(rawApiUrl);
+      // ── Download audio via @distube/ytdl-core ─────────────
+      const info    = await ytdl.getInfo(videoUrl);
+      const formats = ytdl.filterFormats(info.formats, 'audioonly');
+      const format  = formats.sort((a, b) => (b.audioBitrate || 0) - (a.audioBitrate || 0))[0];
 
-      if (!safeApiUrl) {
+      if (!format) {
         await msg.react('❌');
-        return await msg.reply('❌ Failed to build download URL.');
+        return await msg.reply('❌ کوئی audio format نہیں ملا!');
       }
 
-      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+      const chunks = [];
+      await new Promise((resolve, reject) => {
+        const stream = ytdl(videoUrl, { format });
+        stream.on('data',  chunk => chunks.push(chunk));
+        stream.on('end',   resolve);
+        stream.on('error', reject);
+      });
 
-      if (response.data?.result?.download) {
-        // FIX: sanitizeUrl on download URL — CodeQL High error fix
-        const safeDownloadUrl = sanitizeUrl(response.data.result.download);
+      const audioBuffer = Buffer.concat(chunks);
 
-        if (!safeDownloadUrl) {
-          await msg.react('❌');
-          return await msg.reply('❌ Invalid download URL received!');
-        }
+      if (!audioBuffer || audioBuffer.length === 0) {
+        await msg.react('❌');
+        return await msg.reply('❌ Audio download ناکام! دوبارہ try کریں۔');
+      }
 
-        const audioRes = await axios.get(safeDownloadUrl, {
-          responseType: 'arraybuffer',
-          timeout: 60000,
-        });
+      // ── Thumbnail buffer ──────────────────────────────────
+      let thumbnailBuffer = Buffer.from('');
+      if (thumb) {
+        try {
+          const res = await axios.get(thumb, { responseType: 'arraybuffer', timeout: 10000 });
+          thumbnailBuffer = Buffer.from(res.data);
+        } catch (_) {}
+      }
 
-        const audioBuffer = Buffer.from(audioRes.data);
-
-        let thumbnailBuffer = Buffer.from('');
-        if (videoInfo.thumbnail) {
-          const safeThumbnailUrl = sanitizeUrl(videoInfo.thumbnail);
-          if (safeThumbnailUrl) {
-            thumbnailBuffer = await getBuffer(safeThumbnailUrl);
-          }
-        }
-
-        const safeVideoUrl = sanitizeUrl(videoUrl) || OWNER.GITHUB;
-
-        await sock.sendMessage(from, {
-          audio: audioBuffer,
-          mimetype: 'audio/mp4',
-          ptt: false,
-          contextInfo: {
-            externalAdReply: {
-              title: videoInfo.title,
-              body: `${videoInfo.author?.name || 'Unknown'} • ${videoInfo.timestamp}`,
-              thumbnail: thumbnailBuffer,
-              mediaType: 2,
-              mediaUrl: safeVideoUrl,
-              sourceUrl: safeVideoUrl,
-            },
+      // ── Send audio ────────────────────────────────────────
+      await sock.sendMessage(from, {
+        audio  : audioBuffer,
+        mimetype: 'audio/mp4',
+        ptt    : false,
+        contextInfo: {
+          externalAdReply: {
+            title    : title,
+            body     : `${channel} • ${duration}`,
+            thumbnail: thumbnailBuffer,
+            mediaType: 2,
+            mediaUrl : videoUrl,
+            sourceUrl: videoUrl,
           },
-        }, { quoted: msg });
+        },
+      }, { quoted: msg });
 
-        await msg.react('✅');
-      } else {
-        await msg.react('❌');
-        await msg.reply('❌ Failed to download. Try again later!');
-      }
+      await msg.react('✅');
 
     } catch (error) {
       console.error('YouTube download error:', error.message);
       try {
         await msg.react('❌');
-        await msg.reply('❌ Error: ' + error.message);
+        await msg.reply(`❌ *YouTube error:*\n_${error.message}_\n\n${SYSTEM.SHORT_WATERMARK}`);
       } catch (_) {}
     }
   },
@@ -172,13 +164,9 @@ ${SYSTEM.SHORT_WATERMARK}`;
 function isValidYouTubeUrl(url) {
   try {
     const parsed = new URL(url);
-    return (
-      ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com'].includes(parsed.hostname) &&
-      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
-    );
-  } catch {
-    return false;
-  }
+    return ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com']
+      .includes(parsed.hostname);
+  } catch { return false; }
 }
 
 function extractVideoId(url) {
@@ -186,26 +174,12 @@ function extractVideoId(url) {
     const parsed = new URL(url);
     if (parsed.hostname === 'youtu.be') return parsed.pathname.slice(1);
     return parsed.searchParams.get('v') || null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function formatNumber(num) {
   if (!num || isNaN(num)) return '0';
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
   return num.toString();
-}
-
-async function getBuffer(safeUrl) {
-  try {
-    const response = await axios.get(safeUrl, {
-      responseType: 'arraybuffer',
-      timeout: 15000,
-    });
-    return Buffer.from(response.data);
-  } catch {
-    return Buffer.from('');
-  }
 }
