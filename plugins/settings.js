@@ -5,7 +5,7 @@
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
-import { OWNER, CONFIG } from '../config.js';
+import { OWNER, CONFIG, isDeployer } from '../config.js';
 
 const SETTINGS = {
 
@@ -453,9 +453,16 @@ const CATEGORIES = [
 // ═══════════════════════════════════════════════════════════════
 let handler = async (m, { conn, usedPrefix, args }) => {
 
-  const pfx = usedPrefix || '.';
+  const pfx    = usedPrefix || '.';
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
-  const name = conn.contacts?.[sender]?.name || conn.contacts?.[sender]?.notify || sender.split('@')[0] || 'User';
+  const name   = conn.contacts?.[sender]?.name || conn.contacts?.[sender]?.notify || sender.split('@')[0] || 'User';
+
+  // ── PERMISSION CHECK — Deployer (Level 2) and above only ──
+  if (!isDeployer(sender)) {
+    return conn.sendMessage(m.chat, {
+      text: `🚫 *Access Denied!*\n\nThis command is reserved for the *Bot Admin* only.\n\n👑 *Bot Owner:* ${OWNER.FULL_NAME}\n📱 *Contact:* wa.me/${OWNER.NUMBER}\n\n_⚡ ${OWNER.BOT_NAME}_`,
+    }, { quoted: m });
+  }
 
   // ── No args → show categories ──────────────────────────────
   if (!args[0]) {
@@ -477,13 +484,13 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     msg += `┃ ${pfx}settings all off   » Disable all\n`;
     msg += `┃ ${pfx}settings public    » Public mode\n`;
     msg += `┃ ${pfx}settings private   » Private mode\n\n`;
-    
+
     msg += `_⚡ ${OWNER.BOT_NAME} — Total Settings: ${Object.keys(SETTINGS).length}_`;
 
     return conn.sendMessage(m.chat, { text: msg }, { quoted: m });
   }
 
-  const input = args[0].toLowerCase();
+  const input  = args[0].toLowerCase();
   const action = args[1]?.toLowerCase();
 
   // ── Public/Private mode ────────────────────────────────────
@@ -516,15 +523,15 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         text: `❌ *Usage:* ${pfx}settings all on / ${pfx}settings all off`,
       }, { quoted: m });
     }
-    
-    const value = action === 'on';
+
+    const value   = action === 'on';
     const changed = [];
-    
+
     for (const [cmd, info] of Object.entries(SETTINGS)) {
       CONFIG[info.key] = value;
       changed.push(`${value ? '✅' : '❌'} ${info.label}`);
     }
-    
+
     return conn.sendMessage(m.chat, {
       text: `╔══════════════════════════════════════╗\n`
           + `║  ⚙️  *ALL SETTINGS ${value ? 'ON' : 'OFF'}*  ║\n`
@@ -537,23 +544,23 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 
   // ── Category mapping ───────────────────────────────────────
   const categoryMap = {
-    'auto': '🤖 AUTO FEATURES',
-    'anti': '🛡️ ANTI FEATURES',
-    'group': '👥 GROUP FEATURES',
-    'islamic': '☪️ ISLAMIC FEATURES',
-    'cricket': '🏏 CRICKET FEATURES',
-    'ai': '🤖 AI FEATURES',
+    'auto'    : '🤖 AUTO FEATURES',
+    'anti'    : '🛡️ ANTI FEATURES',
+    'group'   : '👥 GROUP FEATURES',
+    'islamic' : '☪️ ISLAMIC FEATURES',
+    'cricket' : '🏏 CRICKET FEATURES',
+    'ai'      : '🤖 AI FEATURES',
     'download': '📥 DOWNLOAD FEATURES',
-    'games': '🎮 GAMES FEATURES',
-    'economy': '💰 ECONOMY FEATURES',
-    'tools': '🛠️ TOOLS FEATURES'
+    'games'   : '🎮 GAMES FEATURES',
+    'economy' : '💰 ECONOMY FEATURES',
+    'tools'   : '🛠️ TOOLS FEATURES',
   };
 
   // ── Show category settings ─────────────────────────────────
   if (categoryMap[input]) {
     const targetCategory = categoryMap[input];
     let msg = `╭━『 ${targetCategory} 』━━━━━━━━━━━━━━━━━━━━╮\n\n`;
-    
+
     for (const [cmd, info] of Object.entries(SETTINGS)) {
       if (info.group === targetCategory) {
         const status = CONFIG[info.key] ? '✅' : '❌';
@@ -562,10 +569,10 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         msg += `┃    ${pfx}settings ${cmd} ${CONFIG[info.key] ? 'off' : 'on'}\n\n`;
       }
     }
-    
+
     msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n`;
     msg += `_⚡ ${OWNER.BOT_NAME}_`;
-    
+
     return conn.sendMessage(m.chat, { text: msg }, { quoted: m });
   }
 
