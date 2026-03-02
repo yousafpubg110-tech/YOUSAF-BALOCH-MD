@@ -36,7 +36,6 @@ ${SYSTEM.SHORT_WATERMARK}`);
       let videoUrl;
       let videoInfo;
 
-      // ── Search or direct URL ──────────────────────────────
       if (!isValidYouTubeUrl(query)) {
         const search = await yts(query);
         if (!search.videos.length) {
@@ -75,7 +74,6 @@ ${SYSTEM.SHORT_WATERMARK}`);
 ⏳ *Downloading video...*
 ${SYSTEM.SHORT_WATERMARK}`;
 
-      // ── Send thumbnail + info ─────────────────────────────
       if (thumb) {
         try {
           await sock.sendMessage(from, { image: { url: thumb }, caption }, { quoted: msg });
@@ -86,37 +84,41 @@ ${SYSTEM.SHORT_WATERMARK}`;
 
       await msg.react('⬇️');
 
-      // ✅ FIX: cobalt.tools API — Heroku پر کام کرتی ہے
+      // ✅ cobalt.tools API — video download fixed
       const cobaltRes = await axios.post('https://api.cobalt.tools/', {
-        url         : videoUrl,
-        downloadMode: 'auto',
-        videoQuality: '720',
+        url          : videoUrl,
+        downloadMode : 'auto',
+        videoQuality : '720',
+        filenameStyle: 'basic',
       }, {
         headers: {
           'Accept'      : 'application/json',
           'Content-Type': 'application/json',
+          'User-Agent'  : 'Mozilla/5.0',
         },
         timeout: 30000,
       });
 
-      if (!cobaltRes.data?.url) {
+      const downloadUrl = cobaltRes.data?.url || cobaltRes.data?.video;
+      if (!downloadUrl) {
         await msg.react('❌');
         return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
       }
 
-      const videoRes = await axios.get(cobaltRes.data.url, {
+      // ✅ Direct video download
+      const videoRes = await axios.get(downloadUrl, {
         responseType: 'arraybuffer',
         timeout     : 120000,
+        headers     : { 'User-Agent': 'Mozilla/5.0' },
       });
 
       const videoBuffer = Buffer.from(videoRes.data);
 
       if (!videoBuffer || videoBuffer.length === 0) {
         await msg.react('❌');
-        return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
+        return await msg.reply('❌ Video download ناکام!');
       }
 
-      // ── Thumbnail buffer ──────────────────────────────────
       let thumbnailBuffer = Buffer.from('');
       if (thumb) {
         try {
@@ -125,7 +127,7 @@ ${SYSTEM.SHORT_WATERMARK}`;
         } catch (_) {}
       }
 
-      // ── Send video ────────────────────────────────────────
+      // ✅ سیدھا video بھیجیں
       await sock.sendMessage(from, {
         video   : videoBuffer,
         mimetype: 'video/mp4',
@@ -155,8 +157,7 @@ ${SYSTEM.SHORT_WATERMARK}`;
 function isValidYouTubeUrl(url) {
   try {
     const parsed = new URL(url);
-    return ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com']
-      .includes(parsed.hostname);
+    return ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com'].includes(parsed.hostname);
   } catch { return false; }
 }
 
