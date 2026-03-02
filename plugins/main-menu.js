@@ -12,10 +12,10 @@ import { OWNER, CONFIG } from '../config.js';
 
 function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
-  if (hour >= 5  && hour < 12) return { label: '🌅 Morning Time',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',  color: '🌤️' };
-  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon Time', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',               color: '☀️' };
-  if (hour >= 16 && hour < 20) return { label: '🌆 Evening Time',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',  color: '🌇' };
-  return                               { label: '🌙 Night Time',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',         color: '🌌' };
+  if (hour >= 5  && hour < 12) return { label: '🌅 Morning Time',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',   color: '🌤️' };
+  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon Time', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',                color: '☀️' };
+  if (hour >= 16 && hour < 20) return { label: '🌆 Evening Time',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',   color: '🌇' };
+  return                               { label: '🌙 Night Time',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',          color: '🌌' };
 }
 
 let handler = async (m, { conn, usedPrefix }) => {
@@ -45,6 +45,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   let pluginCount = 160;
   try { pluginCount = fs.readdirSync('./plugins').filter(f => f.endsWith('.js')).length; } catch (_) {}
 
+  // ── Menu text ─────────────────────────────────────────────────
   const menu = `
 ╔══════════════════════════════════════╗
 ║  ${T.color} *YOUSAF-BALOCH-MD* ${T.color}  ║
@@ -106,7 +107,7 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ┃ ${pfx}anticall <on/off>
 ┃  _Auto reject calls_
 ┃ ${pfx}autoreply <on/off>
-┃  _Auto reply when offline_
+┃  _Auto reply offline_
 ┃ ${pfx}autodownload <on/off>
 ┃  _Auto download media_
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
@@ -156,14 +157,22 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 🤖 *AI FEATURES* 』━━━━╮
+┃ ▸ 💬 *Chat AI*
 ┃ ${pfx}ai <text>      » Gemini AI
 ┃ ${pfx}chatgpt <text> » ChatGPT
 ┃ ${pfx}gpt <text>     » GPT Response
+┃
+┃ ▸ 🖼️ *AI Image*
 ┃ ${pfx}imagine <prompt>» AI Art
-┃ ${pfx}aicode <lang> <task>» AI Code
+┃ ${pfx}aiimage <prompt>» Generate Img
+┃
+┃ ▸ 💻 *AI Code*
+┃ ${pfx}aicode <lang> <task>
 ┃ ${pfx}explain <code> » Explain Code
+┃ ${pfx}debug <code>   » Debug Code
+┃
+┃ ▸ 🌍 *Translation*
 ┃ ${pfx}translate <lang> <text>
-┃  _مثال: ${pfx}translate urdu Hello_
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 🖼️ *IMAGE TOOLS* 』━━━━╮
@@ -171,6 +180,7 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ┃ ${pfx}enhance       » HD Enhance
 ┃ ${pfx}blur          » Blur Effect
 ┃ ${pfx}sepia         » Sepia Effect
+┃ ${pfx}invert        » Invert Colors
 ┃ ${pfx}grayscale     » Black & White
 ┃ ${pfx}cartoon       » Cartoon Effect
 ┃ ${pfx}sketch        » Pencil Sketch
@@ -187,17 +197,15 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ┃ ${pfx}sgif          » Video → Sticker
 ┃ ${pfx}toimg         » Sticker → Image
 ┃ ${pfx}ttp <text>    » Text → Sticker
-┃  _مثال: ${pfx}ttp Yousaf 3_
 ┃ ${pfx}attp <text>   » Animated TTP
-┃  _8 Styles: 1-8_
 ┃ ${pfx}emojimix <🤣+😍>» Mix Emojis
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 🎨 *DESIGN TOOLS* 』━━━━╮
 ┃ ${pfx}logo <name>   » 30 Logo Styles
-┃  _مثال: ${pfx}logo Yousaf 5_
+┃  _Example: ${pfx}logo Yousaf 5_
 ┃ ${pfx}dp <name|tag> » 30 DP Styles
-┃  _مثال: ${pfx}dp Yousaf | King_
+┃  _Example: ${pfx}dp Yousaf | King_
 ┃ ${pfx}carbon <code> » Code Screenshot
 ┃ ${pfx}meme <t|b>    » Create Meme
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
@@ -227,43 +235,70 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 ☪️ *ISLAMIC MENU* 』━━━━╮
+┃ ▸ 📖 *Quran*
 ┃ ${pfx}quran <surah:ayah>» Quran Ayat
-┃  _مثال: ${pfx}quran 2:255_
+┃  _Example: ${pfx}quran 2:255_
 ┃ ${pfx}ayat           » Random Ayat
+┃ ${pfx}tafsir <s:a>   » Tafsir
+┃
+┃ ▸ 📚 *Hadith*
 ┃ ${pfx}hadith         » Random Hadith
+┃
+┃ ▸ 🕌 *Prayer Times*
 ┃ ${pfx}prayertime <city>» Prayer Times
 ┃ ${pfx}prayer         » Today's Times
+┃
+┃ ▸ 🌙 *Islamic Info*
 ┃ ${pfx}hijri          » Hijri Date
 ┃ ${pfx}dua            » Random Dua
 ┃ ${pfx}asma           » Asma-ul-Husna
+┃ ${pfx}islamicnames   » Muslim Names
 ┃ ${pfx}zakatcalc <amt>» Zakat Calc
 ┃ ${pfx}ramadan        » Ramadan Info
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 🏏 *CRICKET & MATCH* 』━━━━╮
+┃ ▸ 🔴 *Live Scores*
 ┃ ${pfx}score          » Live Score
 ┃ ${pfx}livescore      » Live Matches
 ┃ ${pfx}cricketlive    » Cricket Live
+┃
+┃ ▸ 📊 *Match Info*
 ┃ ${pfx}matchinfo      » Match Details
 ┃ ${pfx}schedule       » Match Schedule
+┃ ${pfx}commentary     » Live Commentary
+┃ ${pfx}toss           » Toss Result
+┃
+┃ ▸ 🏆 *Tournaments*
 ┃ ${pfx}psl            » PSL 2025
 ┃ ${pfx}ipl            » IPL 2025
 ┃ ${pfx}pointstable    » Points Table
+┃
+┃ ▸ ⚽ *Football*
 ┃ ${pfx}football       » Football Score
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━━━━『 👥 *GROUP MENU* 』━━━━╮
+┃ ▸ 👤 *Members*
 ┃ ${pfx}add <number>   » Add Member
 ┃ ${pfx}kick <@user>   » Kick Member
 ┃ ${pfx}promote <@user>» Make Admin
 ┃ ${pfx}demote <@user> » Remove Admin
 ┃ ${pfx}tagall <text>  » Tag Everyone
 ┃ ${pfx}hidetag <text> » Silent Tag
+┃
+┃ ▸ ⚠️ *Warning System*
 ┃ ${pfx}warn <@user>   » Warn Member
 ┃  _3 Warnings = Auto Kick!_
 ┃ ${pfx}unwarn <@user> » Remove Warn
+┃
+┃ ▸ ⚙️ *Group Settings*
 ┃ ${pfx}groupopen      » Open Group
 ┃ ${pfx}groupclose     » Close Group
+┃ ${pfx}groupname <t>  » Change Name
+┃ ${pfx}groupdesc <t>  » Change Desc
+┃
+┃ ▸ 🛡️ *Protection*
 ┃ ${pfx}antilink <on/off>» Anti Link
 ┃ ${pfx}antivv <on/off>  » Anti VV
 ┃ ${pfx}antispam <on/off>» Anti Spam
@@ -301,7 +336,7 @@ ${T.emoji} *${T.label}* — ${T.greet}
 ╭━━━━『 👑 *OWNER MENU* 』━━━━╮
 ┃ ${pfx}broadcast <text>» Broadcast
 ┃ ${pfx}ban <@user>     » Ban User
-┃ ${pfx}unban <@user>   » Unban
+┃ ${pfx}unban <@user>   » Unban User
 ┃ ${pfx}block <@user>   » Block
 ┃ ${pfx}unblock <@user> » Unblock
 ┃ ${pfx}restart         » Restart Bot
@@ -342,54 +377,48 @@ _© 2025-2026 ${OWNER.BOT_NAME}_
 _Developed by ${OWNER.FULL_NAME}_
 _All Rights Reserved ⚡_`.trim();
 
-  // ── 1. ───────────────────────────────────────────
-  let thumbBuf = null;
+  // ── 1. تصویر + پوری مینیو ─────────────────────────────────────
   try {
-    thumbBuf = fs.readFileSync(path.resolve('./assets/menu-thumb.png'));
-  } catch (_) {}
+    const thumbPath  = path.resolve('./assets/menu-thumb.png');
+    const thumbBuf   = fs.readFileSync(thumbPath);
 
-  // ── 2.  ──────────────────────────────────
-  if (thumbBuf) {
-    try {
-      await conn.sendMessage(m.chat, {
-        image  : thumbBuf,
-        caption: menu,
-        contextInfo: {
-          externalAdReply: {
-            title      : `${OWNER.BOT_NAME} — Professional WhatsApp Bot`,
-            body       : `📺 YouTube: @Yousaf_Baloch_Tech`,
-            thumbnail  : thumbBuf,
-            mediaType  : 1,
-            mediaUrl   : 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-            sourceUrl  : 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-            showAdAttribution: true,
-          },
+    await conn.sendMessage(m.chat, {
+      image  : thumbBuf,
+      caption: menu,
+      // ✅ تصویر پر کلک = YouTube channel کھلے گا
+      contextInfo: {
+        externalAdReply: {
+          title      : `${OWNER.BOT_NAME} — Professional WhatsApp Bot`,
+          body       : `👑 ${OWNER.FULL_NAME} | 📺 @Yousaf_Baloch_Tech`,
+          thumbnail  : thumbBuf,
+          mediaType  : 2,
+          mediaUrl   : OWNER.YOUTUBE,
+          sourceUrl  : OWNER.YOUTUBE,
+          renderLargerThumbnail: true,
         },
-      }, { quoted: m });
-    } catch (_) {
-      // Fallback
-      await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-    }
-  } else {
+      },
+    }, { quoted: m });
+  } catch (_) {
+    // Fallback: تصویر نہ ملے تو صرف text
     await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
   }
 
-  // ── 3. WhatsApp Channel بٹن ───────────────────────────────────
+  // ── 2. WhatsApp Channel بٹن ───────────────────────────────────
   await conn.sendMessage(m.chat, {
-    text: `📢 *Join Our WhatsApp Channel!*\n\n_Bot updates, new features & support_\n\nhttps://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`,
+    text   : `📢 *Join Our WhatsApp Channel!*\n\n_Bot updates, new features & support_\n\n👇 *Click below to join:*\n${OWNER.CHANNEL}`,
     contextInfo: {
       externalAdReply: {
         title    : `📢 ${OWNER.BOT_NAME} — Official Channel`,
-        body     : 'Join for updates & support! ✅',
-        thumbnail: thumbBuf || Buffer.from(''),
+        body     : 'Join for updates & support!',
+        thumbnail: (() => { try { return fs.readFileSync('./assets/menu-thumb.png'); } catch { return Buffer.from(''); } })(),
         mediaType: 1,
-        mediaUrl : 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
-        sourceUrl: 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
+        mediaUrl : OWNER.CHANNEL,
+        sourceUrl: OWNER.CHANNEL,
       },
     },
   }, { quoted: m });
 
-  // ── 4. Voice Note —  ────────────────────────────
+  // ── 3. Voice note — مینیو کے بالکل آخر میں ──────────────────
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     const voiceBuf  = fs.readFileSync(voicePath);
@@ -397,7 +426,7 @@ _All Rights Reserved ⚡_`.trim();
     await conn.sendMessage(m.chat, {
       audio   : voiceBuf,
       mimetype: 'audio/mp4',
-      ptt     : true,
+      ptt     : true,   // ← voice note format
     }, { quoted: m });
   } catch (e) {
     console.error('[MENU VOICE ERROR]:', e.message);
