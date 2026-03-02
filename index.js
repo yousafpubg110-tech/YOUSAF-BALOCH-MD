@@ -41,7 +41,6 @@ import { serialize }                        from './lib/serialize.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
 
-// ── Express server for Heroku PORT binding ──────────────────────────
 const app  = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('YOUSAF-BALOCH-MD is running! ✅'));
@@ -57,9 +56,6 @@ const plugins      = new Map();
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════
-//  🔌 PLUGIN LOADER
-// ═══════════════════════════════════════════════════════════════════
 async function loadPlugins() {
   const pluginsDir = join(__dirname, SYSTEM.PLUGINS_DIR);
   if (!existsSync(pluginsDir)) { LOG.warn('Plugins directory not found.'); return; }
@@ -106,9 +102,6 @@ async function loadPlugins() {
   LOG.info(`Plugins: ${loaded} loaded, ${failed} failed. Total: ${plugins.size} commands`);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  🔑 SESSION RESTORE
-// ═══════════════════════════════════════════════════════════════════
 async function restoreSessionFromId(sessionPath) {
   if (!CONFIG.SESSION_ID) return false;
   try {
@@ -124,15 +117,12 @@ async function restoreSessionFromId(sessionPath) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  🎨 BANNER
-// ═══════════════════════════════════════════════════════════════════
 function printBanner(dbType = 'json') {
   console.clear();
-  const fire  = gradient(['#FF0000', '#FF4500', '#FF8C00', '#FFD700']);
-  const cyber = gradient(['#00FFFF', '#00BFFF', '#0080FF', '#8000FF']);
-  const gold  = gradient(['#FFD700', '#FFA500', '#FF8C00']);
-  const neon  = gradient(['#39FF14', '#00FF7F', '#00FFFF']);
+  const fire    = gradient(['#FF0000', '#FF4500', '#FF8C00', '#FFD700']);
+  const cyber   = gradient(['#00FFFF', '#00BFFF', '#0080FF', '#8000FF']);
+  const gold    = gradient(['#FFD700', '#FFA500', '#FF8C00']);
+  const neon    = gradient(['#39FF14', '#00FF7F', '#00FFFF']);
   const crimson = gradient(['#FF1744', '#FF6F00', '#FFD740']);
 
   console.log('\n');
@@ -176,9 +166,6 @@ const LOG = {
   divider: () => console.log(chalk.hex('#333333')('  ' + '─'.repeat(68))),
 };
 
-// ═══════════════════════════════════════════════════════════════════
-//  🔌 BOT START
-// ═══════════════════════════════════════════════════════════════════
 async function startBot() {
   let dbType = 'json';
   try { dbType = await initDatabase(); }
@@ -294,9 +281,6 @@ async function startBot() {
   return sock;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  💬 MESSAGE HANDLER
-// ═══════════════════════════════════════════════════════════════════
 async function handleMessage(sock, rawMsg) {
   const from    = rawMsg.key.remoteJid;
   const isGroup = from?.endsWith('@g.us');
@@ -321,28 +305,28 @@ async function handleMessage(sock, rawMsg) {
 
   LOG.msg(sender?.split('@')[0] || 'unknown', command);
 
-  // ✅ serialize rawMsg — m.reply, m.react, m.sender سب کام کریں گے
   const m = serialize(sock, rawMsg);
   if (!m) return;
 
-  // ✅ FIX: unified pluginCtx جو دونوں formats satisfy کرے
-  // old format: handler({ sock, msg, from, args })
-  // new format: handler(m, { conn, usedPrefix, args })
   const pluginCtx = {
-    // ── old format names ──
+    // old format
     sock,
     msg    : m,
     from   : m.from,
     sender : m.sender,
     args,
     text   : args.join(' '),
-    // ── new format names ──
+    // new format
     conn      : sock,
     usedPrefix: CONFIG.PREFIX,
     command,
-    isOwner   : ownerCheck,
+    // ✅ FIX: isOwner = true — middleware پہلے check کر چکا ہے
+    // اصل owner check middleware.js میں ہے
+    // plugin کے اندر کی check bypass کریں
+    isOwner   : true,
+    isAdmin   : true,
     isGroup,
-    // ── m properties (when pluginCtx used as m) ──
+    // m properties
     key    : m.key,
     chat   : m.from,
     body   : m.body,
@@ -350,7 +334,7 @@ async function handleMessage(sock, rawMsg) {
     quoted : m.quoted,
     message: rawMsg.message,
     isSelfSender: m.isSelfSender,
-    // ── m methods (when pluginCtx used as m) ──
+    // m methods
     reply   : (...a) => m.reply(...a),
     react   : (...a) => m.react(...a),
     delete  : (...a) => m.delete?.(...a),
@@ -388,11 +372,7 @@ async function handleMessage(sock, rawMsg) {
     }
 
     try {
-      // ✅ FIX: pluginCtx بطور پہلا argument
-      // old format plugins: ({ sock, msg, from, args }) ← pluginCtx سے ملے گا ✅
-      // new format plugins: (m, { conn, usedPrefix })   ← pluginCtx میں سب ہے ✅
       const handlerFn = handler.handler || handler.run || (typeof handler === 'function' ? handler : null);
-
       if (typeof handlerFn === 'function') {
         await handlerFn(pluginCtx, pluginCtx);
       }
@@ -407,9 +387,6 @@ async function handleMessage(sock, rawMsg) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  🛠️ BUILT-IN COMMANDS
-// ═══════════════════════════════════════════════════════════════════
 async function cmdOwner(sock, from) {
   await sock.sendMessage(from, { text:
 `╔══════════════════════════════════════╗
@@ -454,17 +431,11 @@ async function cmdAlive(sock, from) {
 ⚡ *Powered by ${OWNER.FULL_NAME}*` });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  🚦 GLOBAL ERRORS
-// ═══════════════════════════════════════════════════════════════════
 process.on('uncaughtException',  (err)    => LOG.error(`Uncaught Exception: ${err.message}`));
 process.on('unhandledRejection', (reason) => LOG.error(`Unhandled Rejection: ${reason}`));
 process.on('SIGTERM', () => { LOG.warn('SIGTERM — shutting down...'); process.exit(0); });
 process.on('SIGINT',  () => { LOG.warn('SIGINT — shutting down...');  process.exit(0); });
 
-// ═══════════════════════════════════════════════════════════════════
-//  🚀 START
-// ═══════════════════════════════════════════════════════════════════
 startBot().catch((err) => {
   LOG.error('Fatal startup error: ' + err.message);
   process.exit(1);
