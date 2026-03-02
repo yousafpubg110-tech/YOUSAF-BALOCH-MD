@@ -5,7 +5,6 @@
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
-import ytdl from '@distube/ytdl-core';
 import yts  from 'yt-search';
 import axios from 'axios';
 import { OWNER, SYSTEM } from '../config.js';
@@ -57,13 +56,12 @@ ${SYSTEM.SHORT_WATERMARK}`);
         videoInfo = search;
       }
 
-      // ── Video info ────────────────────────────────────────
-      const title    = videoInfo.title    || 'Unknown';
-      const channel  = videoInfo.author?.name || videoInfo.channel || 'Unknown';
-      const duration = videoInfo.timestamp || videoInfo.duration?.timestamp || '?';
+      const title    = videoInfo.title         || 'Unknown';
+      const channel  = videoInfo.author?.name  || 'Unknown';
+      const duration = videoInfo.timestamp     || '?';
       const views    = formatNumber(videoInfo.views || 0);
-      const ago      = videoInfo.ago || '';
-      const thumb    = videoInfo.thumbnail || videoInfo.image || '';
+      const ago      = videoInfo.ago           || '';
+      const thumb    = videoInfo.thumbnail     || videoInfo.image || '';
 
       const caption = `╭━━━『 🎥 *YOUTUBE VIDEO* 』━━━╮
 
@@ -80,48 +78,45 @@ ${SYSTEM.SHORT_WATERMARK}`;
       // ── Send thumbnail + info ─────────────────────────────
       if (thumb) {
         try {
-          await sock.sendMessage(from, {
-            image  : { url: thumb },
-            caption,
-          }, { quoted: msg });
-        } catch (_) {
-          await msg.reply(caption);
-        }
+          await sock.sendMessage(from, { image: { url: thumb }, caption }, { quoted: msg });
+        } catch (_) { await msg.reply(caption); }
       } else {
         await msg.reply(caption);
       }
 
       await msg.react('⬇️');
 
-      // ── Download via @distube/ytdl-core ───────────────────
-      // Size check: skip videos > 15 minutes (WhatsApp limit)
-      const info     = await ytdl.getInfo(videoUrl);
-      const formats  = ytdl.filterFormats(info.formats, 'videoandaudio');
-      const format   = formats.sort((a, b) => (b.height || 0) - (a.height || 0))
-                              .find(f => (f.height || 0) <= 720) || formats[0];
-
-      if (!format) {
-        await msg.react('❌');
-        return await msg.reply('❌ کوئی downloadable format نہیں ملا!');
-      }
-
-      // Download buffer
-      const chunks = [];
-      await new Promise((resolve, reject) => {
-        const stream = ytdl(videoUrl, { format });
-        stream.on('data',  chunk => chunks.push(chunk));
-        stream.on('end',   resolve);
-        stream.on('error', reject);
+      // ✅ FIX: cobalt.tools API — Heroku پر کام کرتی ہے
+      const cobaltRes = await axios.post('https://api.cobalt.tools/', {
+        url         : videoUrl,
+        downloadMode: 'auto',
+        videoQuality: '720',
+      }, {
+        headers: {
+          'Accept'      : 'application/json',
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000,
       });
 
-      const videoBuffer = Buffer.concat(chunks);
+      if (!cobaltRes.data?.url) {
+        await msg.react('❌');
+        return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
+      }
+
+      const videoRes = await axios.get(cobaltRes.data.url, {
+        responseType: 'arraybuffer',
+        timeout     : 120000,
+      });
+
+      const videoBuffer = Buffer.from(videoRes.data);
 
       if (!videoBuffer || videoBuffer.length === 0) {
         await msg.react('❌');
         return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
       }
 
-      // ── Send video ────────────────────────────────────────
+      // ── Thumbnail buffer ──────────────────────────────────
       let thumbnailBuffer = Buffer.from('');
       if (thumb) {
         try {
@@ -130,10 +125,11 @@ ${SYSTEM.SHORT_WATERMARK}`;
         } catch (_) {}
       }
 
+      // ── Send video ────────────────────────────────────────
       await sock.sendMessage(from, {
-        video  : videoBuffer,
+        video   : videoBuffer,
         mimetype: 'video/mp4',
-        caption: `🎥 *${title}*\n\n📺 ${channel}\n⏱️ ${duration}\n\n${SYSTEM.SHORT_WATERMARK}`,
+        caption : `🎥 *${title}*\n\n📺 ${channel}\n⏱️ ${duration}\n\n${SYSTEM.SHORT_WATERMARK}`,
         contextInfo: {
           externalAdReply: {
             title    : title,
@@ -156,7 +152,6 @@ ${SYSTEM.SHORT_WATERMARK}`;
   },
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function isValidYouTubeUrl(url) {
   try {
     const parsed = new URL(url);
