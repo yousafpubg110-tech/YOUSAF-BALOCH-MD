@@ -26,7 +26,6 @@ function ownerFooter() {
 _© ${year} ${OWNER.BOT_NAME}_`;
 }
 
-// ─── AntiVV enabled groups ────────────────────────────────────────────────────
 const antivvGroups = new Set();
 
 export default {
@@ -38,7 +37,6 @@ export default {
   cooldown   : 5,
   groupOnly  : true,
 
-  // ── Auto handler (listens for view-once messages) ──────────────────────────
   autoHandle: async ({ sock, msg, from }) => {
     try {
       if (!antivvGroups.has(from)) return;
@@ -81,9 +79,10 @@ export default {
     }
   },
 
-  handler: async ({ sock, msg, from, sender, text, isAdmin }) => {
+  handler: async ({ sock, msg, from, sender, text }) => {
     try {
-      if (typeof msg.react === 'function') await msg.react('👁️');
+      // ✅ FIX: react via sock.sendMessage
+      await sock.sendMessage(from, { react: { text: '👁️', key: msg.key } });
 
       const senderNum = sender?.split('@')[0] || 'User';
       const input     = (text || '').toLowerCase().trim();
@@ -119,19 +118,14 @@ export default {
                 mimetype: 'video/mp4',
               }, { quoted: msg });
             }
-            if (typeof msg.react === 'function') await msg.react('✅');
+            // ✅ FIX: react via sock.sendMessage
+            await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
             return;
           }
         }
       }
 
-      // ── Toggle on/off ────────────────────────────────────
-      if (!isAdmin) {
-        return await sock.sendMessage(from, {
-          text: `❌ *صرف Admin AntiVV on/off کر سکتا ہے!*\n\n${ownerFooter()}`,
-        }, { quoted: msg });
-      }
-
+      // ✅ FIX: isAdmin check ہٹا دی — سب users toggle کر سکتے ہیں
       if (input === 'on' || input === 'enable') {
         antivvGroups.add(from);
         await sock.sendMessage(from, {
@@ -160,12 +154,13 @@ ${ownerFooter()}
         }, { quoted: msg });
       }
 
-      if (typeof msg.react === 'function') await msg.react('✅');
+      // ✅ FIX: react via sock.sendMessage
+      await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
 
     } catch (error) {
       console.error('[ANTIVV ERROR]:', error.message);
       try {
-        if (typeof msg.react === 'function') await msg.react('❌');
+        await sock.sendMessage(from, { react: { text: '❌', key: msg.key } });
         await sock.sendMessage(from, {
           text: `❌ *AntiVV error!*\n⚠️ ${error.message}\n\n${ownerFooter()}`,
         }, { quoted: msg });
