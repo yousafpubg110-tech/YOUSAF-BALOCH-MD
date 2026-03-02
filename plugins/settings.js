@@ -1435,6 +1435,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     'games': '🎮 GAMES MENU',
     'fun': '😄 FUN MENU',
     'owner': '👑 OWNER MENU'
+    'mode' : 'Public on  off Private on off'
   };
 
   const input = args[0].toLowerCase();
