@@ -377,7 +377,7 @@ _© 2025-2026 ${OWNER.BOT_NAME}_
 _Developed by ${OWNER.FULL_NAME}_
 _All Rights Reserved ⚡_`.trim();
 
-  // ── 1. تصویر + پوری مینیو ─────────────────────────────────────
+  // ── 1.  ─────────────────────────────────────
   try {
     const thumbPath  = path.resolve('./assets/menu-thumb.png');
     const thumbBuf   = fs.readFileSync(thumbPath);
@@ -385,7 +385,7 @@ _All Rights Reserved ⚡_`.trim();
     await conn.sendMessage(m.chat, {
       image  : thumbBuf,
       caption: menu,
-      // ✅ تصویر پر کلک = YouTube channel کھلے گا
+      // ✅  پر کلک = YouTube channel  
       contextInfo: {
         externalAdReply: {
           title      : `${OWNER.BOT_NAME} — Professional WhatsApp Bot`,
@@ -399,7 +399,7 @@ _All Rights Reserved ⚡_`.trim();
       },
     }, { quoted: m });
   } catch (_) {
-    // Fallback: تصویر نہ ملے تو صرف text
+    // Fallback:      text
     await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
   }
 
@@ -418,7 +418,7 @@ _All Rights Reserved ⚡_`.trim();
     },
   }, { quoted: m });
 
-  // ── 3. Voice note — مینیو کے بالکل آخر میں ──────────────────
+  // ── 3. Voice note —      ──────────────────
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     const voiceBuf  = fs.readFileSync(voicePath);
