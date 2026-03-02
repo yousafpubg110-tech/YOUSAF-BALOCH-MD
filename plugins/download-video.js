@@ -3,34 +3,27 @@
 ┃  YOUSAF-BALOCH-MD YouTube Video DL     ┃
 ┃        Created by MR YOUSAF BALOCH     ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-📱 WhatsApp: +923710636110
-📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 TikTok: https://tiktok.com/@loser_boy.110
-💻 GitHub: https://github.com/musakhanbaloch03-sad
-🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
+import ytdl from '@distube/ytdl-core';
+import yts  from 'yt-search';
 import axios from 'axios';
-import yts from 'yt-search';
-import { sanitizeUrl } from '../lib/utils.js';
 import { OWNER, SYSTEM } from '../config.js';
 
 export default {
-  command: ['video', 'ytv', 'ytvideo', 'ytmp4'],
-  name: 'video',
+  command : ['video', 'ytv', 'ytvideo', 'ytmp4'],
+  name    : 'video',
   category: 'Downloader',
   description: 'Download YouTube videos',
-  usage: '.video <youtube url or search query>',
+  usage   : '.video <youtube url or search query>',
   cooldown: 15,
 
   handler: async ({ sock, msg, from, args }) => {
     try {
       if (!args || args.length === 0) {
-        return await msg.reply(`❌ Please provide a YouTube URL or search query!
+        return await msg.reply(`❌ *YouTube URL یا search query دیں!*
 
-*Example:*
+*مثال:*
 .video https://youtu.be/xxxxx
 .video Despacito
 .ytmp4 Avengers trailer
@@ -41,18 +34,20 @@ ${SYSTEM.SHORT_WATERMARK}`);
       await msg.react('🔍');
       const query = args.join(' ');
 
-      let videoUrl = query;
+      let videoUrl;
       let videoInfo;
 
+      // ── Search or direct URL ──────────────────────────────
       if (!isValidYouTubeUrl(query)) {
         const search = await yts(query);
         if (!search.videos.length) {
           await msg.react('❌');
-          return await msg.reply('❌ No videos found! Try different keywords.');
+          return await msg.reply('❌ کوئی video نہیں ملی! دوسرے keywords try کریں۔');
         }
         videoInfo = search.videos[0];
-        videoUrl = videoInfo.url;
+        videoUrl  = videoInfo.url;
       } else {
+        videoUrl = query;
         const videoId = extractVideoId(query);
         if (!videoId) {
           await msg.react('❌');
@@ -62,28 +57,34 @@ ${SYSTEM.SHORT_WATERMARK}`);
         videoInfo = search;
       }
 
-      const caption = `╭━━━『 *YOUTUBE VIDEO* 』━━━╮
+      // ── Video info ────────────────────────────────────────
+      const title    = videoInfo.title    || 'Unknown';
+      const channel  = videoInfo.author?.name || videoInfo.channel || 'Unknown';
+      const duration = videoInfo.timestamp || videoInfo.duration?.timestamp || '?';
+      const views    = formatNumber(videoInfo.views || 0);
+      const ago      = videoInfo.ago || '';
+      const thumb    = videoInfo.thumbnail || videoInfo.image || '';
 
-📌 *Title:* ${videoInfo.title}
-👤 *Channel:* ${videoInfo.author?.name || 'Unknown'}
-⏱️ *Duration:* ${videoInfo.timestamp}
-👁️ *Views:* ${formatNumber(videoInfo.views)}
-📅 *Uploaded:* ${videoInfo.ago}
+      const caption = `╭━━━『 🎥 *YOUTUBE VIDEO* 』━━━╮
+
+📌 *Title:* ${title}
+👤 *Channel:* ${channel}
+⏱️ *Duration:* ${duration}
+👁️ *Views:* ${views}
+📅 *Uploaded:* ${ago}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
-
 ⏳ *Downloading video...*
-
 ${SYSTEM.SHORT_WATERMARK}`;
 
-      if (videoInfo.thumbnail) {
-        const safeThumbnail = sanitizeUrl(videoInfo.thumbnail);
-        if (safeThumbnail) {
+      // ── Send thumbnail + info ─────────────────────────────
+      if (thumb) {
+        try {
           await sock.sendMessage(from, {
-            image: { url: safeThumbnail },
+            image  : { url: thumb },
             caption,
           }, { quoted: msg });
-        } else {
+        } catch (_) {
           await msg.reply(caption);
         }
       } else {
@@ -92,83 +93,76 @@ ${SYSTEM.SHORT_WATERMARK}`;
 
       await msg.react('⬇️');
 
-      // FIX: sanitizeUrl on API URL — CodeQL High error fix
-      const rawApiUrl = `https://api.nexoracle.com/downloader/youtube?apikey=free_key@maher_apis&url=${encodeURIComponent(videoUrl)}`;
-      const safeApiUrl = sanitizeUrl(rawApiUrl);
+      // ── Download via @distube/ytdl-core ───────────────────
+      // Size check: skip videos > 15 minutes (WhatsApp limit)
+      const info     = await ytdl.getInfo(videoUrl);
+      const formats  = ytdl.filterFormats(info.formats, 'videoandaudio');
+      const format   = formats.sort((a, b) => (b.height || 0) - (a.height || 0))
+                              .find(f => (f.height || 0) <= 720) || formats[0];
 
-      if (!safeApiUrl) {
+      if (!format) {
         await msg.react('❌');
-        return await msg.reply('❌ Failed to build download URL.');
+        return await msg.reply('❌ کوئی downloadable format نہیں ملا!');
       }
 
-      const response = await axios.get(safeApiUrl, { timeout: 30000 });
+      // Download buffer
+      const chunks = [];
+      await new Promise((resolve, reject) => {
+        const stream = ytdl(videoUrl, { format });
+        stream.on('data',  chunk => chunks.push(chunk));
+        stream.on('end',   resolve);
+        stream.on('error', reject);
+      });
 
-      if (response.data?.result?.url) {
-        // FIX: sanitizeUrl on download URL — CodeQL High error fix
-        const safeDownloadUrl = sanitizeUrl(response.data.result.url);
+      const videoBuffer = Buffer.concat(chunks);
 
-        if (!safeDownloadUrl) {
-          await msg.react('❌');
-          return await msg.reply('❌ Invalid download URL received!');
-        }
+      if (!videoBuffer || videoBuffer.length === 0) {
+        await msg.react('❌');
+        return await msg.reply('❌ Video download ناکام! دوبارہ try کریں۔');
+      }
 
-        const videoRes = await axios.get(safeDownloadUrl, {
-          responseType: 'arraybuffer',
-          timeout: 120000,
-        });
+      // ── Send video ────────────────────────────────────────
+      let thumbnailBuffer = Buffer.from('');
+      if (thumb) {
+        try {
+          const res = await axios.get(thumb, { responseType: 'arraybuffer', timeout: 10000 });
+          thumbnailBuffer = Buffer.from(res.data);
+        } catch (_) {}
+      }
 
-        const videoBuffer = Buffer.from(videoRes.data);
-
-        let thumbnailBuffer = Buffer.from('');
-        if (videoInfo.thumbnail) {
-          const safeThumbnailUrl = sanitizeUrl(videoInfo.thumbnail);
-          if (safeThumbnailUrl) {
-            thumbnailBuffer = await getBuffer(safeThumbnailUrl);
-          }
-        }
-
-        const safeSourceUrl = sanitizeUrl(videoUrl) || OWNER.GITHUB;
-
-        await sock.sendMessage(from, {
-          video: videoBuffer,
-          mimetype: 'video/mp4',
-          caption: `🎥 *${videoInfo.title}*\n\n📺 ${videoInfo.author?.name || 'Unknown'}\n⏱️ ${videoInfo.timestamp}\n\n${SYSTEM.SHORT_WATERMARK}`,
-          contextInfo: {
-            externalAdReply: {
-              title: videoInfo.title,
-              body: `🎥 YouTube Video • ${OWNER.BOT_NAME}`,
-              thumbnail: thumbnailBuffer,
-              sourceUrl: safeSourceUrl,
-            },
+      await sock.sendMessage(from, {
+        video  : videoBuffer,
+        mimetype: 'video/mp4',
+        caption: `🎥 *${title}*\n\n📺 ${channel}\n⏱️ ${duration}\n\n${SYSTEM.SHORT_WATERMARK}`,
+        contextInfo: {
+          externalAdReply: {
+            title    : title,
+            body     : `🎥 YouTube Video • ${OWNER.BOT_NAME}`,
+            thumbnail: thumbnailBuffer,
+            sourceUrl: videoUrl,
           },
-        }, { quoted: msg });
+        },
+      }, { quoted: msg });
 
-        await msg.react('✅');
-      } else {
-        await msg.react('❌');
-        await msg.reply('❌ Failed to download video. Try again later!');
-      }
+      await msg.react('✅');
 
     } catch (error) {
       console.error('Video download error:', error.message);
       try {
         await msg.react('❌');
-        await msg.reply('❌ Error downloading video: ' + error.message);
+        await msg.reply(`❌ *Video download error:*\n_${error.message}_\n\n${SYSTEM.SHORT_WATERMARK}`);
       } catch (_) {}
     }
   },
 };
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function isValidYouTubeUrl(url) {
   try {
     const parsed = new URL(url);
-    return (
-      ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com'].includes(parsed.hostname) &&
-      (parsed.protocol === 'https:' || parsed.protocol === 'http:')
-    );
-  } catch {
-    return false;
-  }
+    return ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com']
+      .includes(parsed.hostname);
+  } catch { return false; }
 }
 
 function extractVideoId(url) {
@@ -176,26 +170,12 @@ function extractVideoId(url) {
     const parsed = new URL(url);
     if (parsed.hostname === 'youtu.be') return parsed.pathname.slice(1);
     return parsed.searchParams.get('v') || null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function formatNumber(num) {
   if (!num || isNaN(num)) return '0';
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
   return num.toString();
-}
-
-async function getBuffer(safeUrl) {
-  try {
-    const response = await axios.get(safeUrl, {
-      responseType: 'arraybuffer',
-      timeout: 15000,
-    });
-    return Buffer.from(response.data);
-  } catch {
-    return Buffer.from('');
-  }
 }
