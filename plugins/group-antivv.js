@@ -23,13 +23,12 @@ _© ${year} ${OWNER.BOT_NAME}_`;
 const antivvGroups = new Set();
 
 export default {
-  command    : ['antivv', 'antiviewonce', 'vv', 'اینٹی وی وی'],
+  command    : ['antivv', 'antiviewonce', 'vv'],
   name       : 'group-antivv',
   category   : 'Group',
   description: 'Reveal view-once photos and videos',
   usage      : '.vv [on/off] OR reply to view-once message',
   cooldown   : 5,
-  // ✅ FIX: groupOnly ہٹا دی — private chat میں بھی کام کرے گی
   groupOnly  : false,
 
   handler: async ({ sock, msg, from, sender, text }) => {
@@ -39,95 +38,107 @@ export default {
       const senderNum = sender?.split('@')[0] || 'User';
       const input     = (text || '').toLowerCase().trim();
 
-      // ✅ FIX: quoted message صحیح جگہ سے نکالیں
+      // ── Get quoted message info ─────────────────────────────
       const rawMsg   = msg.message || {};
       const ctxInfo  = rawMsg?.extendedTextMessage?.contextInfo
                     || rawMsg?.imageMessage?.contextInfo
                     || rawMsg?.videoMessage?.contextInfo
-                    || rawMsg?.conversation && null
                     || Object.values(rawMsg)[0]?.contextInfo
                     || null;
 
       const quotedMsg = ctxInfo?.quotedMessage;
+      const isReplyToVV = quotedMsg && (
+        quotedMsg?.viewOnceMessage?.message ||
+        quotedMsg?.viewOnceMessageV2?.message ||
+        quotedMsg?.viewOnceMessageV2Extension?.message
+      );
 
-      // ✅ FIX: view-once message پہلے check کریں — input سے پہلے
-      if (quotedMsg) {
+      // ── CASE 1: Reply to view-once message (بغیر کسی argument کے) ──
+      if (isReplyToVV && !input) {
         const viewOnce = quotedMsg?.viewOnceMessage?.message
           || quotedMsg?.viewOnceMessageV2?.message
           || quotedMsg?.viewOnceMessageV2Extension?.message;
 
-        if (viewOnce) {
-          const isImage = !!viewOnce.imageMessage;
-          const isVideo = !!viewOnce.videoMessage;
+        const isImage = !!viewOnce.imageMessage;
+        const isVideo = !!viewOnce.videoMessage;
 
-          if (isImage || isVideo) {
-            try {
-              const fakeMsg = {
-                key    : {
-                  remoteJid  : from,
-                  id         : ctxInfo.stanzaId,
-                  participant: ctxInfo.participant,
-                },
-                message: quotedMsg,
-              };
+        if (isImage || isVideo) {
+          try {
+            const fakeMsg = {
+              key    : {
+                remoteJid  : from,
+                id         : ctxInfo.stanzaId,
+                participant: ctxInfo.participant,
+              },
+              message: quotedMsg,
+            };
 
-              const buffer = await downloadMediaMessage(
-                fakeMsg,
-                'buffer',
-                {},
-                { logger: console, reuploadRequest: sock.updateMediaMessage }
-              );
+            const buffer = await downloadMediaMessage(
+              fakeMsg,
+              'buffer',
+              {},
+              { logger: console, reuploadRequest: sock.updateMediaMessage }
+            );
 
-              if (Buffer.isBuffer(buffer) && buffer.length > 0) {
-                if (isImage) {
-                  await sock.sendMessage(from, {
-                    image  : buffer,
-                    caption: `👁️ *View Once Revealed!*\n\n👋 *By:* +${senderNum}\n\n${ownerFooter()}`,
-                  }, { quoted: msg });
-                } else {
-                  await sock.sendMessage(from, {
-                    video   : buffer,
-                    caption : `👁️ *View Once Video Revealed!*\n\n👋 *By:* +${senderNum}\n\n${ownerFooter()}`,
-                    mimetype: 'video/mp4',
-                  }, { quoted: msg });
-                }
-                await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
-                return;
+            if (Buffer.isBuffer(buffer) && buffer.length > 0) {
+              if (isImage) {
+                await sock.sendMessage(from, {
+                  image  : buffer,
+                  caption: `👁️ *View Once Revealed!*\n\n👋 *By:* +${senderNum}\n\n${ownerFooter()}`,
+                }, { quoted: msg });
+              } else {
+                await sock.sendMessage(from, {
+                  video   : buffer,
+                  caption : `👁️ *View Once Video Revealed!*\n\n👋 *By:* +${senderNum}\n\n${ownerFooter()}`,
+                  mimetype: 'video/mp4',
+                }, { quoted: msg });
               }
-            } catch (dlErr) {
-              console.error('[ANTIVV DL ERROR]:', dlErr.message);
+              await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
+              return;
             }
+          } catch (dlErr) {
+            console.error('[ANTIVV DL ERROR]:', dlErr.message);
+            await sock.sendMessage(from, {
+              text: `❌ *Failed to reveal media!*\n⚠️ ${dlErr.message}\n\n${ownerFooter()}`,
+            }, { quoted: msg });
+            return;
           }
         }
       }
 
-      // ── Toggle on/off ─────────────────────────────────────
+      // ── CASE 2: Toggle on/off ──────────────────────────────
       if (input === 'on' || input === 'enable') {
         antivvGroups.add(from);
         await sock.sendMessage(from, {
-          text: `✅ *AntiVV چالو ہو گیا!*\n\n👁️ اب view-once media automatically reveal ہو گا۔\n\n${ownerFooter()}`,
+          text: `╔══════════════════════════════════════╗\n`
+              + `║     ✅ *ANTI VIEW ONCE ENABLED*      ║\n`
+              + `╚══════════════════════════════════════╝\n\n`
+              + `👁️ View-once media will now be revealed automatically.\n\n`
+              + `${ownerFooter()}`,
         }, { quoted: msg });
-      } else if (input === 'off' || input === 'disable') {
+      } 
+      else if (input === 'off' || input === 'disable') {
         antivvGroups.delete(from);
         await sock.sendMessage(from, {
-          text: `🔕 *AntiVV بند ہو گیا!*\n\n${ownerFooter()}`,
+          text: `╔══════════════════════════════════════╗\n`
+              + `║     ❌ *ANTI VIEW ONCE DISABLED*     ║\n`
+              + `╚══════════════════════════════════════╝\n\n`
+              + `${ownerFooter()}`,
         }, { quoted: msg });
-      } else {
-        // ── Status + help ──────────────────────────────────
+      } 
+      // ── CASE 3: Show settings ─────────────────────────────
+      else {
         const status = antivvGroups.has(from) ? '✅ ON' : '❌ OFF';
         await sock.sendMessage(from, {
-          text: `╭━━━『 👁️ *ANTI VIEW ONCE* 』━━━╮
-
-📊 *Status:* ${status}
-
-╭─『 💡 *Commands* 』
-│ \`${CONFIG.PREFIX}vv on\`  → چالو کریں
-│ \`${CONFIG.PREFIX}vv off\` → بند کریں
-│ Reply to VV msg → reveal کریں
-╰──────────────────────────
-
-${ownerFooter()}
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯`,
+          text: `╔══════════════════════════════════════╗\n`
+              + `║     🛡️ *ANTI VIEW ONCE SETTINGS*     ║\n`
+              + `╚══════════════════════════════════════╝\n\n`
+              + `📊 *Status:* ${status}\n\n`
+              + `📌 *Commands:*\n`
+              + `┃ ${CONFIG.PREFIX}vv on     » Enable Anti VV\n`
+              + `┃ ${CONFIG.PREFIX}vv off    » Disable Anti VV\n`
+              + `┃ ${CONFIG.PREFIX}vv (reply) » Reveal hidden media\n\n`
+              + `${ownerFooter()}`,
         }, { quoted: msg });
       }
 
