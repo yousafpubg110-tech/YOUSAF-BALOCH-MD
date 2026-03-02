@@ -11,6 +11,8 @@ config();
 
 // ═══════════════════════════════════════════════════════════════════
 //  [SECTION 1]  🔒 OWNER IDENTITY — LOCKED — READ ONLY
+//  ⚠️  DO NOT MODIFY — HARD-CODED — IMMUTABLE
+//  Even deployer cannot change these via commands
 // ═══════════════════════════════════════════════════════════════════
 
 export const OWNER = Object.freeze({
@@ -30,6 +32,77 @@ export const OWNER = Object.freeze({
   REPO:     'https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD',
   WHATSAPP: 'https://wa.me/923710636110',
 });
+
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 1-B]  🔑 DEPLOYER — LEVEL 2 BOT ADMIN
+//  ✅ Set DEPLOYER_NUMBER in .env file
+//  Format: DEPLOYER_NUMBER=923001234567
+//  Multiple: DEPLOYER_NUMBER=923001234567,923007654321
+//  ⚠️  Cannot override OWNER identity or OWNER privileges
+// ═══════════════════════════════════════════════════════════════════
+
+function loadDeployers() {
+  const raw = process.env.DEPLOYER_NUMBER || '';
+  if (!raw.trim()) return [];
+  return raw
+    .split(',')
+    .map(n => n.trim().replace(/[^0-9]/g, ''))
+    .filter(n => n.length >= 7 && n.length <= 15);
+}
+
+export const DEPLOYERS = Object.freeze(loadDeployers());
+
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 1-C]  🚫 RESTRICTED COMMANDS — DEPLOYER+ ONLY
+//  ✅ Level 3 (Public) users CANNOT use these
+//  ✅ Only Level 1 (Owner) and Level 2 (Deployer) can use these
+// ═══════════════════════════════════════════════════════════════════
+
+export const RESTRICTED_COMMANDS = Object.freeze([
+  // Settings & Config
+  'setting', 'settings', 'set', 'config', 'configure',
+
+  // Anti-features toggle
+  'antilink', 'antiviewonce', 'antispam', 'antibad', 'anticall',
+
+  // Auto-features toggle
+  'autoread', 'autostatus', 'autoreact', 'autolike',
+
+  // Group management (admin actions)
+  'kick', 'add', 'promote', 'demote', 'linkgroup', 'revoke',
+  'mute', 'unmute', 'close', 'open',
+
+  // Bot management
+  'restart', 'shutdown', 'block', 'unblock', 'ban', 'unban',
+  'broadcast', 'bc',
+
+  // System
+  'eval', 'exec', 'shell', 'update',
+]);
+
+// ═══════════════════════════════════════════════════════════════════
+//  [SECTION 1-D]  ✅ PUBLIC COMMANDS — ALL USERS ALLOWED
+//  Level 3 (General Users) can freely use these
+// ═══════════════════════════════════════════════════════════════════
+
+export const PUBLIC_COMMANDS = Object.freeze([
+  // Media
+  'video', 'audio', 'play', 'song', 'yt', 'ytmp3', 'ytmp4',
+
+  // Sticker
+  'sticker', 'stickerr', 'stickergif', 's',
+
+  // Tag tools
+  'tagall', 'hidetag', 'tag',
+
+  // Fun / Utility
+  'tts', 'translate', 'weather', 'news',
+  'joke', 'fact', 'quote', 'meme',
+  'imagine', 'gpt', 'ai',
+
+  // Info
+  'help', 'menu', 'ping', 'info', 'owner',
+]);
 
 // ═══════════════════════════════════════════════════════════════════
 //  [SECTION 2]  ✅ BOT SETTINGS — FREELY EDITABLE
@@ -63,8 +136,6 @@ export const CONFIG = {
   MAX_WARN: parseInt(process.env.MAX_WARN) || 3,
 
   // ✅ DATABASE — MongoDB optional, JSON fallback auto
-  // If MONGODB_URI is empty or not set → uses local JSON database
-  // If MONGODB_URI is set → uses MongoDB
   MONGODB_URI: process.env.MONGODB_URI || '',
   DB_TYPE:     process.env.MONGODB_URI ? 'mongodb' : 'json',
   DB_PATH:     process.env.DB_PATH || './database',
@@ -97,7 +168,6 @@ export const SYSTEM = Object.freeze({
 
 // ═══════════════════════════════════════════════════════════════════
 //  [SECTION 4]  ✅ DATABASE INITIALIZER
-//  Auto-selects MongoDB or JSON based on MONGODB_URI
 // ═══════════════════════════════════════════════════════════════════
 
 export async function initDatabase() {
@@ -110,7 +180,6 @@ export async function initDatabase() {
       console.log('[DB] ✅ MongoDB connected successfully!');
       return 'mongodb';
     } catch (err) {
-      // ✅ If MongoDB fails → auto fallback to JSON
       console.warn('[DB] ⚠️  MongoDB failed! Falling back to JSON database...');
       console.warn('[DB] Reason: ' + err.message);
       return initJsonDatabase();
@@ -168,16 +237,60 @@ _⚡ ${OWNER.BOT_NAME} v${OWNER.VERSION}_`;
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  [SECTION 6]  ✅ isOwner() HELPER
+//  [SECTION 6]  ✅ PERMISSION HELPER FUNCTIONS
+//  Use these in commandHandler.js and plugins
 // ═══════════════════════════════════════════════════════════════════
 
+/**
+ * Level 1 — Creator/Owner check
+ * Hard-coded — cannot be changed
+ */
 export function isOwner(sender) {
   return sender?.split('@')[0] === OWNER.NUMBER;
 }
 
+/**
+ * Level 2 — Deployer/Bot Admin check
+ * Set via DEPLOYER_NUMBER in .env
+ * Owner is always also a deployer
+ */
+export function isDeployer(sender) {
+  if (!sender) return false;
+  const num = sender.split('@')[0];
+  // Owner is always deployer
+  if (num === OWNER.NUMBER) return true;
+  // Check deployers list
+  return DEPLOYERS.includes(num);
+}
+
+/**
+ * Check if command is restricted (deployer+ only)
+ */
+export function isRestrictedCommand(commandName) {
+  return RESTRICTED_COMMANDS.includes(commandName?.toLowerCase());
+}
+
+/**
+ * Check if command is explicitly public
+ */
+export function isPublicCommand(commandName) {
+  return PUBLIC_COMMANDS.includes(commandName?.toLowerCase());
+}
+
+/**
+ * Get permission level of a sender
+ * Returns: 1 (Owner), 2 (Deployer), 3 (User)
+ */
+export function getPermLevel(sender) {
+  if (!sender) return 3;
+  const num = sender.split('@')[0];
+  if (num === OWNER.NUMBER) return 1;
+  if (DEPLOYERS.includes(num)) return 2;
+  return 3;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 //  [SECTION 7]  STARTUP VALIDATOR
-//  ✅ MongoDB NOT required — only SESSION_ID needed
 // ═══════════════════════════════════════════════════════════════════
 
 export function validateConfig() {
@@ -196,13 +309,35 @@ export function validateConfig() {
     warnings.push('SESSION_ID not set. Get one from YOUSAF-PAIRING-V1.');
   }
 
-  // ✅ MongoDB warning only — NOT an error — bot runs without it
   if (!CONFIG.MONGODB_URI) {
     warnings.push('MONGODB_URI not set. Using local JSON database — this is fine!');
+  }
+
+  // ✅ NEW: Deployer info
+  if (DEPLOYERS.length === 0) {
+    warnings.push('DEPLOYER_NUMBER not set. Only Owner has admin access. To add deployer, set DEPLOYER_NUMBER in .env');
+  } else {
+    console.log(`[CONFIG] ✅ Deployers loaded: ${DEPLOYERS.join(', ')}`);
   }
 
   warnings.forEach(w => console.warn(`[CONFIG WARN] ⚠️  ${w}`));
   return errors;
 }
 
-export default { OWNER, CONFIG, SYSTEM, initDatabase, ownerFooter, isOwner, validateConfig };
+export default {
+  OWNER,
+  DEPLOYERS,
+  RESTRICTED_COMMANDS,
+  PUBLIC_COMMANDS,
+  CONFIG,
+  SYSTEM,
+  initDatabase,
+  ownerFooter,
+  isOwner,
+  isDeployer,
+  isRestrictedCommand,
+  isPublicCommand,
+  getPermLevel,
+  validateConfig,
+};
+      
