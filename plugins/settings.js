@@ -11,10 +11,7 @@
 
 import { OWNER, CONFIG } from '../config.js';
 
-// ─── All toggleable settings ──────────────────────────────────────────────────
 const SETTINGS = {
-
-  // ── Auto Features ──────────────────────────────────────────────
   autoread: {
     label  : '📖 Auto Read Messages',
     key    : 'AUTO_READ',
@@ -35,8 +32,6 @@ const SETTINGS = {
     key    : 'AUTO_REACT',
     group  : 'Auto Features',
   },
-
-  // ── Anti Features ──────────────────────────────────────────────
   antilink: {
     label  : '🔗 Anti Link',
     key    : 'ANTI_LINK',
@@ -62,8 +57,6 @@ const SETTINGS = {
     key    : 'ANTI_VIEW_ONCE',
     group  : 'Anti Features',
   },
-
-  // ── Group Features ─────────────────────────────────────────────
   welcome: {
     label  : '👋 Welcome Message',
     key    : 'WELCOME',
@@ -76,22 +69,11 @@ const SETTINGS = {
   },
 };
 
-// ─── Handler ──────────────────────────────────────────────────────────────────
 let handler = async (m, { conn, usedPrefix, args, isOwner }) => {
-
-  // ── Only owner can use this command ───────────────────────────
-  if (!isOwner) {
-    return conn.sendMessage(m.chat, {
-      text: `❌ *Owner Only Command!*\n\nOnly *${OWNER.FULL_NAME}* can change bot settings.\n\n_⚡ ${OWNER.BOT_NAME}_`,
-    }, { quoted: m });
-  }
 
   const pfx = usedPrefix;
 
-  // ── No args → show all settings ───────────────────────────────
   if (!args[0]) {
-
-    // Group settings by category
     const groups = {};
     for (const [cmd, info] of Object.entries(SETTINGS)) {
       if (!groups[info.group]) groups[info.group] = [];
@@ -128,7 +110,6 @@ let handler = async (m, { conn, usedPrefix, args, isOwner }) => {
   const settingName = args[0].toLowerCase();
   const action      = args[1]?.toLowerCase();
 
-  // ── settings all on / settings all off ────────────────────────
   if (settingName === 'all') {
     if (!['on', 'off'].includes(action)) {
       return conn.sendMessage(m.chat, {
@@ -153,7 +134,6 @@ let handler = async (m, { conn, usedPrefix, args, isOwner }) => {
     return conn.sendMessage(m.chat, { text: msg }, { quoted: m });
   }
 
-  // ── Single setting toggle ──────────────────────────────────────
   const setting = SETTINGS[settingName];
 
   if (!setting) {
@@ -178,8 +158,8 @@ let handler = async (m, { conn, usedPrefix, args, isOwner }) => {
     }, { quoted: m });
   }
 
-  const newValue   = action === 'on';
-  const oldValue   = CONFIG[setting.key];
+  const newValue      = action === 'on';
+  const oldValue      = CONFIG[setting.key];
   CONFIG[setting.key] = newValue;
 
   if (oldValue === newValue) {
@@ -199,9 +179,9 @@ let handler = async (m, { conn, usedPrefix, args, isOwner }) => {
 };
 
 handler.help    = ['settings'];
-handler.tags    = ['owner'];
+handler.tags    = ['info'];
 handler.command = /^(settings|setting|config)$/i;
-handler.owner   = true;
+// ✅ FIX: owner = false — سب users use کر سکتے ہیں
+handler.owner   = false;
 
 export default handler;
-                
