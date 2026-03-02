@@ -1,443 +1,1545 @@
 /*
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-┃   YOUSAF-BALOCH-MD — Settings Plugin       ┃
+┃   YOUSAF-BALOCH-MD — Settings Menu        ┃
 ┃        Created by MR YOUSAF BALOCH         ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
 import { OWNER, CONFIG } from '../config.js';
+import fs from 'fs';
+import path from 'path';
 
+// ── تمام Settings کی تعریف (مینو کے مطابق) ─────────────────────
 const SETTINGS = {
+  // ══════════════════════════════════════════
+  // 🏠 MAIN MENU (8)
+  // ══════════════════════════════════════════
+  menu: {
+    label: '📋 Main Menu',
+    key  : 'MENU',
+    desc : 'Full menu display',
+    category: '🏠 MAIN MENU'
+  },
+  alive: {
+    label: '💓 Bot Status',
+    key  : 'ALIVE',
+    desc : 'Check bot alive status',
+    category: '🏠 MAIN MENU'
+  },
+  ping: {
+    label: '🏓 Speed Test',
+    key  : 'PING',
+    desc : 'Check bot response speed',
+    category: '🏠 MAIN MENU'
+  },
+  runtime: {
+    label: '⏱️ Bot Uptime',
+    key  : 'RUNTIME',
+    desc : 'Check bot running time',
+    category: '🏠 MAIN MENU'
+  },
+  owner: {
+    label: '👑 Owner Info',
+    key  : 'OWNER_INFO',
+    desc : 'Show owner information',
+    category: '🏠 MAIN MENU'
+  },
+  support: {
+    label: '🤝 Support Group',
+    key  : 'SUPPORT',
+    desc : 'Join support group',
+    category: '🏠 MAIN MENU'
+  },
+  script: {
+    label: '📜 Bot Script',
+    key  : 'SCRIPT',
+    desc : 'Get bot script link',
+    category: '🏠 MAIN MENU'
+  },
+  settings: {
+    label: '⚙️ Bot Settings',
+    key  : 'SETTINGS',
+    desc : 'Configure bot settings',
+    category: '🏠 MAIN MENU'
+  },
 
   // ══════════════════════════════════════════
-  // 🤖 AUTO FEATURES
+  // ⚙️ AUTO FEATURES (10)
   // ══════════════════════════════════════════
-  autoread: {
-    label: '📖 Auto Read Messages',
-    key  : 'AUTO_READ',
-    group: '🤖 Auto Features',
-    desc : 'تمام messages automatically read ہوں گے',
-  },
   autoviewstatus: {
     label: '👁️ Auto View Status',
-    key  : 'AUTO_READ_STATUS',
-    group: '🤖 Auto Features',
-    desc : 'تمام contacts کے status automatically دیکھے جائیں گے',
-  },
-  autolikestatus: {
-    label: '❤️ Auto Like Status',
-    key  : 'AUTO_LIKE_STATUS',
-    group: '🤖 Auto Features',
-    desc : 'Status پر automatically like/react ہوگا',
-  },
-  autoreact: {
-    label: '😊 Auto React Messages',
-    key  : 'AUTO_REACT',
-    group: '🤖 Auto Features',
-    desc : 'Messages پر automatically emoji react ہوگا',
-  },
-  autoreply: {
-    label: '💬 Auto Reply (Offline)',
-    key  : 'AUTO_REPLY',
-    group: '🤖 Auto Features',
-    desc : 'Offline ہونے پر automatically reply ہوگا',
-  },
-  autodownload: {
-    label: '⬇️ Auto Download Media',
-    key  : 'AUTO_DOWNLOAD',
-    group: '🤖 Auto Features',
-    desc : 'Status کی media automatically download ہوگی',
-  },
-  autotyping: {
-    label: '⌨️ Auto Typing Indicator',
-    key  : 'AUTO_TYPING',
-    group: '🤖 Auto Features',
-    desc : 'Reply سے پہلے typing... دکھائے گا',
-  },
-  autorecording: {
-    label: '🎙️ Auto Recording Status',
-    key  : 'AUTO_RECORDING',
-    group: '🤖 Auto Features',
-    desc : 'Audio reply سے پہلے recording... دکھائے گا',
-  },
-  autobio: {
-    label: '📝 Auto Rotate Bio',
-    key  : 'AUTO_BIO',
-    group: '🤖 Auto Features',
-    desc : 'Bot کی bio automatically rotate ہوگی',
-  },
-
-  // ══════════════════════════════════════════
-  // 🛡️ ANTI FEATURES
-  // ══════════════════════════════════════════
-  antilink: {
-    label: '🔗 Anti Link',
-    key  : 'ANTI_LINK',
-    group: '🛡️ Anti Features',
-    desc : 'Group میں links send کرنے پر ban ہوگا',
-  },
-  antibadwords: {
-    label: '🤬 Anti Bad Words',
-    key  : 'ANTI_BAD',
-    group: '🛡️ Anti Features',
-    desc : 'گالیاں دینے پر automatically warn/kick ہوگا',
-  },
-  antispam: {
-    label: '🚫 Anti Spam',
-    key  : 'ANTI_SPAM',
-    group: '🛡️ Anti Features',
-    desc : 'Spam messages پر action لیا جائے گا',
-  },
-  anticall: {
-    label: '📵 Anti Call',
-    key  : 'ANTI_CALL',
-    group: '🛡️ Anti Features',
-    desc : 'Unknown calls automatically reject ہوں گی',
-  },
-  antiviewonce: {
-    label: '🔒 Anti View Once',
-    key  : 'ANTI_VIEW_ONCE',
-    group: '🛡️ Anti Features',
-    desc : 'View once media automatically reveal ہوگی',
+    key  : 'AUTO_VIEW_STATUS',
+    desc : 'Automatically view all statuses',
+    category: '⚙️ AUTO FEATURES'
   },
   antidelete: {
     label: '🗑️ Anti Delete',
     key  : 'ANTI_DELETE',
-    group: '🛡️ Anti Features',
-    desc : 'Delete شدہ messages دوبارہ forward ہوں گے',
+    desc : 'Show deleted messages',
+    category: '⚙️ AUTO FEATURES'
   },
-  antiabuse: {
-    label: '😤 Anti Abuse',
-    key  : 'ANTI_ABUSE',
-    group: '🛡️ Anti Features',
-    desc : 'Abusive behavior پر automatically warn ہوگا',
+  autoreact: {
+    label: '😊 Auto React',
+    key  : 'AUTO_REACT',
+    desc : 'Auto react to messages',
+    category: '⚙️ AUTO FEATURES'
   },
-  antiraid: {
-    label: '⚔️ Anti Raid',
-    key  : 'ANTI_RAID',
-    group: '🛡️ Anti Features',
-    desc : 'Group raid attack سے protection',
+  autoread: {
+    label: '📖 Auto Read',
+    key  : 'AUTO_READ',
+    desc : 'Auto read messages',
+    category: '⚙️ AUTO FEATURES'
   },
-
-  // ══════════════════════════════════════════
-  // 👥 GROUP FEATURES
-  // ══════════════════════════════════════════
-  welcome: {
-    label: '👋 Welcome Message',
-    key  : 'WELCOME',
-    group: '👥 Group Features',
-    desc : 'نئے member کو welcome message بھیجا جائے گا',
+  autotyping: {
+    label: '⌨️ Auto Typing',
+    key  : 'AUTO_TYPING',
+    desc : 'Show typing indicator',
+    category: '⚙️ AUTO FEATURES'
   },
-  goodbye: {
-    label: '🚪 Goodbye Message',
-    key  : 'GOODBYE',
-    group: '👥 Group Features',
-    desc : 'Member leave کرے تو goodbye message آئے گا',
+  autorecording: {
+    label: '🎙️ Auto Recording',
+    key  : 'AUTO_RECORDING',
+    desc : 'Show recording status',
+    category: '⚙️ AUTO FEATURES'
   },
-  autosticker: {
-    label: '🎭 Auto Sticker',
-    key  : 'AUTO_STICKER',
-    group: '👥 Group Features',
-    desc : 'Images automatically sticker بن جائیں گی',
+  autobio: {
+    label: '📝 Auto Bio',
+    key  : 'AUTO_BIO',
+    desc : 'Auto rotate bio',
+    category: '⚙️ AUTO FEATURES'
   },
-  levelup: {
-    label: '📈 Level Up Message',
-    key  : 'LEVEL_UP',
-    group: '👥 Group Features',
-    desc : 'Level up ہونے پر notification آئے گی',
+  anticall: {
+    label: '📵 Anti Call',
+    key  : 'ANTI_CALL',
+    desc : 'Auto reject calls',
+    category: '⚙️ AUTO FEATURES'
   },
-  warnautokick: {
-    label: '⚠️ Auto Kick (3 Warns)',
-    key  : 'WARN_AUTO_KICK',
-    group: '👥 Group Features',
-    desc : '3 warnings کے بعد automatically kick ہوگا',
+  autoreply: {
+    label: '💬 Auto Reply',
+    key  : 'AUTO_REPLY',
+    desc : 'Auto reply when offline',
+    category: '⚙️ AUTO FEATURES'
   },
-
-  // ══════════════════════════════════════════
-  // ☪️ ISLAMIC FEATURES
-  // ══════════════════════════════════════════
-  dailyayat: {
-    label: '📖 Daily Quran Ayat',
-    key  : 'DAILY_AYAT',
-    group: '☪️ Islamic Features',
-    desc : 'روزانہ group میں Quran کی آیت آئے گی',
-  },
-  dailyhadith: {
-    label: '📜 Daily Hadith',
-    key  : 'DAILY_HADITH',
-    group: '☪️ Islamic Features',
-    desc : 'روزانہ group میں حدیث آئے گی',
-  },
-  prayeralert: {
-    label: '🕌 Prayer Time Alert',
-    key  : 'PRAYER_ALERT',
-    group: '☪️ Islamic Features',
-    desc : 'نماز کے وقت automatically alert آئے گا',
-  },
-  dailydua: {
-    label: '🤲 Daily Dua',
-    key  : 'DAILY_DUA',
-    group: '☪️ Islamic Features',
-    desc : 'روزانہ group میں دعا آئے گی',
-  },
-  jummareminder: {
-    label: '🕋 Jummah Reminder',
-    key  : 'JUMMA_REMINDER',
-    group: '☪️ Islamic Features',
-    desc : 'جمعہ کے دن خصوصی reminder آئے گا',
-  },
-  islamicgreeting: {
-    label: '☮️ Islamic Greeting',
-    key  : 'ISLAMIC_GREETING',
-    group: '☪️ Islamic Features',
-    desc : 'Welcome message میں اسلامی سلام شامل ہوگا',
+  autodownload: {
+    label: '⬇️ Auto Download',
+    key  : 'AUTO_DOWNLOAD',
+    desc : 'Auto download media',
+    category: '⚙️ AUTO FEATURES'
   },
 
   // ══════════════════════════════════════════
-  // 🏏 CRICKET & MATCH FEATURES
+  // 🤖 AI FEATURES (30)
   // ══════════════════════════════════════════
-  livescore: {
-    label: '🔴 Live Score Alerts',
-    key  : 'LIVE_SCORE',
-    group: '🏏 Cricket & Match',
-    desc : 'Live cricket score automatically آئے گا',
+  ai: {
+    label: '🤖 Gemini AI',
+    key  : 'GEMINI_AI',
+    desc : 'Google Gemini AI chat',
+    category: '🤖 AI FEATURES'
   },
-  matchstart: {
-    label: '🏏 Match Start Alert',
-    key  : 'MATCH_START',
-    group: '🏏 Cricket & Match',
-    desc : 'Match شروع ہونے پر notification آئے گی',
+  chatgpt: {
+    label: '💬 ChatGPT',
+    key  : 'CHATGPT',
+    desc : 'OpenAI ChatGPT response',
+    category: '🤖 AI FEATURES'
   },
-  matchresult: {
-    label: '🏆 Match Result Alert',
-    key  : 'MATCH_RESULT',
-    group: '🏏 Cricket & Match',
-    desc : 'Match ختم ہونے پر result automatically آئے گا',
+  gpt: {
+    label: '🔄 GPT Response',
+    key  : 'GPT',
+    desc : 'GPT model response',
+    category: '🤖 AI FEATURES'
   },
-  pslalerts: {
-    label: '🟢 PSL Alerts',
-    key  : 'PSL_ALERTS',
-    group: '🏏 Cricket & Match',
-    desc : 'PSL میچز کے alerts آئیں گے',
+  gpt4: {
+    label: '🚀 GPT-4 AI',
+    key  : 'GPT4',
+    desc : 'GPT-4 advanced AI',
+    category: '🤖 AI FEATURES'
   },
-  ipialerts: {
-    label: '🔵 IPL Alerts',
-    key  : 'IPL_ALERTS',
-    group: '🏏 Cricket & Match',
-    desc : 'IPL میچز کے alerts آئیں گے',
+  bing: {
+    label: '🔍 Bing AI',
+    key  : 'BING',
+    desc : 'Microsoft Bing AI',
+    category: '🤖 AI FEATURES'
   },
-
-  // ══════════════════════════════════════════
-  // 🤖 AI FEATURES
-  // ══════════════════════════════════════════
-  chatbot: {
-    label: '🤖 AI Chatbot',
-    key  : 'CHATBOT',
-    group: '🤖 AI Features',
-    desc : 'AI chatbot automatically reply کرے گا',
+  blackbox: {
+    label: '⬛ Blackbox AI',
+    key  : 'BLACKBOX',
+    desc : 'Blackbox coding AI',
+    category: '🤖 AI FEATURES'
+  },
+  mixtral: {
+    label: '🔄 Mixtral AI',
+    key  : 'MIXTRAL',
+    desc : 'Mixtral 8x7B AI',
+    category: '🤖 AI FEATURES'
+  },
+  deepseek: {
+    label: '🔍 DeepSeek AI',
+    key  : 'DEEPSEEK',
+    desc : 'DeepSeek AI assistant',
+    category: '🤖 AI FEATURES'
+  },
+  copilot: {
+    label: '👨‍💻 Copilot AI',
+    key  : 'COPILOT',
+    desc : 'Microsoft Copilot',
+    category: '🤖 AI FEATURES'
+  },
+  claude: {
+    label: '🧠 Claude AI',
+    key  : 'CLAUDE',
+    desc : 'Anthropic Claude AI',
+    category: '🤖 AI FEATURES'
+  },
+  perplexity: {
+    label: '🤔 Perplexity AI',
+    key  : 'PERPLEXITY',
+    desc : 'Perplexity AI search',
+    category: '🤖 AI FEATURES'
+  },
+  meta: {
+    label: '📘 Meta AI',
+    key  : 'META',
+    desc : 'Meta Llama AI',
+    category: '🤖 AI FEATURES'
+  },
+  bard: {
+    label: '🎭 Google Bard',
+    key  : 'BARD',
+    desc : 'Google Bard AI',
+    category: '🤖 AI FEATURES'
+  },
+  imagine: {
+    label: '🖼️ AI Imagine',
+    key  : 'IMAGINE',
+    desc : 'Generate AI art',
+    category: '🤖 AI FEATURES'
   },
   aiimage: {
-    label: '🖼️ AI Image Generation',
+    label: '🎨 AI Image',
     key  : 'AI_IMAGE',
-    group: '🤖 AI Features',
-    desc : 'AI سے images generate ہوں گی',
+    desc : 'Generate AI images',
+    category: '🤖 AI FEATURES'
   },
-  autotranslate: {
-    label: '🌐 Auto Translate',
-    key  : 'AUTO_TRANSLATE',
-    group: '🤖 AI Features',
-    desc : 'Messages automatically translate ہوں گے',
+  dalle: {
+    label: '🎭 DALL-E',
+    key  : 'DALLE',
+    desc : 'DALL-E image generation',
+    category: '🤖 AI FEATURES'
+  },
+  upscale: {
+    label: '🔍 8K Upscaler',
+    key  : 'UPSCALE',
+    desc : 'Upscale images to 8K',
+    category: '🤖 AI FEATURES'
+  },
+  aicode: {
+    label: '💻 AI Code Generator',
+    key  : 'AI_CODE',
+    desc : 'Generate code with AI',
+    category: '🤖 AI FEATURES'
+  },
+  explain: {
+    label: '📚 Explain Code',
+    key  : 'EXPLAIN',
+    desc : 'Explain programming code',
+    category: '🤖 AI FEATURES'
+  },
+  debug: {
+    label: '🐛 Debug Code',
+    key  : 'DEBUG',
+    desc : 'Debug code with AI',
+    category: '🤖 AI FEATURES'
+  },
+  translate: {
+    label: '🌐 Translate',
+    key  : 'TRANSLATE',
+    desc : 'Translate text',
+    category: '🤖 AI FEATURES'
+  },
+  doctor: {
+    label: '👨‍⚕️ AI Doctor',
+    key  : 'DOCTOR',
+    desc : 'Medical advice AI',
+    category: '🤖 AI FEATURES'
+  },
+  lawyer: {
+    label: '⚖️ AI Lawyer',
+    key  : 'LAWYER',
+    desc : 'Legal advice AI',
+    category: '🤖 AI FEATURES'
+  },
+  homework: {
+    label: '📝 Homework Help',
+    key  : 'HOMEWORK',
+    desc : 'Homework assistance AI',
+    category: '🤖 AI FEATURES'
+  },
+  khuwab: {
+    label: '💭 Dream Tafsir',
+    key  : 'KHUWAB',
+    desc : 'Dream interpretation',
+    category: '🤖 AI FEATURES'
+  },
+  resume: {
+    label: '📄 Resume Builder',
+    key  : 'RESUME',
+    desc : 'AI resume builder',
+    category: '🤖 AI FEATURES'
+  },
+  romanurdu: {
+    label: '🇵🇰 Roman Urdu AI',
+    key  : 'ROMAN_URDU',
+    desc : 'Roman Urdu AI chat',
+    category: '🤖 AI FEATURES'
+  },
+  sentiment: {
+    label: '😊 Sentiment Analysis',
+    key  : 'SENTIMENT',
+    desc : 'Analyze text sentiment',
+    category: '🤖 AI FEATURES'
+  },
+  ocr: {
+    label: '📷 OCR Reader',
+    key  : 'OCR',
+    desc : 'Read text from images',
+    category: '🤖 AI FEATURES'
+  },
+  bgremover: {
+    label: '🎨 Remove Background',
+    key  : 'BG_REMOVER',
+    desc : 'Remove image background',
+    category: '🤖 AI FEATURES'
   },
 
   // ══════════════════════════════════════════
-  // ⚡ ADVANCED FEATURES
+  // 📥 DOWNLOAD MENU (32)
   // ══════════════════════════════════════════
+  ytmp3: {
+    label: '🎵 YouTube MP3',
+    key  : 'YTMP3',
+    desc : 'Download YouTube audio',
+    category: '📥 DOWNLOAD MENU'
+  },
+  ytmp4: {
+    label: '🎬 YouTube MP4',
+    key  : 'YTMP4',
+    desc : 'Download YouTube video',
+    category: '📥 DOWNLOAD MENU'
+  },
+  play: {
+    label: '▶️ Play',
+    key  : 'PLAY',
+    desc : 'Search and play audio',
+    category: '📥 DOWNLOAD MENU'
+  },
+  song: {
+    label: '🎵 Song',
+    key  : 'SONG',
+    desc : 'Search and download song',
+    category: '📥 DOWNLOAD MENU'
+  },
+  video: {
+    label: '📹 Video',
+    key  : 'VIDEO',
+    desc : 'Search and download video',
+    category: '📥 DOWNLOAD MENU'
+  },
+  tiktok: {
+    label: '📱 TikTok',
+    key  : 'TIKTOK',
+    desc : 'Download TikTok video',
+    category: '📥 DOWNLOAD MENU'
+  },
+  ttmp3: {
+    label: '🎵 TikTok MP3',
+    key  : 'TTMP3',
+    desc : 'Download TikTok audio',
+    category: '📥 DOWNLOAD MENU'
+  },
+  instagram: {
+    label: '📸 Instagram',
+    key  : 'INSTAGRAM',
+    desc : 'Download Instagram post',
+    category: '📥 DOWNLOAD MENU'
+  },
+  igreel: {
+    label: '🎬 IG Reel',
+    key  : 'IGREEL',
+    desc : 'Download Instagram reel',
+    category: '📥 DOWNLOAD MENU'
+  },
+  facebook: {
+    label: '📘 Facebook',
+    key  : 'FACEBOOK',
+    desc : 'Download Facebook video',
+    category: '📥 DOWNLOAD MENU'
+  },
+  twitter: {
+    label: '🐦 Twitter/X',
+    key  : 'TWITTER',
+    desc : 'Download Twitter video',
+    category: '📥 DOWNLOAD MENU'
+  },
+  soundcloud: {
+    label: '🎧 SoundCloud',
+    key  : 'SOUNDCLOUD',
+    desc : 'Download SoundCloud audio',
+    category: '📥 DOWNLOAD MENU'
+  },
+  audio: {
+    label: '🎵 Audio Download',
+    key  : 'AUDIO_DL',
+    desc : 'Download audio from URL',
+    category: '📥 DOWNLOAD MENU'
+  },
+  songdl: {
+    label: '🎵 Song Download',
+    key  : 'SONG_DL',
+    desc : 'Download song by name',
+    category: '📥 DOWNLOAD MENU'
+  },
+  apk: {
+    label: '📱 APK Download',
+    key  : 'APK',
+    desc : 'Download APK files',
+    category: '📥 DOWNLOAD MENU'
+  },
+  modapk: {
+    label: '🛠️ Mod APK',
+    key  : 'MOD_APK',
+    desc : 'Download modded APKs',
+    category: '📥 DOWNLOAD MENU'
+  },
+  playstore: {
+    label: '🏪 Play Store',
+    key  : 'PLAYSTORE',
+    desc : 'Search Play Store apps',
+    category: '📥 DOWNLOAD MENU'
+  },
+  movie: {
+    label: '🎬 Movie',
+    key  : 'MOVIE',
+    desc : 'Movie info/download',
+    category: '📥 DOWNLOAD MENU'
+  },
+  drama: {
+    label: '📺 Drama',
+    key  : 'DRAMA',
+    desc : 'Download dramas',
+    category: '📥 DOWNLOAD MENU'
+  },
+  trailer: {
+    label: '🎬 Trailer',
+    key  : 'TRAILER',
+    desc : 'Download movie trailer',
+    category: '📥 DOWNLOAD MENU'
+  },
+  naat: {
+    label: '🕋 Naat',
+    key  : 'NAAT',
+    desc : 'Download naats',
+    category: '📥 DOWNLOAD MENU'
+  },
+  bayan: {
+    label: '📖 Bayan',
+    key  : 'BAYAN',
+    desc : 'Download bayans',
+    category: '📥 DOWNLOAD MENU'
+  },
+  wallpaper: {
+    label: '🖼️ Wallpaper',
+    key  : 'WALLPAPER',
+    desc : 'Download HD wallpapers',
+    category: '📥 DOWNLOAD MENU'
+  },
+  ringtone: {
+    label: '🔔 Ringtone',
+    key  : 'RINGTONE',
+    desc : 'Download ringtones',
+    category: '📥 DOWNLOAD MENU'
+  },
+  snapshot: {
+    label: '📸 Snapshot',
+    key  : 'SNAPSHOT',
+    desc : 'Website snapshot',
+    category: '📥 DOWNLOAD MENU'
+  },
+  threads: {
+    label: '🧵 Threads',
+    key  : 'THREADS',
+    desc : 'Threads download',
+    category: '📥 DOWNLOAD MENU'
+  },
+  gdrive: {
+    label: '☁️ Google Drive',
+    key  : 'GDRIVE',
+    desc : 'Download from GDrive',
+    category: '📥 DOWNLOAD MENU'
+  },
+  mediafire: {
+    label: '🔥 MediaFire',
+    key  : 'MEDIAFIRE',
+    desc : 'Download from MediaFire',
+    category: '📥 DOWNLOAD MENU'
+  },
+  pinterest: {
+    label: '📌 Pinterest',
+    key  : 'PINTEREST',
+    desc : 'Download from Pinterest',
+    category: '📥 DOWNLOAD MENU'
+  },
+  islamic: {
+    label: '🕋 Islamic Downloads',
+    key  : 'ISLAMIC_DL',
+    desc : 'Download Islamic content',
+    category: '📥 DOWNLOAD MENU'
+  },
+  download: {
+    label: '⬇️ Universal Download',
+    key  : 'DOWNLOAD',
+    desc : 'Universal downloader',
+    category: '📥 DOWNLOAD MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 🖼️ IMAGE TOOLS (13)
+  // ══════════════════════════════════════════
+  remini: {
+    label: '✨ AI Enhancer',
+    key  : 'REMINI',
+    desc : 'AI image enhancement',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  enhance: {
+    label: '🌟 HD Enhance',
+    key  : 'ENHANCE',
+    desc : 'HD quality enhancement',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  blur: {
+    label: '🌀 Blur Effect',
+    key  : 'BLUR',
+    desc : 'Apply blur effect',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  sepia: {
+    label: '🟫 Sepia Effect',
+    key  : 'SEPIA',
+    desc : 'Apply sepia effect',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  invert: {
+    label: '🔄 Invert Colors',
+    key  : 'INVERT',
+    desc : 'Invert image colors',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  grayscale: {
+    label: '⚫ Grayscale',
+    key  : 'GRAYSCALE',
+    desc : 'Black & white effect',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  cartoon: {
+    label: '🎨 Cartoon Effect',
+    key  : 'CARTOON',
+    desc : 'Cartoonify image',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  sketch: {
+    label: '✏️ Pencil Sketch',
+    key  : 'SKETCH',
+    desc : 'Convert to sketch',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  watermark: {
+    label: '💧 Watermark',
+    key  : 'WATERMARK',
+    desc : 'Add watermark to image',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  rembg: {
+    label: '🎭 Remove BG',
+    key  : 'REMOVE_BG',
+    desc : 'Remove background',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  wanted: {
+    label: '🔫 Wanted Poster',
+    key  : 'WANTED',
+    desc : 'Create wanted poster',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  wasted: {
+    label: '💀 Wasted Effect',
+    key  : 'WASTED',
+    desc : 'GTA wasted effect',
+    category: '🖼️ IMAGE TOOLS'
+  },
+  jail: {
+    label: '⛓️ Jail Effect',
+    key  : 'JAIL',
+    desc : 'Jail effect on image',
+    category: '🖼️ IMAGE TOOLS'
+  },
+
+  // ══════════════════════════════════════════
+  // 🎭 STICKER MENU (8)
+  // ══════════════════════════════════════════
+  sticker: {
+    label: '🎭 Sticker Maker',
+    key  : 'STICKER',
+    desc : 'Image to sticker',
+    category: '🎭 STICKER MENU'
+  },
+  s: {
+    label: '⚡ Quick Sticker',
+    key  : 'QUICK_STICKER',
+    desc : 'Quick sticker maker',
+    category: '🎭 STICKER MENU'
+  },
+  sgif: {
+    label: '🎬 Video Sticker',
+    key  : 'VIDEO_STICKER',
+    desc : 'Video to sticker',
+    category: '🎭 STICKER MENU'
+  },
+  toimg: {
+    label: '📸 Sticker to Image',
+    key  : 'STICKER_TO_IMG',
+    desc : 'Convert sticker to image',
+    category: '🎭 STICKER MENU'
+  },
+  ttp: {
+    label: '📝 Text to Sticker',
+    key  : 'TTP',
+    desc : 'Text to sticker',
+    category: '🎭 STICKER MENU'
+  },
+  attp: {
+    label: '✨ Animated TTP',
+    key  : 'ATTP',
+    desc : 'Animated text sticker',
+    category: '🎭 STICKER MENU'
+  },
+  emojimix: {
+    label: '😍 Emoji Mix',
+    key  : 'EMOJI_MIX',
+    desc : 'Mix two emojis',
+    category: '🎭 STICKER MENU'
+  },
+  take: {
+    label: '📦 Take Sticker',
+    key  : 'TAKE',
+    desc : 'Take sticker with pack',
+    category: '🎭 STICKER MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 🎨 DESIGN TOOLS (7)
+  // ══════════════════════════════════════════
+  logo: {
+    label: '🎨 Logo Maker',
+    key  : 'LOGO',
+    desc : 'Create custom logos',
+    category: '🎨 DESIGN TOOLS'
+  },
+  dp: {
+    label: '🖼️ DP Maker',
+    key  : 'DP',
+    desc : 'Create profile pictures',
+    category: '🎨 DESIGN TOOLS'
+  },
+  carbon: {
+    label: '💻 Carbon Code',
+    key  : 'CARBON',
+    desc : 'Code to beautiful image',
+    category: '🎨 DESIGN TOOLS'
+  },
+  meme: {
+    label: '😂 Meme Generator',
+    key  : 'MEME',
+    desc : 'Create memes',
+    category: '🎨 DESIGN TOOLS'
+  },
+  logomaker: {
+    label: '🎯 Custom Logo',
+    key  : 'CUSTOM_LOGO',
+    desc : 'Advanced logo maker',
+    category: '🎨 DESIGN TOOLS'
+  },
+  dpmaker: {
+    label: '🖼️ Custom DP',
+    key  : 'CUSTOM_DP',
+    desc : 'Advanced DP maker',
+    category: '🎨 DESIGN TOOLS'
+  },
+  capcut: {
+    label: '✂️ CapCut Template',
+    key  : 'CAPCUT',
+    desc : 'CapCut video templates',
+    category: '🎨 DESIGN TOOLS'
+  },
+
+  // ══════════════════════════════════════════
+  // 🔧 TOOLS MENU (14)
+  // ══════════════════════════════════════════
+  calc: {
+    label: '🧮 Calculator',
+    key  : 'CALC',
+    desc : 'Mathematical calculator',
+    category: '🔧 TOOLS MENU'
+  },
+  convert: {
+    label: '🔄 Unit Converter',
+    key  : 'CONVERT',
+    desc : 'Convert units',
+    category: '🔧 TOOLS MENU'
+  },
+  currency: {
+    label: '💰 Currency Converter',
+    key  : 'CURRENCY',
+    desc : 'Convert currencies',
+    category: '🔧 TOOLS MENU'
+  },
+  weather: {
+    label: '🌤️ Weather',
+    key  : 'WEATHER',
+    desc : 'Check weather',
+    category: '🔧 TOOLS MENU'
+  },
+  pdf: {
+    label: '📄 PDF Maker',
+    key  : 'PDF',
+    desc : 'Images to PDF',
+    category: '🔧 TOOLS MENU'
+  },
+  qr: {
+    label: '📱 QR Generator',
+    key  : 'QR',
+    desc : 'Generate QR code',
+    category: '🔧 TOOLS MENU'
+  },
+  short: {
+    label: '🔗 URL Shortener',
+    key  : 'SHORT',
+    desc : 'Shorten URLs',
+    category: '🔧 TOOLS MENU'
+  },
+  screenshot: {
+    label: '📸 Screenshot',
+    key  : 'SCREENSHOT',
+    desc : 'Take website screenshot',
+    category: '🔧 TOOLS MENU'
+  },
   tts: {
-    label: '🔊 Text To Speech',
+    label: '🔊 Text to Speech',
     key  : 'TTS',
-    group: '⚡ Advanced Features',
-    desc : 'Text کو آواز میں تبدیل کیا جائے گا',
+    desc : 'Convert text to speech',
+    category: '🔧 TOOLS MENU'
   },
-  stickerreact: {
-    label: '🎭 Sticker React',
-    key  : 'STICKER_REACT',
-    group: '⚡ Advanced Features',
-    desc : 'Stickers پر automatically react ہوگا',
+  compressor: {
+    label: '🗜️ Compressor',
+    key  : 'COMPRESSOR',
+    desc : 'Compress media files',
+    category: '🔧 TOOLS MENU'
   },
-  broadcastnews: {
-    label: '📰 News Broadcast',
-    key  : 'BROADCAST_NEWS',
-    group: '⚡ Advanced Features',
-    desc : 'Latest news automatically broadcast ہوگی',
+  videoaud: {
+    label: '🎵 Video/Audio Tools',
+    key  : 'VIDEO_AUDIO',
+    desc : 'Video/audio conversion',
+    category: '🔧 TOOLS MENU'
   },
-  weatheralert: {
-    label: '🌤️ Weather Alert',
-    key  : 'WEATHER_ALERT',
-    group: '⚡ Advanced Features',
-    desc : 'موسم کا حال automatically آئے گا',
+  videogif: {
+    label: '🎬 Video to GIF',
+    key  : 'VIDEO_GIF',
+    desc : 'Convert video to GIF',
+    category: '🔧 TOOLS MENU'
   },
-  economysystem: {
-    label: '💰 Economy System',
-    key  : 'ECONOMY',
-    group: '⚡ Advanced Features',
-    desc : 'Coins، wallet اور shop system',
+  inshot: {
+    label: '✂️ InShot Tools',
+    key  : 'INSHOT',
+    desc : 'InShot video editor',
+    category: '🔧 TOOLS MENU'
   },
+  tools: {
+    label: '🔨 Utility Tools',
+    key  : 'UTILITY_TOOLS',
+    desc : 'Various utility tools',
+    category: '🔧 TOOLS MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 🔍 SEARCH MENU (10)
+  // ══════════════════════════════════════════
+  google: {
+    label: '🌐 Google Search',
+    key  : 'GOOGLE',
+    desc : 'Search on Google',
+    category: '🔍 SEARCH MENU'
+  },
+  wiki: {
+    label: '📚 Wikipedia',
+    key  : 'WIKI',
+    desc : 'Search Wikipedia',
+    category: '🔍 SEARCH MENU'
+  },
+  lyrics: {
+    label: '🎵 Lyrics',
+    key  : 'LYRICS',
+    desc : 'Search song lyrics',
+    category: '🔍 SEARCH MENU'
+  },
+  news: {
+    label: '📰 News',
+    key  : 'NEWS',
+    desc : 'Latest news',
+    category: '🔍 SEARCH MENU'
+  },
+  technews: {
+    label: '💻 Tech News',
+    key  : 'TECH_NEWS',
+    desc : 'Technology news',
+    category: '🔍 SEARCH MENU'
+  },
+  sportsnews: {
+    label: '⚽ Sports News',
+    key  : 'SPORTS_NEWS',
+    desc : 'Sports news',
+    category: '🔍 SEARCH MENU'
+  },
+  github: {
+    label: '🐙 GitHub',
+    key  : 'GITHUB',
+    desc : 'GitHub repository info',
+    category: '🔍 SEARCH MENU'
+  },
+  ytstalk: {
+    label: '📺 YouTube Stats',
+    key  : 'YT_STALK',
+    desc : 'YouTube channel stats',
+    category: '🔍 SEARCH MENU'
+  },
+  tiktokstalk: {
+    label: '🎵 TikTok Stats',
+    key  : 'TIKTOK_STALK',
+    desc : 'TikTok profile stats',
+    category: '🔍 SEARCH MENU'
+  },
+  xstalk: {
+    label: '🐦 X Stats',
+    key  : 'X_STALK',
+    desc : 'X (Twitter) profile stats',
+    category: '🔍 SEARCH MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // ☪️ ISLAMIC MENU (13)
+  // ══════════════════════════════════════════
+  quran: {
+    label: '📖 Quran',
+    key  : 'QURAN',
+    desc : 'Read Quran verses',
+    category: '☪️ ISLAMIC MENU'
+  },
+  ayat: {
+    label: '✨ Random Ayat',
+    key  : 'AYAT',
+    desc : 'Random Quran verse',
+    category: '☪️ ISLAMIC MENU'
+  },
+  tafsir: {
+    label: '📚 Tafsir',
+    key  : 'TAFSIR',
+    desc : 'Quran tafsir',
+    category: '☪️ ISLAMIC MENU'
+  },
+  hadith: {
+    label: '📜 Hadith',
+    key  : 'HADITH',
+    desc : 'Random hadith',
+    category: '☪️ ISLAMIC MENU'
+  },
+  prayertime: {
+    label: '🕌 Prayer Times',
+    key  : 'PRAYER_TIME',
+    desc : 'Get prayer times',
+    category: '☪️ ISLAMIC MENU'
+  },
+  prayer: {
+    label: '🤲 Today\'s Prayer',
+    key  : 'PRAYER',
+    desc : 'Today\'s prayer times',
+    category: '☪️ ISLAMIC MENU'
+  },
+  hijri: {
+    label: '🌙 Hijri Date',
+    key  : 'HIJRI',
+  desc : 'Islamic date',
+    category: '☪️ ISLAMIC MENU'
+  },
+  dua: {
+    label: '🤲 Dua',
+    key  : 'DUA',
+    desc : 'Random dua',
+    category: '☪️ ISLAMIC MENU'
+  },
+  asma: {
+    label: '✨ Asma-ul-Husna',
+    key  : 'ASMA',
+    desc : '99 names of Allah',
+    category: '☪️ ISLAMIC MENU'
+  },
+  islamicnames: {
+    label: '👶 Islamic Names',
+    key  : 'ISLAMIC_NAMES',
+    desc : 'Muslim baby names',
+    category: '☪️ ISLAMIC MENU'
+  },
+  zakatcalc: {
+    label: '💰 Zakat Calculator',
+    key  : 'ZAKAT',
+    desc : 'Calculate zakat',
+    category: '☪️ ISLAMIC MENU'
+  },
+  ramadan: {
+    label: '🌙 Ramadan Info',
+    key  : 'RAMADAN',
+    desc : 'Ramadan information',
+    category: '☪️ ISLAMIC MENU'
+  },
+  hajj: {
+    label: '🕋 Hajj Guide',
+    key  : 'HAJJ',
+    desc : 'Hajj & Umrah guide',
+    category: '☪️ ISLAMIC MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 🏏 CRICKET & MATCH (12)
+  // ══════════════════════════════════════════
+  score: {
+    label: '🏏 Live Score',
+    key  : 'SCORE',
+    desc : 'Live cricket score',
+    category: '🏏 CRICKET & MATCH'
+  },
+  livescore: {
+    label: '🔴 Live Matches',
+    key  : 'LIVE_SCORE',
+    desc : 'All live matches',
+    category: '🏏 CRICKET & MATCH'
+  },
+  cricketlive: {
+    label: '🏏 Cricket Live',
+    key  : 'CRICKET_LIVE',
+    desc : 'Live cricket updates',
+    category: '🏏 CRICKET & MATCH'
+  },
+  cricketfull: {
+    label: '📊 Full Scorecard',
+    key  : 'CRICKET_FULL',
+    desc : 'Complete scorecard',
+    category: '🏏 CRICKET & MATCH'
+  },
+  matchinfo: {
+    label: 'ℹ️ Match Info',
+    key  : 'MATCH_INFO',
+    desc : 'Match details',
+    category: '🏏 CRICKET & MATCH'
+  },
+  schedule: {
+    label: '📅 Match Schedule',
+    key  : 'SCHEDULE',
+    desc : 'Upcoming matches',
+    category: '🏏 CRICKET & MATCH'
+  },
+  commentary: {
+    label: '🎤 Live Commentary',
+    key  : 'COMMENTARY',
+    desc : 'Ball by ball commentary',
+    category: '🏏 CRICKET & MATCH'
+  },
+  toss: {
+    label: '🪙 Toss Result',
+    key  : 'TOSS',
+    desc : 'Match toss details',
+    category: '🏏 CRICKET & MATCH'
+  },
+  ipinfo: {
+    label: '🌐 IP Info',
+    key  : 'IP_INFO',
+    desc : 'IP address details',
+    category: '🏏 CRICKET & MATCH'
+  },
+  playerstats: {
+    label: '📊 Player Stats',
+    key  : 'PLAYER_STATS',
+    desc : 'Cricket player statistics',
+    category: '🏏 CRICKET & MATCH'
+  },
+  psl: {
+    label: '🟢 PSL 2025',
+    key  : 'PSL',
+    desc : 'PSL updates',
+    category: '🏏 CRICKET & MATCH'
+  },
+  pointstable: {
+    label: '📊 Points Table',
+    key  : 'POINTS_TABLE',
+    desc : 'Tournament points table',
+    category: '🏏 CRICKET & MATCH'
+  },
+  football: {
+    label: '⚽ Football',
+    key  : 'FOOTBALL',
+    desc : 'Football scores',
+    category: '🏏 CRICKET & MATCH'
+  },
+
+  // ══════════════════════════════════════════
+  // 👥 GROUP MENU (24)
+  // ══════════════════════════════════════════
+  add: {
+    label: '➕ Add Member',
+    key  : 'ADD',
+    desc : 'Add member to group',
+    category: '👥 GROUP MENU'
+  },
+  kick: {
+    label: '👢 Kick Member',
+    key  : 'KICK',
+    desc : 'Remove member from group',
+    category: '👥 GROUP MENU'
+  },
+  promote: {
+    label: '👑 Promote',
+    key  : 'PROMOTE',
+    desc : 'Make admin',
+    category: '👥 GROUP MENU'
+  },
+  demote: {
+    label: '⬇️ Demote',
+    key  : 'DEMOTE',
+    desc : 'Remove admin',
+    category: '👥 GROUP MENU'
+  },
+  tagall: {
+    label: '🏷️ Tag All',
+    key  : 'TAGALL',
+    desc : 'Tag all members',
+    category: '👥 GROUP MENU'
+  },
+  hidetag: {
+    label: '🤫 Hidetag',
+    key  : 'HIDETAG',
+    desc : 'Silent tag all',
+    category: '👥 GROUP MENU'
+  },
+  invite: {
+    label: '📨 Invite',
+    key  : 'INVITE',
+    desc : 'Get group invite link',
+    category: '👥 GROUP MENU'
+  },
+  link: {
+    label: '🔗 Group Link',
+    key  : 'GROUP_LINK',
+    desc : 'Get group link',
+    category: '👥 GROUP MENU'
+  },
+  members: {
+    label: '👥 Member List',
+    key  : 'MEMBERS',
+    desc : 'List all members',
+    category: '👥 GROUP MENU'
+  },
+  admins: {
+    label: '👑 Admin List',
+    key  : 'ADMINS',
+    desc : 'List all admins',
+    category: '👥 GROUP MENU'
+  },
+  warn: {
+    label: '⚠️ Warn',
+    key  : 'WARN',
+    desc : 'Warn a member',
+    category: '👥 GROUP MENU'
+  },
+  unwarn: {
+    label: '✅ Unwarn',
+    key  : 'UNWARN',
+    desc : 'Remove warning',
+    category: '👥 GROUP MENU'
+  },
+  warnlist: {
+    label: '📋 Warn List',
+    key  : 'WARN_LIST',
+    desc : 'List warned members',
+    category: '👥 GROUP MENU'
+  },
+  bannedlist: {
+    label: '🚫 Banned List',
+    key  : 'BANNED_LIST',
+    desc : 'List banned members',
+    category: '👥 GROUP MENU'
+  },
+  groupopen: {
+    label: '🔓 Open Group',
+    key  : 'GROUP_OPEN',
+    desc : 'Open group for all',
+    category: '👥 GROUP MENU'
+  },
+  groupclose: {
+    label: '🔒 Close Group',
+    key  : 'GROUP_CLOSE',
+    desc : 'Close group',
+    category: '👥 GROUP MENU'
+  },
+  groupname: {
+    label: '📝 Change Name',
+    key  : 'GROUP_NAME',
+    desc : 'Change group name',
+    category: '👥 GROUP MENU'
+  },
+  groupdesc: {
+    label: '📄 Change Desc',
+    key  : 'GROUP_DESC',
+    desc : 'Change group description',
+    category: '👥 GROUP MENU'
+  },
+  groupactivity: {
+    label: '📊 Group Activity',
+    key  : 'GROUP_ACTIVITY',
+    desc : 'Group activity stats',
+    category: '👥 GROUP MENU'
+  },
+  groupleave: {
+    label: '🚪 Leave Group',
+    key  : 'GROUP_LEAVE',
+    desc : 'Bot leave group',
+    category: '👥 GROUP MENU'
+  },
+  antilink: {
+    label: '🔗 Anti Link',
+    key  : 'ANTI_LINK',
+    desc : 'Block links in group',
+    category: '👥 GROUP MENU'
+  },
+  antivv: {
+    label: '🔄 Anti VV',
+    key  : 'ANTI_VV',
+    desc : 'Anti view once',
+    category: '👥 GROUP MENU'
+  },
+  antispam: {
+    label: '🚫 Anti Spam',
+    key  : 'ANTI_SPAM',
+    desc : 'Block spam messages',
+    category: '👥 GROUP MENU'
+  },
+  antighost: {
+    label: '👻 Anti Ghost',
+    key  : 'ANTI_GHOST',
+    desc : 'Detect ghost members',
+    category: '👥 GROUP MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 💰 ECONOMY MENU (6)
+  // ══════════════════════════════════════════
+  balance: {
+    label: '💰 Balance',
+    key  : 'BALANCE',
+    desc : 'Check your balance',
+    category: '💰 ECONOMY MENU'
+  },
+  daily: {
+    label: '📅 Daily',
+    key  : 'DAILY',
+    desc : 'Daily reward',
+    category: '💰 ECONOMY MENU'
+  },
+  work: {
+    label: '💼 Work',
+    key  : 'WORK',
+    desc : 'Work for coins',
+    category: '💰 ECONOMY MENU'
+  },
+  shop: {
+    label: '🛒 Shop',
+    key  : 'SHOP',
+    desc : 'View shop items',
+    category: '💰 ECONOMY MENU'
+  },
+  buy: {
+    label: '🛍️ Buy',
+    key  : 'BUY',
+    desc : 'Buy from shop',
+    category: '💰 ECONOMY MENU'
+  },
+  leaderboard: {
+    label: '🏆 Leaderboard',
+    key  : 'LEADERBOARD',
+    desc : 'Top rich users',
+    category: '💰 ECONOMY MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 🎮 GAMES MENU (5)
+  // ══════════════════════════════════════════
+  tictactoe: {
+    label: '⭕ Tic Tac Toe',
+    key  : 'TICTACTOE',
+    desc : 'Play Tic Tac Toe',
+    category: '🎮 GAMES MENU'
+  },
+  quiz: {
+    label: '❓ Quiz',
+    key  : 'QUIZ',
+    desc : 'Play quiz game',
+    category: '🎮 GAMES MENU'
+  },
+  dice: {
+    label: '🎲 Dice',
+    key  : 'DICE',
+    desc : 'Roll dice',
+    category: '🎮 GAMES MENU'
+  },
+  coin: {
+    label: '🪙 Coin Flip',
+    key  : 'COIN',
+    desc : 'Flip a coin',
+    category: '🎮 GAMES MENU'
+  },
+  math: {
+    label: '🔢 Math Game',
+    key  : 'MATH',
+    desc : 'Solve math problems',
+    category: '🎮 GAMES MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 😄 FUN MENU (7)
+  // ══════════════════════════════════════════
+  joke: {
+    label: '😂 Joke',
+    key  : 'JOKE',
+    desc : 'Random joke',
+    category: '😄 FUN MENU'
+  },
+  quote: {
+    label: '💬 Quote',
+    key  : 'QUOTE',
+    desc : 'Motivational quote',
+    category: '😄 FUN MENU'
+  },
+  fact: {
+    label: '🔍 Fact',
+    key  : 'FACT',
+    desc : 'Random fact',
+    category: '😄 FUN MENU'
+  },
+  truth: {
+    label: '🤔 Truth',
+    key  : 'TRUTH',
+    desc : 'Truth question',
+    category: '😄 FUN MENU'
+  },
+  dare: {
+    label: '😈 Dare',
+    key  : 'DARE',
+    desc : 'Dare challenge',
+    category: '😄 FUN MENU'
+  },
+  meme: {
+    label: '😂 Meme',
+    key  : 'MEME_FUN',
+    desc : 'Random meme',
+    category: '😄 FUN MENU'
+  },
+  ship: {
+    label: '❤️ Love Meter',
+    key  : 'SHIP',
+    desc : 'Check love compatibility',
+    category: '😄 FUN MENU'
+  },
+
+  // ══════════════════════════════════════════
+  // 👑 OWNER MENU (13)
+  // ══════════════════════════════════════════
+  broadcast: {
+    label: '📢 Broadcast',
+    key  : 'BROADCAST',
+    desc : 'Broadcast message',
+    category: '👑 OWNER MENU'
+  },
+  ban: {
+    label: '🚫 Ban User',
+    key  : 'BAN',
+    desc : 'Ban a user',
+    category: '👑 OWNER MENU'
+  },
+  unban: {
+    label: '✅ Unban User',
+    key  : 'UNBAN',
+    desc : 'Unban a user',
+    category: '👑 OWNER MENU'
+  },
+  block: {
+    label: '⛔ Block',
+    key  : 'BLOCK',
+    desc : 'Block a user',
+    category: '👑 OWNER MENU'
+  },
+  unblock: {
+    label: '🔓 Unblock',
+    key  : 'UNBLOCK',
+    desc : 'Unblock a user',
+    category: '👑 OWNER MENU'
+  },
+  restart: {
+    label: '🔄 Restart',
+    key  : 'RESTART',
+    desc : 'Restart bot',
+    category: '👑 OWNER MENU'
+  },
+  shutdown: {
+    label: '⏻ Shutdown',
+    key  : 'SHUTDOWN',
+    desc : 'Shutdown bot',
+    category: '👑 OWNER MENU'
+  },
+  eval: {
+    label: '💻 Eval',
+    key  : 'EVAL',
+    desc : 'Execute code',
+    category: '👑 OWNER MENU'
+  },
+  join: {
+    label: '🔗 Join Group',
+    key  : 'JOIN',
+    desc : 'Join group via link',
+    category: '👑 OWNER MENU'
+  },
+  leavegc: {
+    label: '🚪 Leave Group',
+    key  : 'LEAVE_GC',
+    desc : 'Leave current group',
+    category: '👑 OWNER MENU'
+  },
+  backup: {
+    label: '💾 Backup',
+    key  : 'BACKUP',
+    desc : 'Backup database',
+    category: '👑 OWNER MENU'
+  },
+  update: {
+    label: '🔄 Update',
+    key  : 'UPDATE',
+    desc : 'Update bot',
+    category: '👑 OWNER MENU'
+  },
+  setpp: {
+    label: '🖼️ Set Profile Pic',
+    key  : 'SETPP',
+    desc : 'Change bot profile',
+    category: '👑 OWNER MENU'
+  },
+  contact: {
+    label: '📞 Contact Owner',
+    key  : 'CONTACT',
+    desc : 'Contact bot owner',
+    category: '👑 OWNER MENU'
+  }
 };
 
+// ── Helper function to create button text ─────────────────────
+function createButton(settingName, info) {
+  const status = CONFIG[info.key] ? '✅ ON' : '❌ OFF';
+  return `┃ [ ${status} ] *${info.label}*\n┃    ↳ _${info.desc}_\n┃    ${global.usedPrefix || '.'}settings ${settingName} ${CONFIG[info.key] ? 'off' : 'on'}`;
+}
+
 // ═══════════════════════════════════════════════════════════════
-// Handler
+// Main Handler
 // ═══════════════════════════════════════════════════════════════
 let handler = async (m, { conn, usedPrefix, args }) => {
 
-  const pfx = usedPrefix || CONFIG.PREFIX;
+  const pfx = usedPrefix || '.';
+  const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
+  const name   = conn.contacts?.[sender]?.name ||
+                 conn.contacts?.[sender]?.notify ||
+                 (sender ? sender.split('@')[0] : 'Friend') ||
+                 'Friend';
 
-  // ── No args → show ALL settings ──────────────────────────────
+  // ── No args → show ALL settings grouped by category ──────────
   if (!args[0]) {
+    let msg = `╔══════════════════════════════════════════════════════════════╗\n`;
+    msg += `║     ⚙️  *${OWNER.BOT_NAME} — COMPLETE SETTINGS PANEL* ⚙️       ║\n`;
+    msg += `║              *${Object.keys(SETTINGS).length} Commands Available*               ║\n`;
+    msg += `╚══════════════════════════════════════════════════════════════╝\n\n`;
+    msg += `👤 *User:* ${name}\n`;
+    msg += `👑 *Owner:* ${OWNER.FULL_NAME}\n\n`;
+    msg += `📌 *Usage:* ${pfx}settings <command> on/off\n`;
+    msg += `┃ *Example:* ${pfx}settings antilink on\n\n`;
 
-    // Group کر کے settings بناؤ
-    const groups = {};
+    // Group settings by category
+    const categories = {};
     for (const [cmd, info] of Object.entries(SETTINGS)) {
-      if (!groups[info.group]) groups[info.group] = [];
-      const current = CONFIG[info.key];
-      groups[info.group].push(
-        `┃ ${current ? '✅' : '❌'} *${info.label}*\n┃    ↳ _${info.desc}_\n┃    ${pfx}settings ${cmd} ${current ? 'off' : 'on'}`
-      );
+      if (!categories[info.category]) categories[info.category] = [];
+      categories[info.category].push({ cmd, ...info });
     }
 
-    let msg = `╔══════════════════════════════════════╗\n`;
-    msg    += `║     ⚙️  *BOT SETTINGS PANEL* ⚙️       ║\n`;
-    msg    += `╚══════════════════════════════════════╝\n\n`;
-    msg    += `👑 *Owner:* ${OWNER.FULL_NAME}\n`;
-    msg    += `🤖 *Bot:* ${OWNER.BOT_NAME}\n\n`;
-    msg    += `📌 *Usage:*\n`;
-    msg    += `┃ ${pfx}settings <name> on/off\n`;
-    msg    += `┃ ${pfx}settings all on/off\n`;
-    msg    += `┃ ${pfx}settings <category> on/off\n\n`;
-
-    for (const [groupName, items] of Object.entries(groups)) {
-      msg += `╭━━━━『 ${groupName} 』━━━━╮\n`;
-      msg += items.join('\n┃\n') + '\n';
-      msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n`;
+    // Display each category
+    for (const [category, items] of Object.entries(categories)) {
+      msg += `╭━『 ${category} 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮\n`;
+      
+      // Show first 5 items with buttons
+      const displayItems = items.slice(0, 5);
+      for (const item of displayItems) {
+        msg += createButton(item.cmd, item) + '\n';
+        if (item !== displayItems[displayItems.length - 1]) msg += '┃\n';
+      }
+      
+      if (items.length > 5) {
+        msg += `┃\n┃   *+ ${items.length - 5} more commands in this category*\n`;
+        msg += `┃   *Use:* ${pfx}settings ${category.toLowerCase().replace(/[^a-z]/g, '')} to see all\n`;
+      }
+      msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n`;
     }
 
-    msg += `╭━━━━『 ⚡ QUICK COMMANDS 』━━━━╮\n`;
-    msg += `┃ ${pfx}settings all on     » سب ON\n`;
-    msg += `┃ ${pfx}settings all off    » سب OFF\n`;
-    msg += `┃ ${pfx}settings auto on    » سب Auto ON\n`;
-    msg += `┃ ${pfx}settings anti on    » سب Anti ON\n`;
-    msg += `┃ ${pfx}settings group on   » سب Group ON\n`;
-    msg += `┃ ${pfx}settings islamic on » سب Islamic ON\n`;
-    msg += `┃ ${pfx}settings cricket on » سب Cricket ON\n`;
-    msg += `┃ ${pfx}settings ai on      » سب AI ON\n`;
-    msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n`;
-    msg += `_⚡ ${OWNER.BOT_NAME} — Total Settings: ${Object.keys(SETTINGS).length}_`;
+    msg += `╔══════════════════════════════════════════════════════════════╗\n`;
+    msg += `║  📢 *JOIN OUR CHANNEL:* @${OWNER.BOT_NAME.replace(/ /g, '')}  ║\n`;
+    msg += `║  👆 *Click the button below to join*                         ║\n`;
+    msg += `╚══════════════════════════════════════════════════════════════╝\n\n`;
+    msg += `_👑 Developed by ${OWNER.FULL_NAME}_`;
 
     return conn.sendMessage(m.chat, { text: msg }, { quoted: m });
   }
 
-  const settingName = args[0].toLowerCase();
-  const action      = args[1]?.toLowerCase();
-
-  // ── settings all on/off ───────────────────────────────────────
-  if (settingName === 'all') {
-    if (!['on', 'off'].includes(action)) {
-      return conn.sendMessage(m.chat, {
-        text: `❌ *Usage:*\n${pfx}settings all on\n${pfx}settings all off`,
-      }, { quoted: m });
-    }
-    const value = action === 'on';
-    const changed = [];
-    for (const [cmd, info] of Object.entries(SETTINGS)) {
-      CONFIG[info.key] = value;
-      changed.push(`${value ? '✅' : '❌'} ${info.label}`);
-    }
-    return conn.sendMessage(m.chat, {
-      text: `╔══════════════════════════════════════╗\n`
-          + `║  ⚙️  *ALL SETTINGS ${value ? 'ON' : 'OFF'}* ⚙️  ║\n`
-          + `╚══════════════════════════════════════╝\n\n`
-          + changed.join('\n')
-          + `\n\n_⚡ ${OWNER.BOT_NAME}_`,
-    }, { quoted: m });
-  }
-
-  // ── Category toggle ───────────────────────────────────────────
+  // ── Check if it's a category view ────────────────────────────
   const categoryMap = {
-    'auto'    : '🤖 Auto Features',
-    'anti'    : '🛡️ Anti Features',
-    'group'   : '👥 Group Features',
-    'islamic' : '☪️ Islamic Features',
-    'cricket' : '🏏 Cricket & Match',
-    'ai'      : '🤖 AI Features',
-    'advanced': '⚡ Advanced Features',
+    'main': '🏠 MAIN MENU',
+    'auto': '⚙️ AUTO FEATURES',
+    'ai': '🤖 AI FEATURES',
+    'download': '📥 DOWNLOAD MENU',
+    'image': '🖼️ IMAGE TOOLS',
+    'sticker': '🎭 STICKER MENU',
+    'design': '🎨 DESIGN TOOLS',
+    'tools': '🔧 TOOLS MENU',
+    'search': '🔍 SEARCH MENU',
+    'islamic': '☪️ ISLAMIC MENU',
+    'cricket': '🏏 CRICKET & MATCH',
+    'group': '👥 GROUP MENU',
+    'economy': '💰 ECONOMY MENU',
+    'games': '🎮 GAMES MENU',
+    'fun': '😄 FUN MENU',
+    'owner': '👑 OWNER MENU'
   };
 
-  if (categoryMap[settingName] && ['on', 'off'].includes(action)) {
-    const targetGroup = categoryMap[settingName];
-    const value       = action === 'on';
-    const changed     = [];
+  const input = args[0].toLowerCase();
+  
+  if (categoryMap[input]) {
+    const targetCategory = categoryMap[input];
+    let msg = `╭━『 ${targetCategory} 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮\n\n`;
+    
     for (const [cmd, info] of Object.entries(SETTINGS)) {
-      if (info.group === targetGroup) {
-        CONFIG[info.key] = value;
-        changed.push(`${value ? '✅' : '❌'} ${info.label}`);
+      if (info.category === targetCategory) {
+        msg += createButton(cmd, info) + '\n┃\n';
       }
     }
-    return conn.sendMessage(m.chat, {
-      text: `⚙️ *${targetGroup} — ${action.toUpperCase()}*\n\n`
-          + changed.join('\n')
-          + `\n\n_⚡ ${OWNER.BOT_NAME}_`,
-    }, { quoted: m });
+    
+    msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯\n\n`;
+    msg += `_👑 ${OWNER.BOT_NAME}_`;
+    
+    return conn.sendMessage(m.chat, { text: msg }, { quoted: m });
   }
 
-  // ── Single setting ────────────────────────────────────────────
+  // ── Single setting toggle ────────────────────────────────────
+  const settingName = input;
+  const action = args[1]?.toLowerCase();
+
   const setting = SETTINGS[settingName];
 
   if (!setting) {
-    const available = Object.keys(SETTINGS).join(', ');
     return conn.sendMessage(m.chat, {
-      text: `❌ *Unknown Setting:* \`${settingName}\`\n\n`
-          + `📋 *تمام Settings:*\n${available}\n\n`
-          + `📌 *Usage:* ${pfx}settings <name> on/off\n\n`
+      text: `❌ *Unknown Setting:* \`${settingName}\`\n\n📌 *Available Categories:* ${Object.keys(categoryMap).join(', ')}\n\n📌 *Usage:* ${pfx}settings <command> on/off\n\n_⚡ ${OWNER.BOT_NAME}_`,
+    }, { quoted: m });
+  }
+
+  if (!action) {
+    const current = CONFIG[setting.key] ? '✅ ON' : '❌ OFF';
+    return conn.sendMessage(m.chat, {
+      text: `╔══════════════════════════════════════╗\n`
+          + `║        ⚙️  *SETTING INFO* ⚙️          ║\n`
+          + `╚══════════════════════════════════════╝\n\n`
+          + `📌 *Setting:* ${setting.label}\n`
+          + `📊 *Status:*  ${current}\n`
+          + `📝 *Info:*    ${setting.desc}\n`
+          + `📂 *Category:* ${setting.category}\n\n`
+          + `📌 *Toggle:*\n`
+          + `┃ ${pfx}settings ${settingName} on\n`
+          + `┃ ${pfx}settings ${settingName} off\n\n`
           + `_⚡ ${OWNER.BOT_NAME}_`,
     }, { quoted: m });
   }
 
   if (!['on', 'off'].includes(action)) {
-    const current = CONFIG[setting.key];
     return conn.sendMessage(m.chat, {
-      text: `⚙️ *${setting.label}*\n\n`
-          + `📌 *Status:* ${current ? '✅ ON' : '❌ OFF'}\n`
-          + `📝 *Info:* ${setting.desc}\n\n`
-          + `📌 *Usage:*\n`
-          + `${pfx}settings ${settingName} on\n`
-          + `${pfx}settings ${settingName} off\n\n`
-          + `_⚡ ${OWNER.BOT_NAME}_`,
+      text: `❌ *Invalid Action!* Use \`on\` or \`off\`\n\n📌 *Example:* ${pfx}settings ${settingName} on`,
     }, { quoted: m });
   }
 
-  const newValue      = action === 'on';
-  const oldValue      = CONFIG[setting.key];
-  CONFIG[setting.key] = newValue;
+  const newValue = action === 'on';
+  const oldValue = CONFIG[setting.key];
 
   if (oldValue === newValue) {
     return conn.sendMessage(m.chat, {
-      text: `ℹ️ *${setting.label}* already *${action.toUpperCase()}* ہے!\n\n_⚡ ${OWNER.BOT_NAME}_`,
+      text: `ℹ️ *${setting.label}* already *${action.toUpperCase()}* ہے!`,
     }, { quoted: m });
   }
 
-  return conn.sendMessage(m.chat, {
+  CONFIG[setting.key] = newValue;
+
+  // ── Success message ──────────────────────────────────────────
+  await conn.sendMessage(m.chat, {
     text: `╔══════════════════════════════════════╗\n`
-        + `║       ⚙️  *SETTING UPDATED* ⚙️         ║\n`
+        + `║     ⚙️  *SETTING UPDATED* ⚙️           ║\n`
         + `╚══════════════════════════════════════╝\n\n`
         + `📌 *Setting:* ${setting.label}\n`
         + `📊 *Status:*  ${newValue ? '✅ ON' : '❌ OFF'}\n`
-        + `📝 *Info:*    ${setting.desc}\n\n`
+        + `📝 *Info:*    ${setting.desc}\n`
+        + `📂 *Category:* ${setting.category}\n\n`
         + `_⚡ ${OWNER.BOT_NAME} — Updated!_`,
   }, { quoted: m });
+
+  // ── WhatsApp Channel Button ──────────────────────────────────
+  try {
+    const thumbPath = path.resolve('./assets/menu-thumb.png');
+    const thumbBuf = fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : Buffer.from('');
+
+    await conn.sendMessage(m.chat, {
+      text: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃     📢 *${OWNER.BOT_NAME} OFFICIAL*     ┃\n┃         ✨ *CHANNEL* ✨         ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n👆 *Click the button below to join* 👆`,
+      contextInfo: {
+        externalAdReply: {
+          title: `📢 Join ${OWNER.BOT_NAME} Channel`,
+          body: 'Click here to join WhatsApp Channel',
+          thumbnail: thumbBuf,
+          mediaType: 1,
+          mediaUrl: OWNER.CHANNEL,
+          sourceUrl: OWNER.CHANNEL,
+        },
+      },
+    }, { quoted: m });
+  } catch (e) {
+    console.error('[CHANNEL BUTTON ERROR]:', e.message);
+  }
 };
 
-handler.help    = ['settings'];
-handler.tags    = ['info'];
+handler.help = ['settings'];
+handler.tags = ['info'];
 handler.command = /^(settings|setting|config)$/i;
-handler.owner   = false;
+handler.owner = false;
 
 export default handler;
+```
