@@ -5,25 +5,25 @@
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
-import fs      from 'fs';
-import path    from 'path';
-import moment  from 'moment-timezone';
+import fs     from 'fs';
+import path   from 'path';
+import moment from 'moment-timezone';
 import { OWNER, CONFIG } from '../config.js';
 
 function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
-  if (hour >= 5  && hour < 12) return { label: '🌅 Morning',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',   color: '🟡' };
-  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',                color: '🔴' };
-  if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',   color: '🟠' };
-  return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',          color: '🔵' };
+  if (hour >= 5  && hour < 12) return { label: '🌅 Morning',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',  color: '🟡' };
+  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',               color: '🔴' };
+  if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',  color: '🟠' };
+  return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',         color: '🔵' };
 }
 
 let handler = async (m, { conn, usedPrefix }) => {
 
-  if (!m || !m.chat || !m.key) return;
+  if (!m || !m.chat) return;
 
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
-  const name   = conn.contacts?.[sender]?.name ||
+  const name   = conn.contacts?.[sender]?.name  ||
                  conn.contacts?.[sender]?.notify ||
                  (sender ? sender.split('@')[0] : 'User') ||
                  'User';
@@ -35,9 +35,9 @@ let handler = async (m, { conn, usedPrefix }) => {
   const date    = moment.tz('Asia/Karachi').format('DD MMMM YYYY');
   const day     = moment.tz('Asia/Karachi').format('dddd');
   const uptime  = process.uptime();
-  const hours   = Math.floor(uptime / 3600);
-  const minutes = Math.floor((uptime % 3600) / 60);
-  const seconds = Math.floor(uptime % 60);
+  const hrs     = Math.floor(uptime / 3600);
+  const mins    = Math.floor((uptime % 3600) / 60);
+  const secs    = Math.floor(uptime % 60);
 
   const T   = getTimeMode();
   const pfx = usedPrefix || CONFIG.PREFIX;
@@ -65,7 +65,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  📅 *Date*     : ${date}
 ┃  📆 *Day*      : ${day}
 ┃  ⏰ *Time*     : ${time}
-┃  ⏱️ *Uptime*   : ${hours}h ${minutes}m ${seconds}s
+┃  ⏱️ *Uptime*   : ${hrs}h ${mins}m ${secs}s
 ┃  👥 *Users*    : ${totalreg} (✅ ${rtotalreg} Registered)
 ┃  🔌 *Plugins*  : ${pluginCount}+ Active
 ┃  📟 *Prefix*   : [ ${pfx} ]
@@ -90,8 +90,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}support   » Support Group
 ┃  ${pfx}script    » Get Bot Script
 ┃  ${pfx}settings  » Bot Settings
-┃  ${pfx}public    » Public Mode
-┃  ${pfx}private   » Private Mode
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 ⚙️ *AUTO* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
@@ -111,26 +109,15 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}ai              » Gemini AI Chat
 ┃  ${pfx}chatgpt         » ChatGPT Response
 ┃  ${pfx}gpt4            » GPT-4 AI
-┃  ${pfx}bing            » Bing AI
-┃  ${pfx}blackbox        » Blackbox AI
-┃  ${pfx}mixtral         » Mixtral AI
 ┃  ${pfx}deepseek        » DeepSeek AI
-┃  ${pfx}copilot         » Microsoft Copilot
 ┃  ${pfx}claude          » Claude AI
-┃  ${pfx}perplexity      » Perplexity AI
-┃  ${pfx}meta            » Meta AI
-┃  ${pfx}bard            » Google Bard
 ┃  ${pfx}doctor          » AI Doctor
 ┃  ${pfx}lawyer          » AI Lawyer
 ┃  ${pfx}homework        » Homework Help
 ┃  ${pfx}khuwab          » Dream Interpretation
 ┃  ${pfx}resume          » Resume Builder
 ┃  ${pfx}romanurdu       » Roman Urdu AI
-┃  ${pfx}sentiment       » Sentiment Analysis
 ┃  ${pfx}imagine         » Generate AI Art
-┃  ${pfx}aiimage         » Generate Image
-┃  ${pfx}dalle           » DALL-E Image
-┃  ${pfx}upscale         » 8K Upscaler
 ┃  ${pfx}aicode          » Generate Code
 ┃  ${pfx}explain         » Explain Code
 ┃  ${pfx}debug           » Debug Code
@@ -153,15 +140,10 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}apk             » Download APK
 ┃  ${pfx}modapk          » Modded APK
 ┃  ${pfx}playstore       » Play Store App
-┃  ${pfx}movie           » Movie Info/Download
-┃  ${pfx}drama           » Drama Download
-┃  ${pfx}trailer         » Movie Trailer
+┃  ${pfx}movie           » Movie Info
 ┃  ${pfx}naat            » Naat Download
 ┃  ${pfx}bayan           » Bayan Download
 ┃  ${pfx}wallpaper       » HD Wallpaper
-┃  ${pfx}ringtone        » Ringtone
-┃  ${pfx}gdrive          » Google Drive
-┃  ${pfx}mediafire       » MediaFire
 ┃  ${pfx}pinterest       » Pinterest
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
@@ -170,7 +152,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}enhance         » HD Quality
 ┃  ${pfx}blur            » Blur Effect
 ┃  ${pfx}sepia           » Sepia Effect
-┃  ${pfx}invert          » Invert Colors
 ┃  ${pfx}grayscale       » Black & White
 ┃  ${pfx}cartoon         » Cartoon Effect
 ┃  ${pfx}sketch          » Pencil Sketch
@@ -189,7 +170,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}ttp             » Text → Sticker
 ┃  ${pfx}attp            » Animated TTP
 ┃  ${pfx}emojimix        » Mix Emojis
-┃  ${pfx}take            » Take Sticker
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 🎨 *DESIGN* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
@@ -197,9 +177,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}dp              » 30+ DP Styles
 ┃  ${pfx}carbon          » Code Screenshot
 ┃  ${pfx}meme            » Create Meme
-┃  ${pfx}logomaker       » Custom Logo
-┃  ${pfx}dpmaker         » Custom DP
-┃  ${pfx}capcut          » CapCut Template
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 🔧 *TOOLS* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
@@ -213,7 +190,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}short           » Shorten URL
 ┃  ${pfx}screenshot      » Website Screenshot
 ┃  ${pfx}tts             » Text to Speech
-┃  ${pfx}compressor      » Compress Media
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 🔍 *SEARCH* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
@@ -222,34 +198,26 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}lyrics          » Song Lyrics
 ┃  ${pfx}news            » Latest News
 ┃  ${pfx}technews        » Tech News
-┃  ${pfx}sportsnews      » Sports News
 ┃  ${pfx}github          » GitHub Info
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 ☪️ *ISLAMIC* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 ┃  ${pfx}quran           » Quran Ayat
 ┃  ${pfx}ayat            » Random Ayat
-┃  ${pfx}tafsir          » Tafsir
 ┃  ${pfx}hadith          » Random Hadith
 ┃  ${pfx}prayertime      » Prayer Times
-┃  ${pfx}prayer          » Today's Prayer
 ┃  ${pfx}hijri           » Hijri Date
 ┃  ${pfx}dua             » Random Dua
 ┃  ${pfx}asma            » Asma-ul-Husna
-┃  ${pfx}islamicnames    » Muslim Names
 ┃  ${pfx}zakatcalc       » Zakat Calculator
 ┃  ${pfx}ramadan         » Ramadan Info
-┃  ${pfx}hajj            » Hajj Guide
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╭━『 🏏 *CRICKET* 』━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 ┃  ${pfx}score           » Live Score
 ┃  ${pfx}livescore       » Live Matches
-┃  ${pfx}cricketlive     » Cricket Live
 ┃  ${pfx}matchinfo       » Match Details
 ┃  ${pfx}schedule        » Match Schedule
-┃  ${pfx}commentary      » Live Commentary
-┃  ${pfx}toss            » Toss Result
 ┃  ${pfx}psl             » PSL 2025
 ┃  ${pfx}pointstable     » Points Table
 ┃  ${pfx}football        » Football Score
@@ -262,16 +230,10 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}demote          » Remove Admin
 ┃  ${pfx}tagall          » Tag Everyone
 ┃  ${pfx}hidetag         » Silent Tag
-┃  ${pfx}invite          » Get Group Invite
-┃  ${pfx}link            » Group Link
-┃  ${pfx}members         » Member List
-┃  ${pfx}admins          » Admin List
 ┃  ${pfx}warn            » Warn Member
 ┃  ${pfx}unwarn          » Remove Warn
 ┃  ${pfx}groupopen       » Open Group
 ┃  ${pfx}groupclose      » Close Group
-┃  ${pfx}groupname       » Change Name
-┃  ${pfx}groupdesc       » Change Desc
 ┃  ${pfx}antilink        » Anti Link
 ┃  ${pfx}antivv          » Anti View Once
 ┃  ${pfx}antispam        » Anti Spam
@@ -315,9 +277,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃  ${pfx}eval            » Execute Code
 ┃  ${pfx}join            » Join Group
 ┃  ${pfx}leave           » Leave Group
-┃  ${pfx}backup          » Backup Database
-┃  ${pfx}update          » Update Bot
-┃  ${pfx}setpp           » Set Profile Pic
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ╔══════════════════════════════════════════════════════════════╗
@@ -341,77 +300,96 @@ let handler = async (m, { conn, usedPrefix }) => {
 _✨ © 2025-2026 ${OWNER.BOT_NAME} ✨_
 _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
 
+  // ── تصویر پڑھیں ───────────────────────────────────────────────
+  const thumbPath = path.resolve('./assets/menu-thumb.png');
+  let thumbBuf = null;
   try {
-    // Try to send image with menu
-    const thumbPath = path.resolve('./assets/menu-thumb.png');
-    
-    // Check if file exists
     if (fs.existsSync(thumbPath)) {
-      const thumbBuf = fs.readFileSync(thumbPath);
-      
+      thumbBuf = fs.readFileSync(thumbPath);
+    }
+  } catch (_) {}
+
+  // ── Step 1: پہلے صرف menu text بھیجیں ────────────────────────
+  // یہ ہمیشہ چلے گا — چاہے image ہو یا نہ ہو
+  if (thumbBuf) {
+    // تصویر کے ساتھ مینیو
+    try {
       await conn.sendMessage(m.chat, {
-        image: thumbBuf,
+        image  : thumbBuf,
         caption: menu,
         contextInfo: {
           externalAdReply: {
-            title: `🚀 ${OWNER.BOT_NAME} — Ultra Pro Max Bot 🚀`,
-            body: `👑 ${OWNER.FULL_NAME} | 📺 @Yousaf_Baloch_Tech`,
+            title    : `🚀 ${OWNER.BOT_NAME}`,
+            body     : `📺 @Yousaf_Baloch_Tech`,
             thumbnail: thumbBuf,
             mediaType: 1,
-            sourceUrl: OWNER.YOUTUBE,
+            mediaUrl : 'https://www.youtube.com/@Yousaf_Baloch_Tech',
+            sourceUrl: 'https://www.youtube.com/@Yousaf_Baloch_Tech',
           },
         },
       }, { quoted: m });
-    } else {
-      // If image doesn't exist, send only text
-      await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+      console.log('[MENU] ✅ Image + menu sent!');
+    } catch (e) {
+      console.error('[MENU] Image failed:', e.message);
+      // Image fail — text بھیجیں
+      try {
+        await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+        console.log('[MENU] ✅ Text menu sent (fallback)');
+      } catch (e2) {
+        console.error('[MENU] Text also failed:', e2.message);
+      }
     }
-  } catch (e) {
-    console.error('[MENU IMAGE ERROR]:', e.message);
-    // Fallback to text only
-    await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+  } else {
+    // تصویر نہیں — صرف text
+    try {
+      await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+      console.log('[MENU] ✅ Text menu sent (no image)');
+    } catch (e) {
+      console.error('[MENU] Text failed:', e.message);
+    }
   }
 
-  // Send WhatsApp Channel button
+  // ── Step 2: WhatsApp Channel بٹن ─────────────────────────────
   try {
-    const thumbPath = path.resolve('./assets/menu-thumb.png');
-    const thumbBuf = fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : Buffer.from('');
-    
     await conn.sendMessage(m.chat, {
-      text: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃     📢 *${OWNER.BOT_NAME} OFFICIAL*     ┃\n┃         ✨ *CHANNEL* ✨                 ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n👆 *Click the button below to join* 👆`,
+      text: `📢 *Join ${OWNER.BOT_NAME} Official Channel!*\n_Updates, Support & New Features_\n\nhttps://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`,
       contextInfo: {
         externalAdReply: {
-          title: `📢 Join ${OWNER.BOT_NAME} Channel`,
-          body: 'Click here to join WhatsApp Channel',
-          thumbnail: thumbBuf,
+          title    : `📢 ${OWNER.BOT_NAME} — Official Channel`,
+          body     : 'Join for updates & support! ✅',
+          thumbnail: thumbBuf || Buffer.from(''),
           mediaType: 1,
-          mediaUrl: OWNER.CHANNEL,
-          sourceUrl: OWNER.CHANNEL,
+          mediaUrl : 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
+          sourceUrl: 'https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j',
         },
       },
     }, { quoted: m });
+    console.log('[MENU] ✅ Channel button sent!');
   } catch (e) {
-    console.error('[CHANNEL BUTTON ERROR]:', e.message);
+    console.error('[MENU] Channel button failed:', e.message);
   }
 
-  // Send voice note (but don't let it be the only thing)
+  // ── Step 3: Voice Note — بالکل آخر میں ──────────────────────
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     if (fs.existsSync(voicePath)) {
       const voiceBuf = fs.readFileSync(voicePath);
       await conn.sendMessage(m.chat, {
-        audio: voiceBuf,
+        audio   : voiceBuf,
         mimetype: 'audio/mp4',
-        ptt: true,
+        ptt     : true,
       }, { quoted: m });
+      console.log('[MENU] ✅ Voice sent!');
+    } else {
+      console.log('[MENU] ⚠️ Voice file not found:', voicePath);
     }
   } catch (e) {
-    console.error('[MENU VOICE ERROR]:', e.message);
+    console.error('[MENU] Voice failed:', e.message);
   }
 };
 
-handler.help = ['menu', 'help', 'commands', 'allmenu', 'list'];
-handler.tags = ['main'];
+handler.help    = ['menu', 'help', 'commands', 'allmenu', 'list'];
+handler.tags    = ['main'];
 handler.command = /^(menu|help|commands|allmenu|list)$/i;
 
 export default handler;
