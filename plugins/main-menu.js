@@ -7,8 +7,12 @@
 
 import fs     from 'fs';
 import path   from 'path';
+import axios  from 'axios';
 import moment from 'moment-timezone';
 import { OWNER, CONFIG } from '../config.js';
+
+// Thumbnail URL — works on all platforms including Heroku
+const THUMB_URL = 'https://i.ibb.co/your-image-id/menu-thumb.png';
 
 function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
@@ -16,6 +20,27 @@ function getTimeMode() {
   if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',               color: '🔴' };
   if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',  color: '🟠' };
   return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',         color: '🔵' };
+}
+
+async function getThumb() {
+  // Priority 1: local file
+  try {
+    const localPath = path.resolve('./assets/menu-thumb.png');
+    if (fs.existsSync(localPath)) {
+      return fs.readFileSync(localPath);
+    }
+  } catch (_) {}
+
+  // Priority 2: URL download
+  try {
+    const res = await axios.get(THUMB_URL, {
+      responseType: 'arraybuffer',
+      timeout: 8000,
+    });
+    return Buffer.from(res.data);
+  } catch (_) {}
+
+  return null;
 }
 
 let handler = async (m, { conn, usedPrefix }) => {
@@ -31,13 +56,13 @@ let handler = async (m, { conn, usedPrefix }) => {
   const totalreg  = Object.keys(global.db?.data?.users || {}).length;
   const rtotalreg = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
 
-  const time    = moment.tz('Asia/Karachi').format('hh:mm:ss A');
-  const date    = moment.tz('Asia/Karachi').format('DD MMMM YYYY');
-  const day     = moment.tz('Asia/Karachi').format('dddd');
-  const uptime  = process.uptime();
-  const hrs     = Math.floor(uptime / 3600);
-  const mins    = Math.floor((uptime % 3600) / 60);
-  const secs    = Math.floor(uptime % 60);
+  const time   = moment.tz('Asia/Karachi').format('hh:mm:ss A');
+  const date   = moment.tz('Asia/Karachi').format('DD MMMM YYYY');
+  const day    = moment.tz('Asia/Karachi').format('dddd');
+  const uptime = process.uptime();
+  const hrs    = Math.floor(uptime / 3600);
+  const mins   = Math.floor((uptime % 3600) / 60);
+  const secs   = Math.floor(uptime % 60);
 
   const T   = getTimeMode();
   const pfx = usedPrefix || CONFIG.PREFIX;
@@ -300,19 +325,11 @@ let handler = async (m, { conn, usedPrefix }) => {
 _✨ © 2025-2026 ${OWNER.BOT_NAME} ✨_
 _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
 
-  // ── تصویر پڑھیں ───────────────────────────────────────────────
-  const thumbPath = path.resolve('./assets/menu-thumb.png');
-  let thumbBuf = null;
-  try {
-    if (fs.existsSync(thumbPath)) {
-      thumbBuf = fs.readFileSync(thumbPath);
-    }
-  } catch (_) {}
+  // Get thumbnail — local first, then URL
+  const thumbBuf = await getThumb();
 
-  // ── Step 1: پہلے صرف menu text بھیجیں ────────────────────────
-  // یہ ہمیشہ چلے گا — چاہے image ہو یا نہ ہو
+  // Step 1: Menu with or without image
   if (thumbBuf) {
-    // تصویر کے ساتھ مینیو
     try {
       await conn.sendMessage(m.chat, {
         image  : thumbBuf,
@@ -328,28 +345,26 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
           },
         },
       }, { quoted: m });
-      console.log('[MENU] ✅ Image + menu sent!');
+      console.log('[MENU] Image + menu sent!');
     } catch (e) {
       console.error('[MENU] Image failed:', e.message);
-      // Image fail — text بھیجیں
       try {
         await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-        console.log('[MENU] ✅ Text menu sent (fallback)');
+        console.log('[MENU] Text fallback sent!');
       } catch (e2) {
         console.error('[MENU] Text also failed:', e2.message);
       }
     }
   } else {
-    // تصویر نہیں — صرف text
     try {
       await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-      console.log('[MENU] ✅ Text menu sent (no image)');
+      console.log('[MENU] Text menu sent (no image available)');
     } catch (e) {
       console.error('[MENU] Text failed:', e.message);
     }
   }
 
-  // ── Step 2: WhatsApp Channel بٹن ─────────────────────────────
+  // Step 2: Channel button
   try {
     await conn.sendMessage(m.chat, {
       text: `📢 *Join ${OWNER.BOT_NAME} Official Channel!*\n_Updates, Support & New Features_\n\nhttps://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`,
@@ -364,12 +379,12 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
         },
       },
     }, { quoted: m });
-    console.log('[MENU] ✅ Channel button sent!');
+    console.log('[MENU] Channel button sent!');
   } catch (e) {
     console.error('[MENU] Channel button failed:', e.message);
   }
 
-  // ── Step 3: Voice Note — بالکل آخر میں ──────────────────────
+  // Step 3: Voice note
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     if (fs.existsSync(voicePath)) {
@@ -379,9 +394,7 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
         mimetype: 'audio/mp4',
         ptt     : true,
       }, { quoted: m });
-      console.log('[MENU] ✅ Voice sent!');
-    } else {
-      console.log('[MENU] ⚠️ Voice file not found:', voicePath);
+      console.log('[MENU] Voice sent!');
     }
   } catch (e) {
     console.error('[MENU] Voice failed:', e.message);
