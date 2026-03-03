@@ -167,9 +167,7 @@ const LOG = {
   divider: () => console.log(chalk.hex('#333333')('  ' + '─'.repeat(68))),
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// Check if sender is WhatsApp group admin
-// ═══════════════════════════════════════════════════════════════════
+// Check if sender is a group admin
 function isGroupAdmin(groupMetadata, sender) {
   if (!groupMetadata || !sender) return false;
   return groupMetadata.participants?.some(
@@ -177,13 +175,25 @@ function isGroupAdmin(groupMetadata, sender) {
   ) || false;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Run all event-based plugin functions (autoDeleteLinks, etc.)
-// These run on EVERY message — not just commands
-// ═══════════════════════════════════════════════════════════════════
+// Check if message was sent by the bot itself
+// Bot's own messages must never trigger antilink, kick, or any event plugin
+function isBotMessage(sock, rawMsg) {
+  if (rawMsg.key?.fromMe === true) return true;
+  const botJid = sock.user?.id?.split(':')[0] + '@s.whatsapp.net';
+  const sender  = rawMsg.key?.participant || rawMsg.key?.remoteJid || '';
+  if (sender === botJid) return true;
+  return false;
+}
+
+// Run event-based plugin functions on every incoming user message
+// Bot messages are blocked before this function is ever called
+// 3-warning system is handled inside each plugin (e.g. antilink.js)
+// First offense = warning, third offense = kick
 async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata }) {
   for (const [, handler] of plugins) {
-    // autoDeleteLinks — anti-link system
+
+    // Anti-link: delete links sent by users, warn 3 times before kick
+    // Bot's own links (YouTube results, menu, etc.) are never affected
     if (typeof handler.autoDeleteLinks === 'function' && isGroup) {
       try {
         const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
@@ -198,7 +208,7 @@ async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOw
       } catch (_) {}
     }
 
-    // autoDeleteBadWords — anti-bad words system
+    // Anti bad words
     if (typeof handler.autoDeleteBadWords === 'function' && isGroup) {
       try {
         const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
@@ -213,21 +223,21 @@ async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOw
       } catch (_) {}
     }
 
-    // autoViewOnce — anti view once system
+    // Auto view once reveal
     if (typeof handler.autoViewOnce === 'function') {
       try {
         await handler.autoViewOnce({ sock, msg: rawMsg, from, sender });
       } catch (_) {}
     }
 
-    // autoReact — auto react system
+    // Auto react
     if (typeof handler.autoReact === 'function') {
       try {
         await handler.autoReact({ sock, msg: rawMsg, from, sender });
       } catch (_) {}
     }
 
-    // onMessage — generic event handler
+    // Generic message event
     if (typeof handler.onMessage === 'function') {
       try {
         await handler.onMessage({ sock, msg: rawMsg, from, sender, isOwner: senderIsOwner });
@@ -356,9 +366,11 @@ async function handleMessage(sock, rawMsg) {
   const isGroup = from?.endsWith('@g.us');
   const sender  = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
 
-  // ═══════════════════════════════════════════════════════════════
-  // PERMISSION CHECKS — actual values, not hardcoded
-  // ═══════════════════════════════════════════════════════════════
+  // If this message was sent by the bot itself, ignore completely
+  // This prevents antilink from kicking users when bot sends YouTube/menu links
+  if (isBotMessage(sock, rawMsg)) return;
+
+  // Permission level checks
   const senderIsOwner    = checkOwner(sender);
   const senderIsDeployer = checkDeployer(sender);
 
@@ -373,13 +385,12 @@ async function handleMessage(sock, rawMsg) {
   if (CONFIG.MODE === 'private' && !senderIsOwner) return;
   if (isGroup) registerCronGroup(from);
 
-  // Get group metadata once — used by both event plugins and command handler
+  // Fetch group metadata once — reused by event plugins and command handler
   let groupMetadata = null;
   try { if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null); } catch (_) {}
 
-  // ═══════════════════════════════════════════════════════════════
-  // EVENT PLUGINS — run on every message (antilink, antivv, etc.)
-  // ═══════════════════════════════════════════════════════════════
+  // Run event plugins on all user messages
+  // Bot messages never reach this point (blocked above)
   await runEventPlugins(sock, rawMsg, {
     from,
     sender,
@@ -389,9 +400,7 @@ async function handleMessage(sock, rawMsg) {
     groupMetadata,
   });
 
-  // ═══════════════════════════════════════════════════════════════
-  // COMMAND HANDLER — only runs if message starts with prefix
-  // ═══════════════════════════════════════════════════════════════
+  // Command handler — only runs for messages starting with prefix
   if (!body.startsWith(CONFIG.PREFIX)) return;
 
   const args    = body.slice(CONFIG.PREFIX.length).trim().split(/\s+/);
@@ -415,7 +424,6 @@ async function handleMessage(sock, rawMsg) {
     conn      : sock,
     usedPrefix: CONFIG.PREFIX,
     command,
-    // FIXED: actual permission values
     isOwner   : senderIsOwner,
     isDeployer: senderIsDeployer,
     isAdmin   : senderIsGroupAdmin || senderIsDeployer,
