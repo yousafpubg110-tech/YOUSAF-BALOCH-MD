@@ -31,13 +31,12 @@ function extractVideoId(url) {
   } catch { return null; }
 }
 
-// METHOD 1: RapidAPI video download
+// METHOD 1: RapidAPI (only if key is set)
 async function downloadVideoRapidAPI(videoUrl) {
   const apiKey = process.env.RAPIDAPI_KEY;
-  if (!apiKey) throw new Error('RAPIDAPI_KEY not set');
+  if (!apiKey) throw new Error('RAPIDAPI_KEY not set — skipping');
 
   const videoId = extractVideoId(videoUrl) || videoUrl;
-
   const res = await axios.get('https://youtube-video-download-info.p.rapidapi.com/dl', {
     params : { id: videoId },
     headers: {
@@ -47,11 +46,10 @@ async function downloadVideoRapidAPI(videoUrl) {
     timeout: 30000,
   });
 
-  // Get 360p link
   const formats = res.data?.link;
   if (!formats) throw new Error('RapidAPI: no formats found');
 
-  const mp4 = formats['18'] || formats['22'] || Object.values(formats)[0];
+  const mp4  = formats['18'] || formats['22'] || Object.values(formats)[0];
   const link = Array.isArray(mp4) ? mp4[0] : mp4?.url || mp4;
   if (!link) throw new Error('RapidAPI: no mp4 link');
 
@@ -64,7 +62,7 @@ async function downloadVideoRapidAPI(videoUrl) {
   return Buffer.from(videoRes.data);
 }
 
-// METHOD 2: @distube/ytdl-core video download
+// METHOD 2: @distube/ytdl-core
 async function downloadVideoYtdl(videoUrl) {
   const { default: ytdl } = await import('@distube/ytdl-core');
   return new Promise((resolve, reject) => {
@@ -93,7 +91,7 @@ export default {
   handler: async ({ sock, msg, from, args }) => {
     try {
       if (!args || args.length === 0) {
-        return await msg.reply(`❌ *YouTube URL یا search query دیں!*\n\n*مثال:*\n.video https://youtu.be/xxxxx\n.video Despacito\n\n${SYSTEM.SHORT_WATERMARK}`);
+        return await msg.reply(`❌ *Please provide a YouTube URL or search query!*\n\n*Examples:*\n.video https://youtu.be/xxxxx\n.video Despacito\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🔍');
@@ -133,25 +131,26 @@ export default {
 
       await msg.react('⬇️');
 
-      // Try METHOD 1 first, then METHOD 2
       let videoBuffer = null;
 
+      // Try RapidAPI first (if key available)
       try {
         videoBuffer = await downloadVideoRapidAPI(videoUrl);
         console.log('[YT VIDEO] Downloaded via RapidAPI');
       } catch (e1) {
-        console.warn('[YT VIDEO] RapidAPI failed:', e1.message, '— trying ytdl...');
+        console.warn('[YT VIDEO] RapidAPI skipped/failed:', e1.message);
+        // Fallback to ytdl-core
         try {
           videoBuffer = await downloadVideoYtdl(videoUrl);
           console.log('[YT VIDEO] Downloaded via ytdl-core');
         } catch (e2) {
-          console.error('[YT VIDEO] Both methods failed:', e2.message);
+          console.error('[YT VIDEO] ytdl-core failed:', e2.message);
         }
       }
 
       if (!videoBuffer || videoBuffer.length < 1000) {
         await msg.react('❌');
-        return await msg.reply(`❌ *Video download ناکام!*\n\nدونوں methods fail ہوئے۔ RAPIDAPI_KEY set کریں یا دوبارہ try کریں۔\n\n${SYSTEM.SHORT_WATERMARK}`);
+        return await msg.reply(`❌ *Video download failed!*\n\nPlease try again or set RAPIDAPI_KEY for better results.\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
       let thumbnailBuffer = Buffer.from('');
