@@ -377,7 +377,7 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     if (fs.existsSync(voicePath)) {
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 5000));
       const voiceBuf = fs.readFileSync(voicePath);
       await conn.sendMessage(m.chat, {
         audio   : voiceBuf,
