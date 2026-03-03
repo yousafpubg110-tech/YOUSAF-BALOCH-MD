@@ -8,6 +8,11 @@
       "description": "🔑 Your Session ID — Get from YOUSAF-PAIRING-V1 | Bot by Muhammad Yousaf Baloch +923710636110",
       "required": false
     },
+    "DEPLOYER_NUMBER": {
+      "description": "📱 Your WhatsApp number WITHOUT + sign — Example: 923001234567 | This gives you Bot Admin access to .setting command | YOUSAF-BALOCH-MD",
+      "value": "",
+      "required": false
+    },
     "PREFIX": {
       "description": "🔧 Command prefix (default: .) | YOUSAF-BALOCH-MD",
       "value": ".",
