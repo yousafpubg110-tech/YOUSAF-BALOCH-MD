@@ -7,7 +7,7 @@
 
 import yts  from 'yt-search';
 import axios from 'axios';
-import { OWNER, SYSTEM, CONFIG } from '../config.js';
+import { OWNER, SYSTEM } from '../config.js';
 
 function formatNumber(num) {
   if (!num || isNaN(num)) return '0';
@@ -31,13 +31,12 @@ function extractVideoId(url) {
   } catch { return null; }
 }
 
-// METHOD 1: RapidAPI
+// METHOD 1: RapidAPI (only if key is set)
 async function downloadAudioRapidAPI(videoUrl) {
   const apiKey = process.env.RAPIDAPI_KEY;
-  if (!apiKey) throw new Error('RAPIDAPI_KEY not set');
+  if (!apiKey) throw new Error('RAPIDAPI_KEY not set — skipping');
 
   const videoId = extractVideoId(videoUrl) || videoUrl;
-
   const res = await axios.get('https://youtube-mp36.p.rapidapi.com/dl', {
     params : { id: videoId },
     headers: {
@@ -87,7 +86,7 @@ export default {
   handler: async ({ sock, msg, from, args }) => {
     try {
       if (!args || args.length === 0) {
-        return await msg.reply(`❌ *Search query یا YouTube URL دیں!*\n\n*مثال:*\n.yt Despacito\n.yt https://youtu.be/xxxxx\n\n${SYSTEM.SHORT_WATERMARK}`);
+        return await msg.reply(`❌ *Please provide a search query or YouTube URL!*\n\n*Examples:*\n.yt Despacito\n.yt https://youtu.be/xxxxx\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
       await msg.react('🔍');
@@ -104,12 +103,12 @@ export default {
         videoInfo = search;
       } else {
         const search = await yts(query);
-        if (!search.videos.length) { await msg.react('❌'); return await msg.reply('❌ کوئی نتیجہ نہیں ملا!'); }
+        if (!search.videos.length) { await msg.react('❌'); return await msg.reply('❌ No results found!'); }
         videoInfo = search.videos[0];
         videoUrl  = videoInfo.url;
       }
 
-      if (!videoInfo) { await msg.react('❌'); return await msg.reply('❌ Video info نہیں مل سکی!'); }
+      if (!videoInfo) { await msg.react('❌'); return await msg.reply('❌ Could not get video info!'); }
 
       const title    = videoInfo.title        || 'Unknown';
       const channel  = videoInfo.author?.name || 'Unknown';
@@ -129,28 +128,26 @@ export default {
 
       await msg.react('⬇️');
 
-      // Try METHOD 1 first, then METHOD 2
       let audioBuffer = null;
-      let usedMethod  = '';
 
+      // Try RapidAPI first (if key available)
       try {
         audioBuffer = await downloadAudioRapidAPI(videoUrl);
-        usedMethod  = 'RapidAPI';
         console.log('[YT AUDIO] Downloaded via RapidAPI');
       } catch (e1) {
-        console.warn('[YT AUDIO] RapidAPI failed:', e1.message, '— trying ytdl...');
+        console.warn('[YT AUDIO] RapidAPI skipped/failed:', e1.message);
+        // Fallback to ytdl-core
         try {
           audioBuffer = await downloadAudioYtdl(videoUrl);
-          usedMethod  = 'ytdl-core';
           console.log('[YT AUDIO] Downloaded via ytdl-core');
         } catch (e2) {
-          console.error('[YT AUDIO] Both methods failed:', e2.message);
+          console.error('[YT AUDIO] ytdl-core failed:', e2.message);
         }
       }
 
       if (!audioBuffer || audioBuffer.length < 1000) {
         await msg.react('❌');
-        return await msg.reply(`❌ *Audio download ناکام!*\n\nدونوں methods fail ہوئے۔ دوبارہ try کریں یا RAPIDAPI_KEY set کریں۔\n\n${SYSTEM.SHORT_WATERMARK}`);
+        return await msg.reply(`❌ *Audio download failed!*\n\nPlease try again or set RAPIDAPI_KEY for better results.\n\n${SYSTEM.SHORT_WATERMARK}`);
       }
 
       let thumbnailBuffer = Buffer.from('');
