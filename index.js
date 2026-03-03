@@ -178,10 +178,20 @@ function isGroupAdmin(groupMetadata, sender) {
 // Check if message was sent by the bot itself
 // Bot's own messages must never trigger antilink, kick, or any event plugin
 function isBotMessage(sock, rawMsg) {
-  if (rawMsg.key?.fromMe === true) return true;
+  // Only block messages that bot sent automatically (not fromMe typing)
+  // fromMe = true on GROUP messages means bot sent it
+  // fromMe = true on PRIVATE messages could be the user themselves
+  const from    = rawMsg.key?.remoteJid || '';
+  const isGroup = from.endsWith('@g.us');
+
+  // In groups: fromMe means bot sent it — block for event plugins
+  if (isGroup && rawMsg.key?.fromMe === true) return true;
+
+  // Match exact bot JID
   const botJid = sock.user?.id?.split(':')[0] + '@s.whatsapp.net';
-  const sender  = rawMsg.key?.participant || rawMsg.key?.remoteJid || '';
-  if (sender === botJid) return true;
+  const sender  = rawMsg.key?.participant || '';
+  if (isGroup && sender === botJid) return true;
+
   return false;
 }
 
