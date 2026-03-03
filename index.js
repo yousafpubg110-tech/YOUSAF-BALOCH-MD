@@ -6,22 +6,31 @@
  */
 
 import {
-  makeWASocket, DisconnectReason, useMultiFileAuthState,
-  fetchLatestBaileysVersion, Browsers, makeCacheableSignalKeyStore, proto,
+  makeWASocket,
+  DisconnectReason,
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
+  Browsers,
+  makeCacheableSignalKeyStore,
+  proto,
 } from '@whiskeysockets/baileys';
-import { Boom }        from '@hapi/boom';
-import pino            from 'pino';
-import chalk           from 'chalk';
-import figlet          from 'figlet';
-import gradient        from 'gradient-string';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join, dirname }   from 'path';
-import { fileURLToPath }   from 'url';
-import express             from 'express';
+import { Boom }                                        from '@hapi/boom';
+import pino                                            from 'pino';
+import chalk                                           from 'chalk';
+import figlet                                          from 'figlet';
+import gradient                                        from 'gradient-string';
+import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
+import { join, dirname }                               from 'path';
+import { fileURLToPath }                               from 'url';
+import { createRequire }                               from 'module';
+import express                                         from 'express';
 
 import {
-  OWNER, CONFIG, SYSTEM,
-  validateConfig, initDatabase,
+  OWNER,
+  CONFIG,
+  SYSTEM,
+  validateConfig,
+  initDatabase,
   isOwner as checkOwner,
 } from './config.js';
 
@@ -29,30 +38,76 @@ import { startCronJobs, registerCronGroup } from './lib/cron.js';
 import { runMiddleware }                    from './lib/middleware.js';
 import { serialize }                        from './lib/serialize.js';
 
-// FIX: Single unified plugin system
-import { loadPlugins, plugins, getPlugin }  from './lib/pluginLoader.js';
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const require   = createRequire(import.meta.url);
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-app.get('/', (_, res) => res.send('YOUSAF-BALOCH-MD is running! ✅'));
-app.listen(PORT, () => console.log(`✅ Express server on port ${PORT}`));
+app.get('/', (req, res) => res.send('YOUSAF-BALOCH-MD is running! ✅'));
+app.listen(PORT, () => console.log(`✅ Express server running on port ${PORT}`));
 
 const logger       = pino({ level: 'silent' });
 const messageCache = new Map();
+const plugins      = new Map();
 
+// Check deployer from env — safe fallback if not set
 function checkDeployer(sender) {
-  const raw = process.env.DEPLOYER_NUMBER || '';
-  if (!raw) return false;
-  const nums = raw.split(',').map(n => n.trim().replace(/[^0-9]/g, ''));
-  return nums.includes(sender?.replace(/[^0-9]/g, ''));
+  const deployerNum = process.env.DEPLOYER_NUMBER || '';
+  if (!deployerNum) return false;
+  return sender?.replace(/[^0-9]/g, '') === deployerNum.replace(/[^0-9]/g, '');
 }
 
 [SYSTEM.SESSION_DIR, SYSTEM.TEMP_DIR, SYSTEM.PLUGINS_DIR, SYSTEM.DB_DIR, SYSTEM.LOGS_DIR].forEach(dir => {
-  try { if (!existsSync(dir)) mkdirSync(dir, { recursive: true }); }
-  catch (err) { console.error(`Failed to create ${dir}: ${err.message}`); }
+  try { if (!existsSync(dir)) mkdirSync(dir, { recursive: true }); } catch (err) {
+    console.error(`Failed to create directory ${dir}: ${err.message}`);
+  }
 });
+
+async function loadPlugins() {
+  const pluginsDir = join(__dirname, SYSTEM.PLUGINS_DIR);
+  if (!existsSync(pluginsDir)) { LOG.warn('Plugins directory not found.'); return; }
+
+  let files;
+  try { files = readdirSync(pluginsDir).filter(f => f.endsWith('.js')); }
+  catch (err) { LOG.error('Failed to read plugins directory: ' + err.message); return; }
+
+  if (!files.length) { LOG.warn('No plugin files found.'); return; }
+
+  let loaded = 0, failed = 0;
+
+  for (const file of files) {
+    try {
+      const mod     = await import(`file://${join(pluginsDir, file)}`);
+      const handler = mod.default;
+
+      if (!handler) { failed++; continue; }
+
+      let commandNames = [];
+
+      if (handler.command instanceof RegExp) {
+        commandNames = handler.command.source
+          .replace('^(', '').replace(')$', '')
+          .split('|').map(c => c.trim().toLowerCase());
+      } else if (Array.isArray(handler.command)) {
+        commandNames = handler.command.map(c => c.toLowerCase());
+      } else if (typeof handler.command === 'string') {
+        commandNames = [handler.command.toLowerCase()];
+      } else if (Array.isArray(handler.help)) {
+        commandNames = handler.help.map(c => c.toLowerCase());
+      }
+
+      if (!commandNames.length) { failed++; continue; }
+
+      for (const name of commandNames) plugins.set(name, handler);
+      loaded++;
+    } catch (err) {
+      failed++;
+      LOG.error(`Failed to load plugin ${file}: ${err.message}`);
+    }
+  }
+
+  LOG.info(`Plugins: ${loaded} loaded, ${failed} failed. Total: ${plugins.size} commands`);
+}
 
 async function restoreSessionFromId(sessionPath) {
   if (!CONFIG.SESSION_ID) return false;
@@ -61,7 +116,7 @@ async function restoreSessionFromId(sessionPath) {
     if (existsSync(credsPath)) return true;
     const decoded = Buffer.from(CONFIG.SESSION_ID, 'base64').toString('utf-8');
     writeFileSync(credsPath, JSON.stringify(JSON.parse(decoded), null, 2));
-    LOG.success('Session restored!');
+    LOG.success('Session restored from SESSION_ID successfully!');
     return true;
   } catch (err) {
     LOG.warn('Could not restore session: ' + err.message);
@@ -76,16 +131,17 @@ function printBanner(dbType = 'json') {
   const gold    = gradient(['#FFD700', '#FFA500', '#FF8C00']);
   const neon    = gradient(['#39FF14', '#00FF7F', '#00FFFF']);
   const crimson = gradient(['#FF1744', '#FF6F00', '#FFD740']);
+
   console.log('\n');
   console.log(fire.multiline(figlet.textSync('YOUSAF-MD', { font: 'ANSI Shadow', horizontalLayout: 'full' })));
   const line = '═'.repeat(70);
   console.log('\n' + cyber(line));
   console.log(gold.multiline('  ⚡  YOUSAF-BALOCH-MD  |  Ultra-Premium WhatsApp Bot  |  v2.0.0  ⚡'));
   console.log(cyber(line) + '\n');
-  const label = t => chalk.hex('#00FFFF').bold(t);
-  const value = t => chalk.hex('#FFFFFF')(t);
-  const accent= t => chalk.hex('#FFD700').bold(t);
-  const green = t => chalk.hex('#39FF14').bold(t);
+  const label = (t) => chalk.hex('#00FFFF').bold(t);
+  const value = (t) => chalk.hex('#FFFFFF')(t);
+  const accent= (t) => chalk.hex('#FFD700').bold(t);
+  const green = (t) => chalk.hex('#39FF14').bold(t);
   console.log(label('  👑  OWNER     : ') + accent(OWNER.FULL_NAME));
   console.log(label('  📱  WHATSAPP  : ') + green('+' + OWNER.NUMBER));
   console.log(label('  🎵  TIKTOK    : ') + chalk.hex('#FF0050')(OWNER.TIKTOK));
@@ -99,15 +155,16 @@ function printBanner(dbType = 'json') {
   console.log(label('  🌐  MODE      : ') + (CONFIG.MODE === 'public' ? green('Public 🌍') : crimson('Private 🔒')));
   console.log(label('  🤖  APP NAME  : ') + value(CONFIG.APP_NAME));
   console.log(label('  🕐  TIMEZONE  : ') + value(CONFIG.TIMEZONE));
-  console.log(label('  🗄️  DATABASE   : ') + (dbType === 'mongodb' ? green('✅ MongoDB') : chalk.hex('#FFD700').bold('📁 JSON Local')));
+  console.log(label('  🗄️  DATABASE   : ') + (dbType === 'mongodb' ? green('✅ MongoDB Connected') : chalk.hex('#FFD700').bold('📁 JSON Local Database')));
   console.log(cyber(line) + '\n');
 }
 
 const LOG = {
-  success: m => console.log(chalk.hex('#39FF14').bold('  ✅  ') + chalk.hex('#FFFFFF')(m)),
-  error:   m => console.log(chalk.hex('#FF1744').bold('  ❌  ') + chalk.hex('#FF6B6B')(m)),
-  warn:    m => console.log(chalk.hex('#FFD700').bold('  ⚠️   ') + chalk.hex('#FFA500')(m)),
-  info:    m => console.log(chalk.hex('#00BFFF').bold('  ℹ️   ') + chalk.hex('#87CEEB')(m)),
+  success: (msg) => console.log(chalk.hex('#39FF14').bold('  ✅  ') + chalk.hex('#FFFFFF')(msg)),
+  error:   (msg) => console.log(chalk.hex('#FF1744').bold('  ❌  ') + chalk.hex('#FF6B6B')(msg)),
+  warn:    (msg) => console.log(chalk.hex('#FFD700').bold('  ⚠️   ') + chalk.hex('#FFA500')(msg)),
+  info:    (msg) => console.log(chalk.hex('#00BFFF').bold('  ℹ️   ') + chalk.hex('#87CEEB')(msg)),
+  event:   (msg) => console.log(chalk.hex('#BF00FF').bold('  ⚡  ') + chalk.hex('#DDA0DD')(msg)),
   msg:     (from, cmd) => console.log(
     chalk.hex('#00FF7F').bold('  💬  ') +
     chalk.hex('#00FFFF')('From: ') + chalk.hex('#FFD700').bold(from) +
@@ -123,52 +180,84 @@ function isGroupAdmin(groupMetadata, sender) {
   ) || false;
 }
 
+// Block bot's own non-command messages from triggering antilink/kick
+// Commands (prefix messages) are NEVER blocked — even if fromMe = true
 function isBotMessage(sock, rawMsg) {
-  const from = rawMsg.key?.remoteJid || '';
+  const from    = rawMsg.key?.remoteJid || '';
   const isGroup = from.endsWith('@g.us');
+
+  // Extract body
   const msgContent = rawMsg.message;
   const body =
-    msgContent?.conversation ||
+    msgContent?.conversation              ||
     msgContent?.extendedTextMessage?.text ||
-    msgContent?.imageMessage?.caption ||
-    msgContent?.videoMessage?.caption || '';
+    msgContent?.imageMessage?.caption     ||
+    msgContent?.videoMessage?.caption     ||
+    '';
+
+  // Commands must always pass through — never block prefix messages
   if (body.startsWith(CONFIG.PREFIX)) return false;
+
+  // Non-command group messages sent by bot — block for event plugins
   if (isGroup && rawMsg.key?.fromMe === true) return true;
+
+  // Match exact bot JID
   const botJid = sock.user?.id?.split(':')[0] + '@s.whatsapp.net';
-  const sender = rawMsg.key?.participant || '';
+  const sender  = rawMsg.key?.participant || '';
   if (isGroup && sender === botJid) return true;
+
   return false;
 }
 
+// Runs on every user message — bot non-command messages blocked before here
 async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata }) {
-  // FIX: plugins Map from pluginLoader — single source of truth
   for (const [, handler] of plugins) {
+
+    // Anti-link: warn 3 times then kick — bot links never affected
     if (typeof handler.autoDeleteLinks === 'function' && isGroup) {
       try {
+        const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
         await handler.autoDeleteLinks({
-          sock, msg: rawMsg, from, sender,
-          isAdmin: isGroupAdmin(groupMetadata, sender) || senderIsDeployer,
-          isOwner: senderIsOwner,
+          sock,
+          msg     : rawMsg,
+          from,
+          sender,
+          isAdmin : senderIsGroupAdmin || senderIsDeployer,
+          isOwner : senderIsOwner,
         });
       } catch (_) {}
     }
+
     if (typeof handler.autoDeleteBadWords === 'function' && isGroup) {
       try {
+        const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
         await handler.autoDeleteBadWords({
-          sock, msg: rawMsg, from, sender,
-          isAdmin: isGroupAdmin(groupMetadata, sender) || senderIsDeployer,
-          isOwner: senderIsOwner,
+          sock,
+          msg     : rawMsg,
+          from,
+          sender,
+          isAdmin : senderIsGroupAdmin || senderIsDeployer,
+          isOwner : senderIsOwner,
         });
       } catch (_) {}
     }
+
     if (typeof handler.autoViewOnce === 'function') {
-      try { await handler.autoViewOnce({ sock, msg: rawMsg, from, sender }); } catch (_) {}
+      try {
+        await handler.autoViewOnce({ sock, msg: rawMsg, from, sender });
+      } catch (_) {}
     }
+
     if (typeof handler.autoReact === 'function') {
-      try { await handler.autoReact({ sock, msg: rawMsg, from, sender }); } catch (_) {}
+      try {
+        await handler.autoReact({ sock, msg: rawMsg, from, sender });
+      } catch (_) {}
     }
+
     if (typeof handler.onMessage === 'function') {
-      try { await handler.onMessage({ sock, msg: rawMsg, from, sender, isOwner: senderIsOwner }); } catch (_) {}
+      try {
+        await handler.onMessage({ sock, msg: rawMsg, from, sender, isOwner: senderIsOwner });
+      } catch (_) {}
     }
   }
 }
@@ -176,19 +265,20 @@ async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOw
 async function startBot() {
   let dbType = 'json';
   try { dbType = await initDatabase(); }
-  catch (e) { LOG.warn('Database error: ' + e.message); }
+  catch (dbErr) { LOG.warn('Database init error: ' + dbErr.message); dbType = 'json'; }
 
   printBanner(dbType);
 
   const configErrors = validateConfig();
-  if (configErrors.length > 0) { configErrors.forEach(e => LOG.error(e)); process.exit(1); }
+  if (configErrors.length > 0) { configErrors.forEach(err => LOG.error(err)); process.exit(1); }
 
-  // FIX: Single loadPlugins call — pluginLoader is sole authority
+  if (dbType === 'mongodb') LOG.success('Database: MongoDB connected!');
+  else LOG.info('Database: Using local JSON database');
+
   await loadPlugins();
-  LOG.success(`Plugins loaded: ${plugins.size} commands`);
 
   const { version, isLatest } = await fetchLatestBaileysVersion();
-  LOG.info(`Baileys v${version.join('.')} | Latest: ${isLatest ? '✅' : '⚠️'}`);
+  LOG.info(`Baileys Version: v${version.join('.')} | Latest: ${isLatest ? '✅' : '⚠️'}`);
 
   const sessionPath = join(__dirname, SYSTEM.SESSION_DIR);
   if (!existsSync(sessionPath)) mkdirSync(sessionPath, { recursive: true });
@@ -197,16 +287,17 @@ async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
 
   const sock = makeWASocket({
-    version, logger,
+    version,
+    logger,
     printQRInTerminal: false,
     auth: {
       creds: state.creds,
-      keys: makeCacheableSignalKeyStore(state.keys, logger),
+      keys : makeCacheableSignalKeyStore(state.keys, logger),
     },
-    browser: Browsers.ubuntu('Chrome'),
-    markOnlineOnConnect: true,
+    browser                       : Browsers.ubuntu('Chrome'),
+    markOnlineOnConnect           : true,
     generateHighQualityLinkPreview: true,
-    syncFullHistory: false,
+    syncFullHistory               : false,
     getMessage: async (key) => {
       const cached = messageCache.get(`${key.remoteJid}_${key.id}`);
       return cached || proto.Message.fromObject({});
@@ -214,40 +305,51 @@ async function startBot() {
   });
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
-    if (connection === 'connecting') LOG.info('Connecting...');
+    if (connection === 'connecting') LOG.info('Connecting to WhatsApp...');
+
     if (connection === 'open') {
       LOG.divider();
-      LOG.success('YOUSAF-BALOCH-MD CONNECTED! 🚀');
-      LOG.success(`Logged in: ${sock.user?.name || sock.user?.id}`);
+      LOG.success('YOUSAF-BALOCH-MD CONNECTED SUCCESSFULLY! 🚀');
+      LOG.success(`Logged in as: ${sock.user?.name || sock.user?.id}`);
       LOG.divider();
+
       try { startCronJobs(sock); LOG.success('Cron jobs started!'); }
-      catch (e) { LOG.warn('Cron error: ' + e.message); }
+      catch (cronErr) { LOG.warn('Cron jobs failed: ' + cronErr.message); }
+
       try {
         await sock.sendMessage(OWNER.JID, { text:
 `╔══════════════════════════════════╗
 ║  ⚡ YOUSAF-BALOCH-MD ONLINE! ⚡  ║
 ╚══════════════════════════════════╝
 
-✅ *Bot Started!*
+✅ *Bot Started Successfully!*
 🤖 *Bot:* ${OWNER.BOT_NAME}
 👑 *Owner:* ${OWNER.FULL_NAME}
 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
-🗄️ *DB:* ${dbType === 'mongodb' ? 'MongoDB ✅' : 'JSON 📁'}
-🔌 *Plugins:* ${plugins.size} loaded
+🗄️ *Database:* ${dbType === 'mongodb' ? 'MongoDB ✅' : 'JSON Local 📁'}
 📅 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
+🔌 *Plugins:* ${plugins.size} commands loaded
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}*` });
-      } catch (_) {}
+🎵 ${OWNER.TIKTOK}
+🎬 ${OWNER.YOUTUBE}
+📢 ${OWNER.CHANNEL}
+💻 ${OWNER.GITHUB}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}* ⚡` });
+        LOG.success('Startup notification sent to owner!');
+      } catch (notifErr) { LOG.warn('Could not send startup notification: ' + notifErr.message); }
     }
+
     if (connection === 'close') {
       const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-      LOG.warn(`Closed. Reason: ${reason}`);
+      LOG.warn(`Connection closed. Reason: ${reason}`);
       if (reason !== DisconnectReason.loggedOut) {
-        LOG.info('Reconnecting in 5s...');
+        LOG.info('Reconnecting in 5 seconds...');
         setTimeout(startBot, 5000);
       } else {
-        LOG.error('Logged out. Generate new SESSION_ID.');
+        LOG.error('Session logged out. Please generate a new SESSION_ID.');
         process.exit(1);
       }
     }
@@ -256,7 +358,7 @@ async function startBot() {
   sock.ev.on('creds.update', saveCreds);
 
   sock.ev.on('groups.update', async (updates) => {
-    for (const u of updates) { if (u.id) registerCronGroup(u.id); }
+    for (const update of updates) { if (update.id) registerCronGroup(update.id); }
   });
 
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
@@ -268,7 +370,7 @@ async function startBot() {
         if (messageCache.size > 500) messageCache.delete(messageCache.keys().next().value);
       }
       try { await handleMessage(sock, msg); }
-      catch (err) { LOG.error(`Handler error: ${err.message}`); }
+      catch (err) { LOG.error(`Message handler error: ${err.message}`); }
     }
   });
 
@@ -280,6 +382,8 @@ async function handleMessage(sock, rawMsg) {
   const isGroup = from?.endsWith('@g.us');
   const sender  = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
 
+  // Block bot's own non-command messages only
+  // Commands always pass through regardless of fromMe
   if (isBotMessage(sock, rawMsg)) return;
 
   const senderIsOwner    = checkOwner(sender);
@@ -287,10 +391,11 @@ async function handleMessage(sock, rawMsg) {
 
   const msgContent = rawMsg.message;
   const body =
-    msgContent?.conversation ||
+    msgContent?.conversation              ||
     msgContent?.extendedTextMessage?.text ||
-    msgContent?.imageMessage?.caption ||
-    msgContent?.videoMessage?.caption || '';
+    msgContent?.imageMessage?.caption     ||
+    msgContent?.videoMessage?.caption     ||
+    '';
 
   if (CONFIG.MODE === 'private' && !senderIsOwner) return;
   if (isGroup) registerCronGroup(from);
@@ -299,7 +404,12 @@ async function handleMessage(sock, rawMsg) {
   try { if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null); } catch (_) {}
 
   await runEventPlugins(sock, rawMsg, {
-    from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata,
+    from,
+    sender,
+    isGroup,
+    senderIsOwner,
+    senderIsDeployer,
+    groupMetadata,
   });
 
   if (!body.startsWith(CONFIG.PREFIX)) return;
@@ -316,41 +426,50 @@ async function handleMessage(sock, rawMsg) {
   const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
 
   const pluginCtx = {
-    sock, msg: m,
-    from: m.from, sender: m.sender,
-    args, text: args.join(' '),
-    conn: sock, usedPrefix: CONFIG.PREFIX, command,
-    isOwner: senderIsOwner,
+    sock,
+    msg    : m,
+    from   : m.from,
+    sender : m.sender,
+    args,
+    text   : args.join(' '),
+    conn      : sock,
+    usedPrefix: CONFIG.PREFIX,
+    command,
+    isOwner   : senderIsOwner,
     isDeployer: senderIsDeployer,
-    isAdmin: senderIsGroupAdmin || senderIsDeployer,
+    isAdmin   : senderIsGroupAdmin || senderIsDeployer,
     isGroup,
-    key: m.key, chat: m.from, body: m.body,
-    type: m.type, quoted: m.quoted,
+    key    : m.key,
+    chat   : m.from,
+    body   : m.body,
+    type   : m.type,
+    quoted : m.quoted,
     message: rawMsg.message,
     isSelfSender: m.isSelfSender,
-    reply:    (...a) => m.reply(...a),
-    react:    (...a) => m.react(...a),
-    delete:   (...a) => m.delete?.(...a),
+    reply   : (...a) => m.reply(...a),
+    react   : (...a) => m.react(...a),
+    delete  : (...a) => m.delete?.(...a),
     download: (...a) => m.download?.(...a),
   };
 
   if (command === 'owner') { await cmdOwner(sock, from); return; }
   if (command === 'alive' || command === 'ping') { await cmdAlive(sock, from); return; }
 
-  // FIX: getPlugin() سے — single unified Map
-  const handler = getPlugin(command);
+  if (plugins.has(command)) {
+    const handler = plugins.get(command);
 
-  if (handler) {
     const mwResult = await runMiddleware({
-      sender, from, command,
-      cooldown:         handler.cooldown    || 3,
-      ownerOnly:        handler.ownerOnly   || handler.owner || false,
-      adminOnly:        handler.adminOnly   || false,
-      groupOnlyCmd:     handler.groupOnly   || false,
-      privateOnlyCmd:   handler.privateOnly || false,
+      sender,
+      from,
+      command,
+      cooldown        : handler.cooldown    || 3,
+      ownerOnly       : handler.ownerOnly   || handler.owner || false,
+      adminOnly       : handler.adminOnly   || false,
+      groupOnlyCmd    : handler.groupOnly   || false,
+      privateOnlyCmd  : handler.privateOnly || false,
       botAdminRequired: handler.botAdmin    || false,
       groupMetadata,
-      botId: sock.user?.id,
+      botId           : sock.user?.id,
     });
 
     if (!mwResult.pass) {
@@ -361,17 +480,12 @@ async function handleMessage(sock, rawMsg) {
     }
 
     try {
-      // FIX: handler / execute / run تینوں accept ہوتے ہیں
-      const handlerFn = handler.handler || handler.execute || handler.run
-        || (typeof handler === 'function' ? handler : null);
-
+      const handlerFn = handler.handler || handler.run || (typeof handler === 'function' ? handler : null);
       if (typeof handlerFn === 'function') {
         await handlerFn(pluginCtx, pluginCtx);
-      } else {
-        LOG.warn(`Plugin "${command}" has no handler/execute/run.`);
       }
     } catch (pluginErr) {
-      LOG.error(`Plugin [${command}]: ${pluginErr.message}`);
+      LOG.error(`Plugin error [${command}]: ${pluginErr.message}`);
       try {
         await sock.sendMessage(from, {
           text: `❌ Error in *${command}*\n_${pluginErr.message}_${SYSTEM.SHORT_WATERMARK}`,
@@ -386,42 +500,51 @@ async function cmdOwner(sock, from) {
 `╔══════════════════════════════════════╗
 ║     👑 BOT DEVELOPER INFO 👑         ║
 ╚══════════════════════════════════════╝
-🌟 *${OWNER.FULL_NAME}*
-📱 wa.me/${OWNER.NUMBER}
+
+🌟 *Developer: ${OWNER.FULL_NAME}*
+📱 *WhatsApp:* wa.me/${OWNER.NUMBER}
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-🎵 ${OWNER.TIKTOK}
-🎬 ${OWNER.YOUTUBE}
-📢 ${OWNER.CHANNEL}
-💻 ${OWNER.GITHUB}
+🎵 *TikTok:* ${OWNER.TIKTOK}
+🎬 *YouTube:* ${OWNER.YOUTUBE}
+📢 *Channel:* ${OWNER.CHANNEL}
+💻 *GitHub:* ${OWNER.GITHUB}
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ *${OWNER.BOT_NAME} v${OWNER.VERSION}*` });
+⚡ *${OWNER.BOT_NAME} v${OWNER.VERSION}*
+⚡ *Powered by ${OWNER.FULL_NAME} © ${OWNER.YEAR}*` });
 }
 
 async function cmdAlive(sock, from) {
-  const u = process.uptime();
-  const h = Math.floor(u / 3600);
-  const m = Math.floor((u % 3600) / 60);
-  const s = Math.floor(u % 60);
+  const uptime  = process.uptime();
+  const hours   = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
   await sock.sendMessage(from, { text:
 `╔══════════════════════════════════════╗
 ║   ⚡ ${OWNER.BOT_NAME} IS ALIVE! ⚡   ║
 ╚══════════════════════════════════════╝
-✅ *Online* 🟢
-⏱️ *Uptime:* ${h}h ${m}m ${s}s
+
+✅ *Status:* Online 🟢
+🤖 *Bot:* ${CONFIG.APP_NAME}
+👑 *Owner:* ${OWNER.FULL_NAME}
+⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
 🔧 *Prefix:* \`${CONFIG.PREFIX}\`
 🌐 *Mode:* ${CONFIG.MODE.toUpperCase()}
-🔌 *Plugins:* ${plugins.size}
+🔌 *Plugins:* ${plugins.size} commands
 🕐 *Time:* ${new Date().toLocaleString('en-PK', { timeZone: CONFIG.TIMEZONE })}
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ *${OWNER.FULL_NAME}*` });
+🎵 ${OWNER.TIKTOK}
+🎬 ${OWNER.YOUTUBE}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ *Powered by ${OWNER.FULL_NAME}*` });
 }
 
-process.on('uncaughtException',  e => LOG.error(`Uncaught: ${e.message}`));
-process.on('unhandledRejection', r => LOG.error(`Rejection: ${r}`));
-process.on('SIGTERM', () => { LOG.warn('SIGTERM'); process.exit(0); });
-process.on('SIGINT',  () => { LOG.warn('SIGINT');  process.exit(0); });
+process.on('uncaughtException',  (err)    => LOG.error(`Uncaught Exception: ${err.message}`));
+process.on('unhandledRejection', (reason) => LOG.error(`Unhandled Rejection: ${reason}`));
+process.on('SIGTERM', () => { LOG.warn('SIGTERM — shutting down...'); process.exit(0); });
+process.on('SIGINT',  () => { LOG.warn('SIGINT — shutting down...');  process.exit(0); });
 
-startBot().catch(err => {
-  LOG.error('Fatal: ' + err.message);
+startBot().catch((err) => {
+  LOG.error('Fatal startup error: ' + err.message);
   process.exit(1);
 });
