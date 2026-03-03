@@ -31,8 +31,7 @@ import {
   SYSTEM,
   validateConfig,
   initDatabase,
-  isOwner    as checkOwner,
-  isDeployer as checkDeployer,
+  isOwner as checkOwner,
 } from './config.js';
 
 import { startCronJobs, registerCronGroup } from './lib/cron.js';
@@ -50,6 +49,13 @@ app.listen(PORT, () => console.log(`✅ Express server running on port ${PORT}`)
 const logger       = pino({ level: 'silent' });
 const messageCache = new Map();
 const plugins      = new Map();
+
+// Check deployer from env — safe fallback if not set
+function checkDeployer(sender) {
+  const deployerNum = process.env.DEPLOYER_NUMBER || '';
+  if (!deployerNum) return false;
+  return sender?.replace(/[^0-9]/g, '') === deployerNum.replace(/[^0-9]/g, '');
+}
 
 [SYSTEM.SESSION_DIR, SYSTEM.TEMP_DIR, SYSTEM.PLUGINS_DIR, SYSTEM.DB_DIR, SYSTEM.LOGS_DIR].forEach(dir => {
   try { if (!existsSync(dir)) mkdirSync(dir, { recursive: true }); } catch (err) {
@@ -167,7 +173,6 @@ const LOG = {
   divider: () => console.log(chalk.hex('#333333')('  ' + '─'.repeat(68))),
 };
 
-// Check if sender is a group admin
 function isGroupAdmin(groupMetadata, sender) {
   if (!groupMetadata || !sender) return false;
   return groupMetadata.participants?.some(
@@ -175,35 +180,22 @@ function isGroupAdmin(groupMetadata, sender) {
   ) || false;
 }
 
-// Check if message was sent by the bot itself
-// Bot's own messages must never trigger antilink, kick, or any event plugin
+// Bot's own messages must never trigger antilink or any event plugin
 function isBotMessage(sock, rawMsg) {
-  // Only block messages that bot sent automatically (not fromMe typing)
-  // fromMe = true on GROUP messages means bot sent it
-  // fromMe = true on PRIVATE messages could be the user themselves
   const from    = rawMsg.key?.remoteJid || '';
   const isGroup = from.endsWith('@g.us');
-
-  // In groups: fromMe means bot sent it — block for event plugins
   if (isGroup && rawMsg.key?.fromMe === true) return true;
-
-  // Match exact bot JID
   const botJid = sock.user?.id?.split(':')[0] + '@s.whatsapp.net';
   const sender  = rawMsg.key?.participant || '';
   if (isGroup && sender === botJid) return true;
-
   return false;
 }
 
-// Run event-based plugin functions on every incoming user message
-// Bot messages are blocked before this function is ever called
-// 3-warning system is handled inside each plugin (e.g. antilink.js)
-// First offense = warning, third offense = kick
+// Runs on every user message — bot messages blocked before reaching here
 async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata }) {
   for (const [, handler] of plugins) {
 
-    // Anti-link: delete links sent by users, warn 3 times before kick
-    // Bot's own links (YouTube results, menu, etc.) are never affected
+    // Anti-link: warn 3 times, then kick — bot links never affected
     if (typeof handler.autoDeleteLinks === 'function' && isGroup) {
       try {
         const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
@@ -218,7 +210,6 @@ async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOw
       } catch (_) {}
     }
 
-    // Anti bad words
     if (typeof handler.autoDeleteBadWords === 'function' && isGroup) {
       try {
         const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
@@ -233,21 +224,18 @@ async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOw
       } catch (_) {}
     }
 
-    // Auto view once reveal
     if (typeof handler.autoViewOnce === 'function') {
       try {
         await handler.autoViewOnce({ sock, msg: rawMsg, from, sender });
       } catch (_) {}
     }
 
-    // Auto react
     if (typeof handler.autoReact === 'function') {
       try {
         await handler.autoReact({ sock, msg: rawMsg, from, sender });
       } catch (_) {}
     }
 
-    // Generic message event
     if (typeof handler.onMessage === 'function') {
       try {
         await handler.onMessage({ sock, msg: rawMsg, from, sender, isOwner: senderIsOwner });
@@ -376,11 +364,9 @@ async function handleMessage(sock, rawMsg) {
   const isGroup = from?.endsWith('@g.us');
   const sender  = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
 
-  // If this message was sent by the bot itself, ignore completely
-  // This prevents antilink from kicking users when bot sends YouTube/menu links
+  // Block bot's own messages — no antilink, no kick, nothing
   if (isBotMessage(sock, rawMsg)) return;
 
-  // Permission level checks
   const senderIsOwner    = checkOwner(sender);
   const senderIsDeployer = checkDeployer(sender);
 
@@ -395,12 +381,9 @@ async function handleMessage(sock, rawMsg) {
   if (CONFIG.MODE === 'private' && !senderIsOwner) return;
   if (isGroup) registerCronGroup(from);
 
-  // Fetch group metadata once — reused by event plugins and command handler
   let groupMetadata = null;
   try { if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null); } catch (_) {}
 
-  // Run event plugins on all user messages
-  // Bot messages never reach this point (blocked above)
   await runEventPlugins(sock, rawMsg, {
     from,
     sender,
@@ -410,7 +393,6 @@ async function handleMessage(sock, rawMsg) {
     groupMetadata,
   });
 
-  // Command handler — only runs for messages starting with prefix
   if (!body.startsWith(CONFIG.PREFIX)) return;
 
   const args    = body.slice(CONFIG.PREFIX.length).trim().split(/\s+/);
