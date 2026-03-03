@@ -31,7 +31,8 @@ import {
   SYSTEM,
   validateConfig,
   initDatabase,
-  isOwner as checkOwner,
+  isOwner    as checkOwner,
+  isDeployer as checkDeployer,
 } from './config.js';
 
 import { startCronJobs, registerCronGroup } from './lib/cron.js';
@@ -166,6 +167,75 @@ const LOG = {
   divider: () => console.log(chalk.hex('#333333')('  ' + '─'.repeat(68))),
 };
 
+// ═══════════════════════════════════════════════════════════════════
+// Check if sender is WhatsApp group admin
+// ═══════════════════════════════════════════════════════════════════
+function isGroupAdmin(groupMetadata, sender) {
+  if (!groupMetadata || !sender) return false;
+  return groupMetadata.participants?.some(
+    p => p.id === sender && (p.admin === 'admin' || p.admin === 'superadmin')
+  ) || false;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Run all event-based plugin functions (autoDeleteLinks, etc.)
+// These run on EVERY message — not just commands
+// ═══════════════════════════════════════════════════════════════════
+async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata }) {
+  for (const [, handler] of plugins) {
+    // autoDeleteLinks — anti-link system
+    if (typeof handler.autoDeleteLinks === 'function' && isGroup) {
+      try {
+        const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
+        await handler.autoDeleteLinks({
+          sock,
+          msg     : rawMsg,
+          from,
+          sender,
+          isAdmin : senderIsGroupAdmin || senderIsDeployer,
+          isOwner : senderIsOwner,
+        });
+      } catch (_) {}
+    }
+
+    // autoDeleteBadWords — anti-bad words system
+    if (typeof handler.autoDeleteBadWords === 'function' && isGroup) {
+      try {
+        const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
+        await handler.autoDeleteBadWords({
+          sock,
+          msg     : rawMsg,
+          from,
+          sender,
+          isAdmin : senderIsGroupAdmin || senderIsDeployer,
+          isOwner : senderIsOwner,
+        });
+      } catch (_) {}
+    }
+
+    // autoViewOnce — anti view once system
+    if (typeof handler.autoViewOnce === 'function') {
+      try {
+        await handler.autoViewOnce({ sock, msg: rawMsg, from, sender });
+      } catch (_) {}
+    }
+
+    // autoReact — auto react system
+    if (typeof handler.autoReact === 'function') {
+      try {
+        await handler.autoReact({ sock, msg: rawMsg, from, sender });
+      } catch (_) {}
+    }
+
+    // onMessage — generic event handler
+    if (typeof handler.onMessage === 'function') {
+      try {
+        await handler.onMessage({ sock, msg: rawMsg, from, sender, isOwner: senderIsOwner });
+      } catch (_) {}
+    }
+  }
+}
+
 async function startBot() {
   let dbType = 'json';
   try { dbType = await initDatabase(); }
@@ -285,7 +355,12 @@ async function handleMessage(sock, rawMsg) {
   const from    = rawMsg.key.remoteJid;
   const isGroup = from?.endsWith('@g.us');
   const sender  = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
-  const ownerCheck = checkOwner(sender);
+
+  // ═══════════════════════════════════════════════════════════════
+  // PERMISSION CHECKS — actual values, not hardcoded
+  // ═══════════════════════════════════════════════════════════════
+  const senderIsOwner    = checkOwner(sender);
+  const senderIsDeployer = checkDeployer(sender);
 
   const msgContent = rawMsg.message;
   const body =
@@ -295,8 +370,28 @@ async function handleMessage(sock, rawMsg) {
     msgContent?.videoMessage?.caption     ||
     '';
 
-  if (CONFIG.MODE === 'private' && !ownerCheck) return;
+  if (CONFIG.MODE === 'private' && !senderIsOwner) return;
   if (isGroup) registerCronGroup(from);
+
+  // Get group metadata once — used by both event plugins and command handler
+  let groupMetadata = null;
+  try { if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null); } catch (_) {}
+
+  // ═══════════════════════════════════════════════════════════════
+  // EVENT PLUGINS — run on every message (antilink, antivv, etc.)
+  // ═══════════════════════════════════════════════════════════════
+  await runEventPlugins(sock, rawMsg, {
+    from,
+    sender,
+    isGroup,
+    senderIsOwner,
+    senderIsDeployer,
+    groupMetadata,
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // COMMAND HANDLER — only runs if message starts with prefix
+  // ═══════════════════════════════════════════════════════════════
   if (!body.startsWith(CONFIG.PREFIX)) return;
 
   const args    = body.slice(CONFIG.PREFIX.length).trim().split(/\s+/);
@@ -308,25 +403,23 @@ async function handleMessage(sock, rawMsg) {
   const m = serialize(sock, rawMsg);
   if (!m) return;
 
+  const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
+
   const pluginCtx = {
-    // old format
     sock,
     msg    : m,
     from   : m.from,
     sender : m.sender,
     args,
     text   : args.join(' '),
-    // new format
     conn      : sock,
     usedPrefix: CONFIG.PREFIX,
     command,
-    // ✅ FIX: isOwner = true — middleware پہلے check کر چکا ہے
-    // اصل owner check middleware.js میں ہے
-    // plugin کے اندر کی check bypass کریں
-    isOwner   : true,
-    isAdmin   : true,
+    // FIXED: actual permission values
+    isOwner   : senderIsOwner,
+    isDeployer: senderIsDeployer,
+    isAdmin   : senderIsGroupAdmin || senderIsDeployer,
     isGroup,
-    // m properties
     key    : m.key,
     chat   : m.from,
     body   : m.body,
@@ -334,7 +427,6 @@ async function handleMessage(sock, rawMsg) {
     quoted : m.quoted,
     message: rawMsg.message,
     isSelfSender: m.isSelfSender,
-    // m methods
     reply   : (...a) => m.reply(...a),
     react   : (...a) => m.react(...a),
     delete  : (...a) => m.delete?.(...a),
@@ -346,9 +438,6 @@ async function handleMessage(sock, rawMsg) {
 
   if (plugins.has(command)) {
     const handler = plugins.get(command);
-
-    let groupMetadata = null;
-    try { if (isGroup) groupMetadata = await sock.groupMetadata(from).catch(() => null); } catch (_) {}
 
     const mwResult = await runMiddleware({
       sender,
