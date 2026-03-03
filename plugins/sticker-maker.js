@@ -12,29 +12,54 @@
  📢 Channel  : https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
 
-import { sticker }       from '../lib/sticker.js';
+// FIX: createSticker — lib/sticker.js میں function کا صحیح نام
+import { createSticker } from '../lib/sticker.js';
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
 import { OWNER, CONFIG } from '../config.js';
+import pino from 'pino';
 
-// ─── Constants — Owner info locked into every sticker ────────────────────────
-// These appear in WhatsApp when user long-presses any sticker
+const logger = pino({ level: 'silent' });
+
 const STICKER_PACK   = `${OWNER.BOT_NAME} | +${OWNER.NUMBER}`;
 const STICKER_AUTHOR = `${OWNER.FULL_NAME}`;
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_VIDEO_SECONDS = 10;
 
-// ─── Helper: Validate mime type ───────────────────────────────────────────────
-function isValidMime(mime) {
-  if (!mime || typeof mime !== 'string') return false;
-  return /^(image|video)\//i.test(mime);
+// FIX: mime صحیح طریقے سے نکالنا
+function getMime(msg) {
+  const m = msg?.message;
+  if (!m) return '';
+  return (
+    m?.imageMessage?.mimetype     ||
+    m?.videoMessage?.mimetype     ||
+    m?.stickerMessage?.mimetype   ||
+    m?.documentMessage?.mimetype  ||
+    ''
+  );
 }
 
-// ─── Helper: Check if mime is video ──────────────────────────────────────────
+function isValidMime(mime) {
+  if (!mime || typeof mime !== 'string') return false;
+  return /^(image|video)\//i.test(mime) || mime === 'image/webp';
+}
+
 function isVideo(mime) {
   return /^video\//i.test(mime);
 }
 
-// ─── Plugin Export ───────────────────────────────────────────────────────────
+// FIX: media download — downloadMediaMessage directly use کرنا
+async function downloadMedia(sock, rawMsg) {
+  try {
+    return await downloadMediaMessage(
+      rawMsg,
+      'buffer',
+      {},
+      { logger, reuploadRequest: sock.updateMediaMessage }
+    );
+  } catch (err) {
+    throw new Error('Media download failed: ' + err.message);
+  }
+}
+
 export default {
   command    : ['sticker', 's', 'stiker', 'stic'],
   name       : 'sticker',
@@ -46,15 +71,33 @@ export default {
   handler: async ({ sock, msg, from, sender }) => {
     try {
 
-      // ── React: processing ───────────────────────────────────────
       if (typeof msg.react === 'function') await msg.react('⏳');
 
-      // ── Get target media ────────────────────────────────────────
-      const target = msg.quoted || msg;
-      const mime   = target?.msg?.mimetype ||
-                     target?.mimetype       || '';
+      // FIX: quoted raw message یا direct message
+      const isQuoted   = !!msg.quoted;
+      const targetMsg  = isQuoted ? msg.quoted : msg;
 
-      // ── Validate media ──────────────────────────────────────────
+      // FIX: raw message object — serialize سے باہر کا original message
+      const rawTarget = isQuoted
+        ? {
+            key    : {
+              remoteJid  : msg.from,
+              id         : msg.quoted?.id,
+              participant: msg.quoted?.sender,
+            },
+            message: msg.quoted?.message,
+          }
+        : msg; // msg already has raw structure via serialize
+
+      // FIX: mime صحیح path سے نکالنا
+      const mime =
+        targetMsg?.message?.imageMessage?.mimetype    ||
+        targetMsg?.message?.videoMessage?.mimetype    ||
+        targetMsg?.message?.stickerMessage?.mimetype  ||
+        targetMsg?.mimetype                           ||
+        getMime(targetMsg)                            ||
+        '';
+
       if (!mime || !isValidMime(mime)) {
         if (typeof msg.react === 'function') await msg.react('❌');
         return await sock.sendMessage(from, {
@@ -62,58 +105,48 @@ export default {
         }, { quoted: msg });
       }
 
-      // ── Video length check ──────────────────────────────────────
       if (isVideo(mime)) {
-        const seconds = target?.msg?.seconds || target?.seconds || 0;
+        const seconds =
+          targetMsg?.message?.videoMessage?.seconds ||
+          targetMsg?.seconds || 0;
         if (seconds > MAX_VIDEO_SECONDS) {
           if (typeof msg.react === 'function') await msg.react('❌');
           return await sock.sendMessage(from, {
-            text: `❌ *Video too long!*\n\n⏱️ *Max Duration:* ${MAX_VIDEO_SECONDS} seconds\n📹 *Your Video:* ${seconds} seconds\n\n💡 *Tip:* Trim your video and try again.`,
+            text: `❌ *Video too long!*\n\n⏱️ *Max:* ${MAX_VIDEO_SECONDS}s\n📹 *Your video:* ${seconds}s\n\n💡 Trim and try again.`,
           }, { quoted: msg });
         }
       }
 
-      // ── Send processing message ─────────────────────────────────
       await sock.sendMessage(from, {
         text: `⏳ *Creating sticker...*\n\n🎨 *Pack:* ${STICKER_PACK}\n✍️ *Author:* ${STICKER_AUTHOR}`,
       }, { quoted: msg });
 
-      // ── Download media ──────────────────────────────────────────
-      let media;
-      try {
-        media = await target.download();
-      } catch (dlErr) {
-        throw new Error('Failed to download media: ' + dlErr.message);
-      }
+      // FIX: downloadMediaMessage سے download کرنا
+      const media = await downloadMedia(sock, rawTarget);
 
       if (!media || !Buffer.isBuffer(media)) {
-        throw new Error('Downloaded media is invalid or empty.');
+        throw new Error('Downloaded media is empty or invalid.');
       }
 
-      // ── Create sticker with locked owner metadata ───────────────
-      // Pack name & author permanently branded with owner info
-      const stickerBuffer = await sticker(
+      // FIX: createSticker — صحیح function name
+      const stickerBuffer = await createSticker(
         media,
-        false,
-        STICKER_PACK,    // YOUSAF-BALOCH-MD | +923710636110
-        STICKER_AUTHOR,  // Muhammad Yousaf Baloch
+        STICKER_PACK,
+        STICKER_AUTHOR,
       );
 
       if (!stickerBuffer) {
         throw new Error('Sticker creation returned empty result.');
       }
 
-      // ── Send sticker ────────────────────────────────────────────
       await sock.sendMessage(from, {
         sticker: stickerBuffer,
       }, { quoted: msg });
 
-      // ── Send info message ───────────────────────────────────────
       await sock.sendMessage(from, {
         text: `✅ *Sticker created!*\n\n🎨 *Pack:* ${STICKER_PACK}\n✍️ *Author:* ${STICKER_AUTHOR}\n\n_© ${OWNER.YEAR || new Date().getFullYear()} ${OWNER.BOT_NAME}_`,
       }, { quoted: msg });
 
-      // ── React: done ─────────────────────────────────────────────
       if (typeof msg.react === 'function') await msg.react('✅');
 
     } catch (error) {
@@ -121,10 +154,10 @@ export default {
       try {
         if (typeof msg.react === 'function') await msg.react('❌');
         if (typeof msg.reply === 'function') {
-          await msg.reply('❌ Sticker error: ' + error.message);
+          await msg.reply(`❌ Sticker error: ${error.message}`);
         } else {
           await sock.sendMessage(from, {
-            text: `❌ *Failed to create sticker!*\n\n⚠️ *Error:* ${error.message}`,
+            text: `❌ *Failed!*\n⚠️ *Error:* ${error.message}`,
           }, { quoted: msg });
         }
       } catch (_) {}
