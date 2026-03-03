@@ -11,7 +11,6 @@ import axios  from 'axios';
 import moment from 'moment-timezone';
 import { OWNER, CONFIG } from '../config.js';
 
-// Thumbnail URL — works on all platforms including Heroku
 const THUMB_URL = 'https://i.ibb.co/your-image-id/menu-thumb.png';
 
 function getTimeMode() {
@@ -23,23 +22,14 @@ function getTimeMode() {
 }
 
 async function getThumb() {
-  // Priority 1: local file
   try {
     const localPath = path.resolve('./assets/menu-thumb.png');
-    if (fs.existsSync(localPath)) {
-      return fs.readFileSync(localPath);
-    }
+    if (fs.existsSync(localPath)) return fs.readFileSync(localPath);
   } catch (_) {}
-
-  // Priority 2: URL download
   try {
-    const res = await axios.get(THUMB_URL, {
-      responseType: 'arraybuffer',
-      timeout: 8000,
-    });
+    const res = await axios.get(THUMB_URL, { responseType: 'arraybuffer', timeout: 8000 });
     return Buffer.from(res.data);
   } catch (_) {}
-
   return null;
 }
 
@@ -325,10 +315,9 @@ let handler = async (m, { conn, usedPrefix }) => {
 _✨ © 2025-2026 ${OWNER.BOT_NAME} ✨_
 _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
 
-  // Get thumbnail — local first, then URL
   const thumbBuf = await getThumb();
 
-  // Step 1: Menu with or without image
+  // Step 1: Image + menu
   if (thumbBuf) {
     try {
       await conn.sendMessage(m.chat, {
@@ -358,7 +347,7 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
   } else {
     try {
       await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-      console.log('[MENU] Text menu sent (no image available)');
+      console.log('[MENU] Text menu sent (no image)');
     } catch (e) {
       console.error('[MENU] Text failed:', e.message);
     }
@@ -384,10 +373,11 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
     console.error('[MENU] Channel button failed:', e.message);
   }
 
-  // Step 3: Voice note
+  // Step 3: Voice — 2 second delay to ensure menu arrives first
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     if (fs.existsSync(voicePath)) {
+      await new Promise(r => setTimeout(r, 2000));
       const voiceBuf = fs.readFileSync(voicePath);
       await conn.sendMessage(m.chat, {
         audio   : voiceBuf,
@@ -395,6 +385,8 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
         ptt     : true,
       }, { quoted: m });
       console.log('[MENU] Voice sent!');
+    } else {
+      console.log('[MENU] Voice file not found — skipping');
     }
   } catch (e) {
     console.error('[MENU] Voice failed:', e.message);
