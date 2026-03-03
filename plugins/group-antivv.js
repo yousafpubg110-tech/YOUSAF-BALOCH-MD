@@ -5,8 +5,11 @@
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 */
 
-import { OWNER, CONFIG } from '../config.js';
+import { OWNER } from '../config.js';
 import { downloadMediaMessage } from '@whiskeysockets/baileys';
+import pino from 'pino';
+
+const logger = pino({ level: 'silent' });
 
 function ownerFooter() {
   const year = OWNER.YEAR || new Date().getFullYear();
@@ -20,40 +23,31 @@ function ownerFooter() {
 _© ${year} ${OWNER.BOT_NAME}_`;
 }
 
-// Store auto-reveal status per group/chat
 const antivvEnabled = new Map();
 
-// Extract view-once message from quoted context
-function extractViewOnce(msg) {
-  const ctx = msg?.message?.extendedTextMessage?.contextInfo;
-  if (!ctx) return null;
-  const quoted = ctx.quotedMessage;
+// Check if quoted message is view-once using serialize's msg.quoted
+function getViewOnceFromQuoted(msg) {
+  const quoted = msg?.quoted;
   if (!quoted) return null;
-  return quoted?.viewOnceMessage?.message
-      || quoted?.viewOnceMessageV2?.message
-      || quoted?.viewOnceMessageV2Extension?.message
+
+  const qMsg = quoted.message;
+  if (!qMsg) return null;
+
+  return qMsg?.viewOnceMessage?.message
+      || qMsg?.viewOnceMessageV2?.message
+      || qMsg?.viewOnceMessageV2Extension?.message
       || null;
 }
 
-// Reveal view-once media and send it
-async function revealViewOnce(sock, msg, from, sender, viewOnceMsg) {
+async function revealMedia(sock, msg, from, sender, viewOnceMsg) {
   const senderNum = sender.split('@')[0];
   try {
-    const ctx = msg.message.extendedTextMessage.contextInfo;
-    const fakeMsg = {
-      key: {
-        remoteJid  : from,
-        id         : ctx.stanzaId,
-        participant: ctx.participant,
-      },
-      message: ctx.quotedMessage,
-    };
-
-    const buffer = await downloadMediaMessage(fakeMsg, 'buffer', {}, { logger: console });
+    const buffer = await msg.quoted.download();
 
     if (!buffer || buffer.length === 0) {
-      await sock.sendMessage(from, { text: `❌ Could not download media.\n\n${ownerFooter()}` }, { quoted: msg });
-      return;
+      return await sock.sendMessage(from, {
+        text: `❌ Could not download media.\n\n${ownerFooter()}`,
+      }, { quoted: msg });
     }
 
     const isImage = !!viewOnceMsg.imageMessage;
@@ -65,12 +59,15 @@ async function revealViewOnce(sock, msg, from, sender, viewOnceMsg) {
     } else if (isVideo) {
       await sock.sendMessage(from, { video: buffer, caption, mentions: [sender] }, { quoted: msg });
     } else {
-      await sock.sendMessage(from, { text: `❌ Unknown media type.\n\n${ownerFooter()}` }, { quoted: msg });
+      await sock.sendMessage(from, {
+        text: `❌ Unknown media type.\n\n${ownerFooter()}`,
+      }, { quoted: msg });
     }
-
   } catch (err) {
     console.error('[VV REVEAL ERROR]:', err.message);
-    await sock.sendMessage(from, { text: `❌ Reveal failed: ${err.message}\n\n${ownerFooter()}` }, { quoted: msg });
+    await sock.sendMessage(from, {
+      text: `❌ Reveal failed: ${err.message}\n\n${ownerFooter()}`,
+    }, { quoted: msg });
   }
 }
 
@@ -85,10 +82,9 @@ export default {
 
   handler: async ({ sock, msg, from, sender, text, args, isAdmin, isOwner }) => {
     try {
-      const input     = (text || args?.[0] || '').toLowerCase().trim();
-      const senderNum = sender.split('@')[0];
+      const input = (text || args?.[0] || '').toLowerCase().trim();
 
-      // ── CASE 1: Toggle ON ────────────────────────────────────
+      // Toggle ON
       if (input === 'on') {
         if (!isAdmin && !isOwner) {
           return await sock.sendMessage(from, {
@@ -104,7 +100,7 @@ export default {
         }, { quoted: msg });
       }
 
-      // ── CASE 2: Toggle OFF ───────────────────────────────────
+      // Toggle OFF
       if (input === 'off') {
         if (!isAdmin && !isOwner) {
           return await sock.sendMessage(from, {
@@ -119,26 +115,24 @@ export default {
         }, { quoted: msg });
       }
 
-      // ── CASE 3: Reply to a message with .vv ─────────────────
-      const viewOnceMsg = extractViewOnce(msg);
+      // Reply to view-once message — use msg.quoted from serialize
+      const viewOnceMsg = getViewOnceFromQuoted(msg);
 
       if (viewOnceMsg) {
-        // It's a reply to a view-once message — reveal it
         await sock.sendMessage(from, { react: { text: '👁️', key: msg.key } });
-        await revealViewOnce(sock, msg, from, sender, viewOnceMsg);
+        await revealMedia(sock, msg, from, sender, viewOnceMsg);
         await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
         return;
       }
 
-      // ── CASE 4: .vv with reply but NOT view-once ─────────────
-      const isReply = !!msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-      if (isReply) {
+      // Reply exists but not view-once
+      if (msg.quoted) {
         return await sock.sendMessage(from, {
-          text: `❌ *This is not a view-once message!*\n\nReply to a 👁️ view-once photo or video with .vv to reveal it.\n\n${ownerFooter()}`,
+          text: `❌ *This is not a view-once message!*\n\nReply to a 👁️ view-once photo or video.\n\n${ownerFooter()}`,
         }, { quoted: msg });
       }
 
-      // ── CASE 5: .vv alone — show status ─────────────────────
+      // No reply — show status
       const status = antivvEnabled.get(from) ? '✅ ON' : '❌ OFF';
       return await sock.sendMessage(from, {
         text: `╔══════════════════════════════════════╗\n`
@@ -161,7 +155,7 @@ export default {
     }
   },
 
-  // ── Auto-reveal — runs on every message via index.js ────────
+  // Auto-reveal on every message via index.js
   autoViewOnce: async ({ sock, msg, from, sender }) => {
     try {
       if (!antivvEnabled.get(from)) return;
@@ -177,7 +171,7 @@ export default {
       if (!viewOnceMsg) return;
 
       const senderNum = sender?.split('@')[0] || 'unknown';
-      const buffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: console });
+      const buffer    = await downloadMediaMessage(msg, 'buffer', {}, { logger });
 
       if (!buffer || buffer.length === 0) return;
 
@@ -190,8 +184,6 @@ export default {
       } else if (isVideo) {
         await sock.sendMessage(from, { video: buffer, caption, mentions: [sender] });
       }
-
-      console.log(`[ANTIVV] Auto-revealed view-once from ${senderNum}`);
     } catch (err) {
       console.error('[ANTIVV AUTO ERROR]:', err.message);
     }
