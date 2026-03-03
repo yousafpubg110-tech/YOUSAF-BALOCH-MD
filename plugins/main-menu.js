@@ -11,14 +11,12 @@ import axios  from 'axios';
 import moment from 'moment-timezone';
 import { OWNER, CONFIG } from '../config.js';
 
-const THUMB_URL = 'https://i.ibb.co/your-image-id/menu-thumb.png';
-
 function getTimeMode() {
   const hour = parseInt(moment.tz('Asia/Karachi').format('HH'));
-  if (hour >= 5  && hour < 12) return { label: '🌅 Morning',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna',  color: '🟡' };
-  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi',               color: '🔴' };
-  if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna',  color: '🟠' };
-  return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya',         color: '🔵' };
+  if (hour >= 5  && hour < 12) return { label: '🌅 Morning',   emoji: '🌅', mode: 'MORNING',   greet: 'Good Morning!',   dua: 'Allahumma bika asbahna wa bika amsayna'  };
+  if (hour >= 12 && hour < 16) return { label: '☀️ Afternoon', emoji: '☀️', mode: 'AFTERNOON', greet: 'Good Afternoon!', dua: 'Subhan Allahi wa bihamdihi'               };
+  if (hour >= 16 && hour < 20) return { label: '🌆 Evening',   emoji: '🌆', mode: 'EVENING',   greet: 'Good Evening!',   dua: 'Allahumma bika amsayna wa bika asbahna'  };
+  return                               { label: '🌙 Night',     emoji: '🌙', mode: 'NIGHT',     greet: 'Good Night!',     dua: 'Bismika Allahumma amutu wa ahya'         };
 }
 
 async function getThumb() {
@@ -26,15 +24,10 @@ async function getThumb() {
     const localPath = path.resolve('./assets/menu-thumb.png');
     if (fs.existsSync(localPath)) return fs.readFileSync(localPath);
   } catch (_) {}
-  try {
-    const res = await axios.get(THUMB_URL, { responseType: 'arraybuffer', timeout: 8000 });
-    return Buffer.from(res.data);
-  } catch (_) {}
   return null;
 }
 
 let handler = async (m, { conn, usedPrefix }) => {
-
   if (!m || !m.chat) return;
 
   const sender = m.sender || m.key?.participant || m.key?.remoteJid || '';
@@ -317,43 +310,28 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
 
   const thumbBuf = await getThumb();
 
-  // Step 1: Image + menu
+  // Step 1: Image only — no caption (caption limit fix)
   if (thumbBuf) {
     try {
       await conn.sendMessage(m.chat, {
         image  : thumbBuf,
-        caption: menu,
-        contextInfo: {
-          externalAdReply: {
-            title    : `🚀 ${OWNER.BOT_NAME}`,
-            body     : `📺 @Yousaf_Baloch_Tech`,
-            thumbnail: thumbBuf,
-            mediaType: 1,
-            mediaUrl : 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-            sourceUrl: 'https://www.youtube.com/@Yousaf_Baloch_Tech',
-          },
-        },
+        caption: `🚀 *${OWNER.BOT_NAME}* — Ultra Pro Max\n👑 *By MR YOUSAF BALOCH*\n\n⏳ Loading menu...`,
       }, { quoted: m });
-      console.log('[MENU] Image + menu sent!');
+      console.log('[MENU] Image sent!');
     } catch (e) {
       console.error('[MENU] Image failed:', e.message);
-      try {
-        await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-        console.log('[MENU] Text fallback sent!');
-      } catch (e2) {
-        console.error('[MENU] Text also failed:', e2.message);
-      }
-    }
-  } else {
-    try {
-      await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
-      console.log('[MENU] Text menu sent (no image)');
-    } catch (e) {
-      console.error('[MENU] Text failed:', e.message);
     }
   }
 
-  // Step 2: Channel button
+  // Step 2: Menu text — separate message (no caption limit)
+  try {
+    await conn.sendMessage(m.chat, { text: menu }, { quoted: m });
+    console.log('[MENU] Menu text sent!');
+  } catch (e) {
+    console.error('[MENU] Menu text failed:', e.message);
+  }
+
+  // Step 3: Channel button
   try {
     await conn.sendMessage(m.chat, {
       text: `📢 *Join ${OWNER.BOT_NAME} Official Channel!*\n_Updates, Support & New Features_\n\nhttps://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j`,
@@ -373,7 +351,7 @@ _⚡ Developed by ${OWNER.FULL_NAME} ⚡_`.trim();
     console.error('[MENU] Channel button failed:', e.message);
   }
 
-  // Step 3: Voice — 2 second delay to ensure menu arrives first
+  // Step 4: Voice — 5 second delay
   try {
     const voicePath = path.resolve('./assets/menu-voice.m4a');
     if (fs.existsSync(voicePath)) {
