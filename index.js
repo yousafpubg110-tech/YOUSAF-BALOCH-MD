@@ -180,22 +180,40 @@ function isGroupAdmin(groupMetadata, sender) {
   ) || false;
 }
 
-// Bot's own messages must never trigger antilink or any event plugin
+// Block bot's own non-command messages from triggering antilink/kick
+// Commands (prefix messages) are NEVER blocked — even if fromMe = true
 function isBotMessage(sock, rawMsg) {
   const from    = rawMsg.key?.remoteJid || '';
   const isGroup = from.endsWith('@g.us');
+
+  // Extract body
+  const msgContent = rawMsg.message;
+  const body =
+    msgContent?.conversation              ||
+    msgContent?.extendedTextMessage?.text ||
+    msgContent?.imageMessage?.caption     ||
+    msgContent?.videoMessage?.caption     ||
+    '';
+
+  // Commands must always pass through — never block prefix messages
+  if (body.startsWith(CONFIG.PREFIX)) return false;
+
+  // Non-command group messages sent by bot — block for event plugins
   if (isGroup && rawMsg.key?.fromMe === true) return true;
+
+  // Match exact bot JID
   const botJid = sock.user?.id?.split(':')[0] + '@s.whatsapp.net';
   const sender  = rawMsg.key?.participant || '';
   if (isGroup && sender === botJid) return true;
+
   return false;
 }
 
-// Runs on every user message — bot messages blocked before reaching here
+// Runs on every user message — bot non-command messages blocked before here
 async function runEventPlugins(sock, rawMsg, { from, sender, isGroup, senderIsOwner, senderIsDeployer, groupMetadata }) {
   for (const [, handler] of plugins) {
 
-    // Anti-link: warn 3 times, then kick — bot links never affected
+    // Anti-link: warn 3 times then kick — bot links never affected
     if (typeof handler.autoDeleteLinks === 'function' && isGroup) {
       try {
         const senderIsGroupAdmin = isGroupAdmin(groupMetadata, sender);
@@ -364,7 +382,8 @@ async function handleMessage(sock, rawMsg) {
   const isGroup = from?.endsWith('@g.us');
   const sender  = isGroup ? rawMsg.key.participant : rawMsg.key.remoteJid;
 
-  // Block bot's own messages — no antilink, no kick, nothing
+  // Block bot's own non-command messages only
+  // Commands always pass through regardless of fromMe
   if (isBotMessage(sock, rawMsg)) return;
 
   const senderIsOwner    = checkOwner(sender);
