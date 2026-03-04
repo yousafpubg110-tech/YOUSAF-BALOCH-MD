@@ -3,18 +3,13 @@
 ┃  YOUSAF-BALOCH-MD InShot Helper        ┃
 ┃        Created by MR YOUSAF BALOCH     ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-📱 WhatsApp: +923710636110
-📺 YouTube: https://www.youtube.com/@Yousaf_Baloch_Tech
-🎵 TikTok: https://tiktok.com/@loser_boy.110
-💻 GitHub: https://github.com/musakhanbaloch03-sad
-🤖 Bot Repo: https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-📢 Channel: https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
+ 📱 WhatsApp : +923710636110
+ 📺 YouTube  : https://www.youtube.com/@Yousaf_Baloch_Tech
+ 🎵 TikTok   : https://tiktok.com/@loser_boy.110
+ 💻 GitHub   : https://github.com/musakhanbaloch03-sad
+ 🤖 Bot Repo : https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
+ 📢 Channel  : https://whatsapp.com/channel/0029Vb3Uzps6buMH2RvGef0j
 */
-
-'use strict';
-
-// ── Sub-command content ──────────────────────────────────────────────────────
 
 const SECTIONS = {
 
@@ -47,7 +42,7 @@ const SECTIONS = {
   effects: `
 ╭━━━『 ✨ *INSHOT EFFECTS GUIDE* 』━━━╮
 
-*🎨 Trending Effects 2024:*
+*🎨 Trending Effects 2026:*
 ┌─────────────────────────────┐
 │ 🌟 Glitch       — Retro/Gaming look      │
 │ 📼 VHS          — Old film aesthetic     │
@@ -172,9 +167,9 @@ const SECTIONS = {
 • iOS — Apple App Store
 
 *🔗 Quick Commands:*
-• .inshot tips     — Pro editing tips
-• .inshot effects  — Effects guide
-• .inshot export   — Export settings
+• .inshot tips      — Pro editing tips
+• .inshot effects   — Effects guide
+• .inshot export    — Export settings
 • .inshot shortcuts — Hidden tricks
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯
@@ -186,25 +181,21 @@ _Powered by YOUSAF-BALOCH-MD_
 🎵 https://tiktok.com/@loser_boy.110`.trim()
 };
 
-// ── Plugin export ────────────────────────────────────────────────────────────
-
-module.exports = {
-  name: 'inshot',
-  aliases: ['inshotpro', 'inshothelp', 'inshottips', 'videoeditor'],
-  category: 'tools',
+// FIX: module.exports + execute → export default + handler (ES Module)
+export default {
+  command    : ['inshot', 'inshotpro', 'inshothelp', 'inshottips', 'videoeditor'],
+  name       : 'inshot',
+  category   : 'Tools',
   description: 'InShot video editor guide — tips, effects, export settings & shortcuts',
-  usage: '.inshot | .inshot tips | .inshot effects | .inshot export | .inshot shortcuts',
-  cooldown: 3000,
+  usage      : '.inshot | .inshot tips | .inshot effects | .inshot export | .inshot shortcuts',
+  cooldown   : 3,
 
-  async execute(sock, msg, args) {
+  handler: async ({ sock, msg, from, args }) => {
     try {
-      const jid = msg.key.remoteJid;
-      const sub = (args[0] || '').toLowerCase().trim();
 
-      await sock.sendMessage(jid, {
-        react: { text: '🎥', key: msg.key }
-      });
+      await sock.sendMessage(from, { react: { text: '🎥', key: msg.key } });
 
+      const sub = (args?.[0] || '').toLowerCase().trim();
       let content = '';
 
       switch (sub) {
@@ -212,47 +203,35 @@ module.exports = {
         case 'tip':
           content = SECTIONS.tips;
           break;
-
         case 'effects':
         case 'effect':
         case 'fx':
           content = SECTIONS.effects;
           break;
-
         case 'export':
         case 'settings':
         case 'quality':
           content = SECTIONS.export;
           break;
-
         case 'shortcuts':
         case 'tricks':
         case 'hidden':
           content = SECTIONS.shortcuts;
           break;
-
         default:
           content = SECTIONS.main;
           break;
       }
 
-      await sock.sendMessage(jid, {
-        text: content
-      }, { quoted: msg });
-
-      await sock.sendMessage(jid, {
-        react: { text: '✅', key: msg.key }
-      });
+      await sock.sendMessage(from, { text: content }, { quoted: msg });
+      await sock.sendMessage(from, { react: { text: '✅', key: msg.key } });
 
     } catch (error) {
       console.error('[INSHOT ERROR]', error);
-      const jid = msg.key.remoteJid;
-      await sock.sendMessage(jid, {
-        react: { text: '❌', key: msg.key }
-      });
-      await sock.sendMessage(jid, {
-        text: `❌ Error: ${error.message}`
-      }, { quoted: msg });
+      try {
+        await sock.sendMessage(from, { react: { text: '❌', key: msg.key } });
+        await sock.sendMessage(from, { text: `❌ Error: ${error.message}` }, { quoted: msg });
+      } catch (_) {}
     }
-  }
+  },
 };
