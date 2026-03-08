@@ -195,7 +195,11 @@
 
 <br><br>
 
+
+
 ![Developer Name Animation](https://readme-typing-svg.demolab.com?font=Orbitron&size=28&duration=800&pause=300&color=FF0080&background=00000000&center=true&vCenter=true&repeat=true&width=900&lines=👨‍💻+MUHAMMAD+YOUSAF+BALOCH;🚀+PREMIUM+BOT+DEVELOPER;⚡+WHATSAPP+AUTOMATION+EXPERT;💎+YOUSAF-BALOCH-MD+CREATOR;🔥+PROFESSIONAL+CODER;🌈+MUHAMMAD+YOUSAF+BALOCH+🌈)
+
+
 
 <br><br>
 
