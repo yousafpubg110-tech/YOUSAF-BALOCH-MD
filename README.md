@@ -185,15 +185,11 @@
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=130&text=👑%20MUHAMMAD%20YOUSAF%20BALOCH%20👑&fontSize=40&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
+<img src="assets/banner.jpg" width="100%" style="border-top: 6px solid #FFD700; border-bottom: 6px solid #FF00FF; display: block;"/>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:9B00FF,16:FF00FF,33:00FFFF,50:00FF00,66:FFD700,83:FF6600,100:FF0080&height=130&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=40&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
 <br>
-
-<img src="assets/banner.jpg" width="220" style="border-radius: 50%; border: 8px solid #FFD700; box-shadow: 0 0 60px #FFD700, 0 0 120px #FF00FF, 0 0 180px #00FFFF;"/>
-
-<br>
-
-<img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="180" style="border-radius: 50%; border: 5px solid #FFD700; box-shadow: 0 0 40px #FFD700;"/>
-
-<br><br>
 
 
 
