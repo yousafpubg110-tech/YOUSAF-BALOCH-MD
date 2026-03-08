@@ -2,6 +2,8 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF0080,25:FFD700,50:00FFFF,75:FF00FF,100:00FF00&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=65&animation=twinkling&fontColor=FFFFFF&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=22&descAlignY=55&descAlign=50" width="100%"/>
 
+<img src="assets/banner.jpg" width="100%" style="border-top: 6px solid #FFD700; border-bottom: 6px solid #FF00FF; display: block;"/>
+
 <br>
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,16:FFD700,33:FF6600,50:00FF00,66:00FFFF,83:FF00FF,100:9B00FF&height=10&section=header" width="100%"/>
@@ -184,10 +186,6 @@
 <br>
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=130&text=👑%20MUHAMMAD%20YOUSAF%20BALOCH%20👑&fontSize=40&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
-
-<img src="assets/banner.jpg" width="100%" style="border-top: 6px solid #FFD700; border-bottom: 6px solid #FF00FF; display: block;"/>
-
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:9B00FF,16:FF00FF,33:00FFFF,50:00FF00,66:FFD700,83:FF6600,100:FF0080&height=130&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=40&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
