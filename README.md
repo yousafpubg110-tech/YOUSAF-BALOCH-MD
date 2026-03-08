@@ -1,19 +1,22 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=65&animation=twinkling&fontColor=FFD700&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=22&descAlignY=55&descAlign=50" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF0080,25:FFD700,50:00FFFF,75:FF00FF,100:00FF00&height=400&section=header&text=YOUSAF-BALOCH-MD&fontSize=65&animation=twinkling&fontColor=FFFFFF&fontAlignY=35&desc=PREMIUM%20MULTI-DEVICE%20WHATSAPP%20BOT%20🚀&descSize=22&descAlignY=55&descAlign=50" width="100%"/>
 
 <br>
 
-<div style="background: linear-gradient(135deg, #0000FF, #0033FF); padding: 25px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 0 50px #FFD700, 0 0 100px #00FFFF;">
-  <h1 style="background: linear-gradient(90deg, #FFD700, #FF00FF, #00FFFF, #00FF00, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 55px; font-weight: 900; letter-spacing: 4px; margin: 0;">
-    ⚡ YOUSAF-BALOCH-MD ⚡
-  </h1>
-</div>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,16:FFD700,33:FF6600,50:00FF00,66:00FFFF,83:FF00FF,100:9B00FF&height=10&section=header" width="100%"/>
 
 <br>
 
-<!-- ✅ FIX: Changed type=slice to type=rect for full width visibility -->
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=120&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=50&fontColor=FFD700&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=45&duration=800&pause=300&color=FFD700&background=00000000&center=true&vCenter=true&repeat=true&width=900&lines=⚡+YOUSAF-BALOCH-MD+⚡;🔥+YOUSAF+BALOCH+🔥;💎+YOUSAF-BALOCH-MD+💎;✨+YOUSAF+BALOCH+✨" />
+
+<br>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=130&text=⚡%20YOUSAF-BALOCH-MD%20⚡&fontSize=52&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
+<br>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,16:FFD700,33:FF6600,50:00FF00,66:00FFFF,83:FF00FF,100:9B00FF&height=10&section=header" width="100%"/>
 
 <br>
 
@@ -38,7 +41,7 @@
 
 <br>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=24&height=100&text=💎%20POWERED%20BY%20MR%20YOUSAF%20BALOCH%20💎&fontSize=30&fontColor=FFFFFF&animation=fadeIn&fontAlign=50&fontAlignY=50" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,16:FFD700,33:FF6600,50:00FF00,66:00FFFF,83:FF00FF,100:9B00FF&height=130&text=💎%20POWERED%20BY%20MR%20YOUSAF%20BALOCH%20💎&fontSize=32&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
@@ -50,11 +53,11 @@
 
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
-<h3>
-  <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="30"/>
-  Created By Muhammad Yousaf Baloch
-  <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="30"/>
-</h3>
+<br>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=100&text=🌟%20Created%20By%20Muhammad%20Yousaf%20Baloch%20🌟&fontSize=30&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
+<br>
 
 <p align="center">
   <a href="https://github.com/musakhanbaloch03-sad">
@@ -160,7 +163,6 @@
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
-<!-- ✅ FIX: Changed 280+ to 500+ -->
 <h2>
   <img src="https://user-images.githubusercontent.com/74038190/212257454-16e3712e-945a-4ca2-b238-408ad0bf87e6.gif" width="35"/>
   📈 500+ PREMIUM COMMANDS AVAILABLE! 📈
@@ -177,7 +179,11 @@
 
 <div align="center">
 
-## <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/> DEVELOPER - MUHAMMAD YOUSAF BALOCH <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/>
+## <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/> DEVELOPER <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="50"/>
+
+<br>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=130&text=👑%20MUHAMMAD%20YOUSAF%20BALOCH%20👑&fontSize=40&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
@@ -185,8 +191,7 @@
 
 <br><br>
 
-<!-- ✅ FIX: Developer Name Animation - using direct img tag with proper alt -->
-![Developer Name Animation](https://readme-typing-svg.demolab.com?font=Orbitron&size=28&duration=1500&pause=500&color=FFD700&background=0A1F4400&center=true&vCenter=true&repeat=true&width=700&lines=👨‍💻+MUHAMMAD+YOUSAF+BALOCH;🚀+PREMIUM+BOT+DEVELOPER;⚡+WHATSAPP+AUTOMATION+EXPERT;💎+YOUSAF-BALOCH-MD+CREATOR;🔥+PROFESSIONAL+CODER)
+![Developer Name Animation](https://readme-typing-svg.demolab.com?font=Orbitron&size=28&duration=800&pause=300&color=FF0080&background=00000000&center=true&vCenter=true&repeat=true&width=900&lines=👨‍💻+MUHAMMAD+YOUSAF+BALOCH;🚀+PREMIUM+BOT+DEVELOPER;⚡+WHATSAPP+AUTOMATION+EXPERT;💎+YOUSAF-BALOCH-MD+CREATOR;🔥+PROFESSIONAL+CODER;🌈+MUHAMMAD+YOUSAF+BALOCH+🌈)
 
 <br><br>
 
@@ -395,124 +400,15 @@
 
 <br>
 
-<table align="center">
-  <tr>
-    <td align="center" width="300">
-      <img src="https://user-images.githubusercontent.com/74038190/235294011-b8074c31-9097-4a65-a594-4151b58743a8.gif" width="80">
-      <br><br>
-      <h3>🛡️ 100% Safe & Secure</h3>
-      <p>No Ban Guarantee - Tested on 1000+ Accounts</p>
-    </td>
-    <td align="center" width="300">
-      <img src="https://user-images.githubusercontent.com/74038190/235294012-0a55e343-37ad-4b0f-924f-c8431d9d2483.gif" width="80">
-      <br><br>
-      <h3>⚡ Lightning Fast</h3>
-      <p>Optimized Code - Instant Response Time</p>
-    </td>
-    <td align="center" width="300">
-      <img src="https://user-images.githubusercontent.com/74038190/235294015-47a9e1ff-d4e4-447c-9a3e-c179e3b7a917.gif" width="80">
-      <br><br>
-      <h3>🔄 Regular Updates</h3>
-      <p>New Features Added Weekly</p>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="https://user-images.githubusercontent.com/74038190/235294019-40007353-6219-4ec5-b661-b3c35136dd0b.gif" width="80">
-      <br><br>
-      <h3>💬 24/7 Support</h3>
-      <p>Active Developer Support on WhatsApp</p>
-    </td>
-    <td align="center">
-      <img src="https://user-images.githubusercontent.com/74038190/235294010-ec412ef5-e3da-4efa-b1d4-0ab4d4638755.gif" width="80">
-      <br><br>
-      <h3>🎯 Easy to Use</h3>
-      <p>Simple Setup - No Coding Knowledge Required</p>
-    </td>
-    <td align="center">
-      <img src="https://user-images.githubusercontent.com/74038190/235294016-6556559a-ed58-4ca6-a4c9-c307cbe0b6b7.gif" width="80">
-      <br><br>
-      <h3>🌐 Multi-Device</h3>
-      <p>Works on Android, iOS, Windows, Mac, Linux</p>
-    </td>
-  </tr>
-</table>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=100&text=⭐%20Star%20YOUSAF-BALOCH-MD%20On%20GitHub%20⭐&fontSize=32&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
-</div>
-
----
-
-<div align="center">
-
-## <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/> INSTALLATION GUIDE <img src="https://user-images.githubusercontent.com/74038190/212257460-738ff738-247f-4445-a718-cdd0ca76e2db.gif" width="50"/>
-
-</div>
-
-### 📱 METHOD 1: TERMUX (Android)
-
-```bash
-# Update and Install Dependencies
-pkg update && pkg upgrade -y
-pkg install git nodejs ffmpeg -y
-
-# Clone Repository
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-cd YOUSAF-BALOCH-MD
-
-# Install Modules
-npm install
-
-# Start Bot
-npm start
-```
-
-### 💻 METHOD 2: VPS/RDP (Linux/Windows)
-
-```bash
-# Install Node.js and Git
-apt update && apt install nodejs git ffmpeg -y
-
-# Clone and Setup
-git clone https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD
-cd YOUSAF-BALOCH-MD
-npm install
-
-# Run with PM2 (recommended)
-npm install -g pm2
-pm2 start index.js --name YOUSAF-BALOCH-MD
-pm2 save
-```
-
-### ☁️ METHOD 3: CLOUD HOSTING (Recommended)
-
-Click on any deploy button above ⬆️ for instant deployment!
-
-<div align="center">
-
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-
-</div>
-
----
-
-<div align="center">
-
-## <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/> SUPPORT & CONTRIBUTION <img src="https://user-images.githubusercontent.com/74038190/212257472-08e52665-c503-4bd9-aa20-f5a4dae769b5.gif" width="50"/>
-
 <table align="center">
   <tr>
     <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/issues">
-        <img src="https://img.shields.io/badge/REPORT_BUG-FF0000?style=for-the-badge&logo=github&logoColor=white" height="50"/>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD/fork">
-        <img src="https://img.shields.io/badge/FORK_REPO-00FF00?style=for-the-badge&logo=github&logoColor=white" height="50"/>
+      <a href="https://github.com/musakhanbaloch03-sad/YOUSAF-BALOCH-MD">
+        <img src="https://img.shields.io/badge/FORK_NOW-FF00FF?style=for-the-badge&logo=github&logoColor=white" height="50"/>
       </a>
     </td>
     <td align="center">
@@ -549,6 +445,10 @@ Feel free to use, modify, and distribute this bot!
 
 <h3>👨‍💻 Special Credits:</h3>
 
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=100&text=🏆%20Lead%20Developer%3A%20Muhammad%20Yousaf%20Baloch%20🏆&fontSize=28&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
+<br>
+
 <table align="center">
   <tr>
     <td align="center">
@@ -570,39 +470,28 @@ Feel free to use, modify, and distribute this bot!
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
-<!-- ✅ FIX: Bismillah banner - type=rect for full width -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=120&text=🕌%20بِسْمِ%20اللَّهِ%20الرَّحْمَٰنِ%20الرَّحِيمِ%20🕌&fontSize=35&fontColor=FFD700&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="600">
 
-<!-- ✅ FIX: Allah is Great - type=rect + darker gradient so WHITE text is fully visible -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=1,2,3,4,5,6&height=120&text=✨%20ALLAH%20IS%20GREAT%20✨&fontSize=48&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
-<!-- ✅ FIX: I Love Prophet Muhammad - type=rect + dark green gradient so text fully visible -->
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:006400,50:008000,100:006400&height=120&text=💚%20I%20LOVE%20PROPHET%20MUHAMMAD%20(ﷺ)%20💚&fontSize=36&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
 
 <br>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
-<div style="background: linear-gradient(135deg, #FFD700, #FF00FF, #00FFFF, #00FF00); padding: 30px; border-radius: 20px; border: 5px solid #FFFFFF; box-shadow: 0 0 60px rgba(255,215,0,0.9); margin: 20px;">
-  <h2 style="color: #000000; font-size: 40px; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 15px #FFFFFF;">
-    ⚡ POWERED BY MR YOUSAF BALOCH © 2026 ⚡
-  </h2>
-</div>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF0080,14:FF6600,28:FFD700,42:00FF00,57:00FFFF,71:0066FF,85:FF00FF,100:9B00FF&height=140&text=⚡%20POWERED%20BY%20MR%20YOUSAF%20BALOCH%20©%202026%20⚡&fontSize=36&fontColor=FFFFFF&animation=twinkling&fontAlign=50&fontAlignY=50" width="100%"/>
+
+<br>
 
 <img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="500">
 
-<p style="color: #00FFFF; font-size: 24px; font-weight: bold;">
-🌟 Made with ❤️ by Muhammad Yousaf Baloch 🌟
-</p>
-
-<p style="color: #FFD700; font-size: 22px; font-weight: bold;">
-Follow for more amazing projects!
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=22&duration=800&pause=200&color=FF0080&background=00000000&center=true&vCenter=true&repeat=true&width=900&lines=🌟+Made+with+❤️+by+Muhammad+Yousaf+Baloch+🌟;⚡+YOUSAF-BALOCH-MD+⚡+Follow+for+more+amazing+projects!;💎+Muhammad+Yousaf+Baloch+💎+Full+Stack+Developer+Pakistan" />
 
 </div>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0000FF,50:0033FF,100:0000FF&height=150&section=footer" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF0080,25:FFD700,50:00FFFF,75:FF00FF,100:00FF00&height=150&section=footer" width="100%"/>
