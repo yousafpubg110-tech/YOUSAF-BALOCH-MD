@@ -187,6 +187,10 @@
 
 <br>
 
+<img src="assets/banner.jpg" width="220" style="border-radius: 50%; border: 8px solid #FFD700; box-shadow: 0 0 60px #FFD700, 0 0 120px #FF00FF, 0 0 180px #00FFFF;"/>
+
+<br>
+
 <img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="180" style="border-radius: 50%; border: 5px solid #FFD700; box-shadow: 0 0 40px #FFD700;"/>
 
 <br><br>
